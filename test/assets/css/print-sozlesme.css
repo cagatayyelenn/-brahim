@@ -1,0 +1,46 @@
+/* ==== GENEL (ekranda da çalışsın) ==== */
+.invoice-modal .popup-title h2 { margin: 0; }
+.invoice-meta .row > div { margin-bottom: .5rem; }
+.table-invoice th, .table-invoice td { padding: .5rem .75rem; }
+
+/* " | " aralarına boşluk için */
+.sep { margin: 0 .4rem; }
+
+/* ==== SADECE YAZDIR ==== */
+@media print {
+
+    /* Modalı sayfa akışına al, genişlet, taşmaları aç */
+    body.modal-open { overflow: visible !important; }
+    .modal-backdrop { display: none !important; }
+    #view_invoice.modal    { position: static !important; overflow: visible !important; }
+    #view_invoice .modal-dialog {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        transform: none !important;
+    }
+    #view_invoice .modal-content {
+        border: 0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+    }
+
+    /* Akordeonlar kapalı kalmasın */
+    #view_invoice .collapse {
+        display: block !important;
+        height: auto !important;
+        visibility: visible !important;
+    }
+
+    /* Tablolar kesilmesin */
+    table { page-break-inside: auto; }
+    tr    { page-break-inside: avoid; page-break-after: auto; }
+    thead { display: table-header-group; }
+    tfoot { display: table-footer-group; }
+
+    /* Renkleri koru */
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    /* Yazdır butonlarını gizle */
+    .d-print-none { display: none !important; }
+}

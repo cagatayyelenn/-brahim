@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <title>Öğrenci Kayıt Sözleşmesi — PSozlesmeNo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        :root{
+            --fg:#111; --muted:#666; --line:#ddd;
+            --fs-xxs:15px; --fs-xs:15px; --fs-s:15px; --fs:15px; --fs-l:16px;
+        }
+
+        @page {
+            size: A4;
+            /* üst–alt 15 mm, sağ–sol 18 mm boşluk */
+            margin-top: 15mm;
+            margin-bottom: 15mm;
+            margin-left: 18mm;
+            margin-right: 18mm;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;color:var(--fg);font:400 var(--fs)/1.45 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial}
+
+        /* SAYFA YAPISI */
+        .page{
+            width:210mm; min-height:297mm; margin:0 auto;
+            padding:15mm 15mm 14mm; border:1px solid var(--line);
+            display:flex; flex-direction:column;
+        }
+        .sheet{max-width:800px; margin:0 auto; width:100%}
+        .spacer{flex:1 1 auto}
+
+        /* ÜST BANT */
+        .head{display:grid;grid-template-columns:120px 1fr 120px;align-items:center;gap:10px}
+        .head .brand{text-align:center}
+        .head img{max-height:64px;max-width:100%;object-fit:contain}
+        h1{margin:6px 0 2px;font-size:18px;letter-spacing:.3px}
+        .brand small{color:var(--muted);font-size:var(--fs-xs)}
+
+        /* BLOKLAR */
+        .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+        .kv{border:1px solid var(--line);padding:8px;text-align: center;}
+        .kv b{display:block;font-size:var(--fs-xs);color:var(--muted)}
+        .kv span{font-size:var(--fs)}
+        .section{margin-top:14px}
+        .section > .title{font-weight:600;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:8px;text-align: center;}
+        .twocol{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
+
+        /* TABLOLAR */
+        table{width:100%;border-collapse:collapse;font-size:var(--fs-xs)}
+        th,td{border:1px solid var(--line);padding:6px 8px;vertical-align:top}
+        th{background:#f7f7f7;text-align:left;font-weight:600}
+        .mini td{padding:4px 6px}
+        .legal{font-size:var(--fs-xxs);color:#222}
+        ol.articles{margin:8px 0 0 18px;padding:0}
+        ol.articles li{margin:6px 0}
+
+        /* İMZA ALANLARI (her sayfa altı) */
+        .signs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:12px}
+        .signsn{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:12px}
+        .sign{border:1px dashed var(--line);padding:10px; display:flex;flex-direction:column;justify-content:space-between}
+        .signn{padding:10px; display:flex;flex-direction:column;justify-content:space-between}
+        .sign b{font-size:var(--fs-xs)}
+        .foot{margin-top:10px;padding-top:8px;border-top:1px solid var(--line);font-size:var(--fs-xxs);color:var(--muted);text-align:center}
+        .son{text-align: right;}
+        .onuc{font-size: 15px;}
+
+        .toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            padding: 12px;
+            display: flex;
+            justify-content: center; /* ORTALAR */
+            gap: 12px;
+        }
+
+        .toolbar button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            transition: background 0.2s;
+        }
+
+        .toolbar button:hover {
+            background: #0056b3;
+        }
+
+        /* YAZDIRMA */
+        @media print {
+            /* araç çubuğunu gizle */
+            .toolbar { display: none !important; }
+
+            /* her .page tam kağıda otursun */
+            .page {
+                min-height: auto !important;   /* fazla yüksekliği kaldır */
+                padding: 0 !important;         /* iç boşlukları iptal et */
+                border: 0 !important;          /* kenarlığı yazdırmada kapat */
+                break-after: page;
+                page-break-after: always;
+            }
+
+            /* tablo ve bölümlerin bölünmesini engelle */
+            .sheet, table, tr, td, th, .section {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            /* ekran boşluğunu sıfırla */
+            #doc { margin-top: 0 !important; }
+        }
+
+        /* === Ekran Görüntüsü (kenarlık ve padding yalnızca ekranda) === */
+        @media screen {
+            .page {
+                padding: 15mm 18mm 14mm;        /* ekranda görünüm için boşluk */
+                border: 1px solid var(--line);  /* yalnız ekranda kenarlık */
+            }
+        }
+    </style>
+
+</head>
+<body>
+<!-- Araç Çubuğu -->
+<div class="toolbar no-print">
+    <button id="btnPrint" type="button">
+        <i class="fa-solid fa-print"></i> Yazdır
+    </button>
+</div>
+
+<!-- Yazdırılacak İçerik -->
+<div id="doc">
+
+<section class="page">
+    <div class="sheet">
+
+        <!-- Üst bant -->
+        <div class="head">
+            <div><img src="assets/logo/meblogo.png" alt="Sol Logo"></div>
+            <div class="brand">
+                <h1>NGLS YABANCI DİL DÜNYASI EĞİTİM HİZMETLERİ LTD. ŞTİ.</h1>
+                <small>ÖĞRENCİ KAYIT SÖZLEŞMESİ (MUHTELİF KURSLAR) — No: <b>PSozlesmeNo</b></small>
+            </div>
+            <div style="text-align:right"><img src="assets/logo/nglslogo.png" alt="Sağ Logo"></div>
+        </div>
+
+        <!-- Üst meta -->
+        <div class="meta">
+            <div class="kv"><b>Kayıt Tarihi</b><span>PSozlesmeTarihi</span></div>
+            <div class="kv"><b>Kayıtlı Olduğu Dönem</b><span>PDonem</span></div>
+            <div class="kv"><b>Toplam Sözleşme Tutarı</b><span>#PSozlesmeTutari#¬TL</span></div>
+        </div>
+
+        <!-- Öğrenci / Veli -->
+        <div class="section">
+            <div class="title">Öğrenci ve Veli Bilgileri</div>
+            <table class="mini">
+                <tr>
+                    <th style="width:22%">Öğrenci Adı Soyadı</th><td>POgrAdSoyad</td>
+                    <th style="width:18%">TC</th><td>PKimlikNo</td>
+                </tr>
+                <tr>
+                    <th>Doğum Tarihi / Yeri</th><td>PDogumTarihi — PDogumYeri</td>
+                    <th>Cinsiyet</th><td>PCinsiyet</td>
+                </tr>
+                <tr>
+                    <th>Okulu</th><td>POkulAdi</td>
+                    <th>Kurs / Sınıf</th><td>PSinif / PSube</td>
+                </tr>
+                <tr>
+                    <th>Veli Adı Soyadı</th><td>PVeliAdSoyad</td>
+                    <th>Veli Tel</th><td>PVeliCepTel</td>
+                </tr>
+                <tr>
+                    <th>Veli Adresi</th><td colspan="3">PVeliAdres</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Taksit & Sözleşme özet -->
+        <div class="section">
+            <div class="title">Ödeme Planı ve Sözleşme Özeti</div>
+            <div class="twocol">
+                <!-- Sol: Taksit Tablosu -->
+                <div>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th style="width:12%">No</th>
+                            <th style="width:28%">Tarih</th>
+                            <th style="width:22%">Tutar (₺)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr><td>PTaksitNo1</td><td>PTaksitTarihi1</td><td>PTaksitTutari1</td></tr>
+                        <tr><td>PTaksitNo2</td><td>PTaksitTarihi2</td><td>PTaksitTutari2</td></tr>
+                        <tr><td>PTaksitNo3</td><td>PTaksitTarihi3</td><td>PTaksitTutari3</td></tr>
+                        <tr><td>PTaksitNo4</td><td>PTaksitTarihi4</td><td>PTaksitTutari4</td></tr>
+                        <tr><td>PTaksitNo5</td><td>PTaksitTarihi5</td><td>PTaksitTutari5</td></tr>
+                        <tr><td>PTaksitNo6</td><td>PTaksitTarihi6</td><td>PTaksitTutari6</td></tr>
+                        <tr><td>PTaksitNo7</td><td>PTaksitTarihi7</td><td>PTaksitTutari7</td></tr>
+                        <tr><td>PTaksitNo8</td><td>PTaksitTarihi8</td><td>PTaksitTutari8</td></tr>
+                        <tr><td>PTaksitNo9</td><td>PTaksitTarihi9</td><td>PTaksitTutari9</td></tr>
+                        <tr><td>PTaksitNo10</td><td>PTaksitTarihi10</td><td>PTaksitTutari10</td></tr>
+                        <tr><td>PTaksitNo11</td><td>PTaksitTarihi11</td><td>PTaksitTutari11</td></tr>
+                        <tr><td>PTaksitNo12</td><td>PTaksitTarihi12</td><td>PTaksitTutari12</td></tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th colspan="2" style="text-align:right">Toplam</th>
+                            <th>#PSozlesmeTutari#¬TL</th>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Sağ: Sözleşme bilgileri -->
+                <div>
+                    <table class="mini">
+                        <tr><th>Sözleşme No</th><td>PSozlesmeNo</td></tr>
+                        <tr><th>Toplam Taksit Sayısı</th><td>PTaksitSayisi</td></tr>
+                        <tr><th>Taksit Başlama</th><td>PTaksitBaslamaTarihi</td></tr>
+                        <tr><th>Taksit Bitiş</th><td>PTaksitBitisTarihi</td></tr>
+                        <tr><th>Ürün Adedi</th><td>#PUrunAdet1#</td></tr>
+                        <tr><th>Birim Ücret</th><td>#PUrunBirimFiyat1#₺</td></tr>
+                    </table>
+                    <div class="kv" style="margin-top:8px">
+                        <b>Açıklama</b>
+                        <span>Yukarıdaki ödeme planına uygun olarak ödemeler yapılacaktır.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kısa konu metni -->
+        <div class="section">
+            <div class="title">Sözleşmenin Konusu</div>
+            <div class="legal onuc">
+                İş bu sözleşmenin konusu, yukarıda ödeme planı yapılmış <b>PSozlesmeNo</b> sözleşme numaralı ve toplam kurs ücreti <b>#PSozlesmeTutari#¬TL</b> olan Kursiyer Kayıt Sözleşmesine istinaden,
+                NGLS YABANCI DİL DÜNYASI EĞİTİM HİZMETLERİ LTD. ŞTİ. ile (veli/öğrenci) arasındaki esasların belirlenmesidir.
+            </div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <!-- Sayfa 1 İmzalar -->
+        <div class="signsn">
+            <div class="signn">
+                Adı Soyadı : ____________________
+            </div>
+
+            <div class="signn son"  >
+                İmza: ____________________
+            </div>
+        </div>
+        <div class="foot">Sözleşme No: PSozlesmeNo</div>
+    </div>
+</section>
+<section class="page">
+    <div class="sheet">
+        <div class="section">
+            <ol class="articles legal onuc" start="1">
+                <li>
+                    <b>Milli Eğitim Bakanlığı Özel Öğretim Kurumları Yönetmeliği’ne göre uyulması gereken kurallar;</b><br>
+                    a) Kuruma; radyo, TV, teyp, gazete, broşür, gayri ahlaki veya siyasi muhtevalı yayınlar getirilemez, yayın yapabilecek ya da kayıt yapabilecek cihazları kurumun imzalı- yazılı izni olmadan kullanamaz izinsiz video kaydı ya da ses kaydı yapamaz.<br>
+                    b) Ders içinde veya dışında hiçbir siyasi ve ideolojik konuşma yapılamaz.<br>
+                    c) Kuruma alkollü gelinemez, bina içinde, bahçede ve okul müştemilatında sigara içilemez.<br>
+                    d) Öğrenci, kurum demirbaşlarına zarar veremez, verirse bedeli öğrenci ve velisinden alınır.
+                </li>
+                <li>
+                    <b>PDonem</b> Eğitim - Öğretim Dönemi verilecek eğitim hizmetinin bedeli <b>#PSozlesmeTutari#¬TL</b>’dir. İş bu eğitim hizmeti bedeli, kuruma, ödeme planına uygun olarak ödenecek olup, üst üste iki taksiti vadesinde ödenmediği takdirde ayrıca ihtar ve ihbara gerek olmaksızın eğitim hizmet bedelinin tamamının muacceliyet kesbedeceğini ve bu tarihten itibaren geciken taksitlere ait kanuni gecikme zammının veli tarafına ait olacağı kabul ve taahhüt edilmiştir.
+                </li>
+                <li>
+                    Milli Eğitim Bakanlığı Özel Öğretim Kurumları Yönetmeliği’ne göre, herhangi bir sebeple kurumdan ayrılmak isteyen öğrencilerden ;<br>
+                    a) Öğretim yılı başlamadan ayrılanlara, yıllık eğitim bedelinin yüzde onu (%10) kesildikten sonraki kısmı iade edilir.<br>
+                    b) Öğretim yılı başladıktan sonra ayrılanlara, iş bu sözleşmede belirtilen yıllık eğitim bedelinin yüzde onu (%10) ile öğrenim gördüğü günlere göre hesaplanan miktar kesildikten sonraki kısmı iade edilir. Kursiyerin-Öğrencinin öğrenim gördüğü günler hesaplanırken, nakil talebinden önce yapılan mazeretli ve mazeretsiz devamsızlıklar da öğrencinin öğrenim gördüğü günler içinde sayılacaktır. (Resmi Gazete Tarihi: 20.03.2012 Resmi Gazete Sayısı: 28239 ile Değişik RG¬21/7/2012¬28360)<br>
+                    c) Öğrencilere, MEB yayınları ve Ek yayınlar ise ücretsiz verilir. Öğrenci kayıt iptalinde veya farklı bir kuruma naklinde yayın fiyatını ödemek zorundadır. Bu bedel <b>PDonem</b> Eğitim–Öğretim Döneminde verilen kaynaklar için <b>1500₺</b>’dir.(BinBeşyüzTürkLirası).
+                </li>
+                <li>
+                    Yukarıdaki hesaplamalara göre: Eğitim ücretinin faturası, verilen hizmetin ifasından sonra düzenlenir.
+                </li>
+                <li>Eğitim ücreti ödemesinin banka aracılığıyla yapılması durumunda (Kredi Kartı, Otomatik Ödeme, MailOrder) banka ile veli arasındaki uyuşmazlıklar kurumu bağlamaz. Kurumun alacağının kalması durumunda ise bu alacak miktarı veliden tahsil edilir.</li>
+                <li>Teşviğe hak kazanan öğrencinin, hak kazandığı teşvik bedeli eğitim bedelinden düşülür.</li>
+                <li>NGLS YABANCI DİL DÜNYASI EĞİTİM HİZMETLERİ LTD. ŞTİ. ŞİRKETİ’nin öğrenciye vereceği eğitim - öğretim ve etkinlik programı, karşılıklı yükümlülükleri belirleyen bu sözleşme karşılıklı olarak okunarak kabul edilmiştir.</li>
+                <li>İş bu sözleşmeden meydana gelecek ihtilaflarda <b>İSTANBUL ANADOLU</b> Adliyesi Mahkeme ve İcra Müdürlüklerinin yetkili olacağı taraflarca kabul edilmiştir. Taraflar iş bu sözleşmede belirttikleri adreslerinin yasal tebligat ve ikametgâh adresi olduğunu, bu adreslerinin değişmesi durumunda bu değişikliği karşı tarafa 15(Onbeş) iş günü içerisinde bildireceğini, aksi takdirde sözleşmede yazılı adreslere yapılacak tebligat ve bildirimlerin kendilerine yapılmış sayılacağını kabul ve taahhüt etmişlerdir. İş bu sözleşme taraflarca okunarak iki nüsha ve iki sayfa şeklinde düzenlenerek imzalanmış olup birer nüsha taraflara teslim edilmiştir.</li>
+                <li>
+                    Grup(sınıf) derslerinde İlk öğretim Birinci Kademe, İlköğretim ikinci kademe ve Orta Öğretim Öğrencilerinin tamamında, Liseye hazırlık ve Lise gruplarında ders saati(40dk) ücreti: <b>500₺</b> olarak kurum maliyeti hesaplanmış ve belirlenmiştir. Kişisel Gelişim Kurs Gruplarında(A Grubu KPSS Alan Bilgisi Hazırlık Kurs Programı, B Grubu KPSS Eğitim Bilimleri Hazırlık Kursu, Almanca Kursu, Çocuklar için İngilizce Erken Dil Öğretimi Kursu, İngilizce Kurs Programı, İngilizce Yabancı Dil Bilgisi Seviye tespit Sınavına(YDS) Hazırlık Kurs Programı, KPSS Genel Kültür Genel Yetenek Hazırlık Kurs Programı; Ders Ücreti Milli eğitim Müdürlüğüne Bildirilen ders ücret bildirgesi temel alınarak kurum maliyeti hesaplanarak belirlenmiştir. Özel Ders Gruplarında 1 Ders saati Ücreti <b>1500₺</b> olarak kurum maliyeti hesaplanarak belirlenmiştir. Kurum bu tutar üzerinden %50’yi geçmeyecek şekilde indirim yapabilir. İptal hesaplamaları kurum muhasebe birimi tarafından bu değerler üzerinden kursiyerin aldığı ders sayısına göre hesaplanacaktır. Öğrencinin aldığı ders sayısı ile birim fiyat çarpılarak hesaplama yapılır ve sözleşmedeki diğer giderler eklenerek(kırtasiye ücreti, dosya ücreti, kitap ve kaynak ücreti), sözleşme iptal bedeli hesaplanmış olur.
+
+                </li>
+            </ol>
+        </div>
+
+        <div class="spacer"></div>
+
+        <!-- Sayfa 2 İmzalar -->
+        <div class="signsn">
+            <div class="signn">
+                Adı Soyadı : ____________________
+            </div>
+
+            <div class="signn son"  >
+                İmza: ____________________
+            </div>
+        </div>
+        <div class="foot">Sözleşme No: PSozlesmeNo</div>
+    </div>
+</section>
+<section class="page">
+    <div class="sheet">
+        <div class="section">
+            <ol class="articles legal onuc" start="5">
+
+                <li>
+                    <b>Ders İptalleri ve Devamsızlık:</b><br>
+                    a-) Ders iptalleri ve devamsızlık konusunda, kursiyer hassas davranmak zorundadır. Eğitimin verimliliği, kalitesinin korunması her iki tarafında yükümlülüğüdür. Bu durum çerçevesinde kurumun zarara uğramamasının ve kursiyerin eğitiminin aksamamasının gereğidir. Kursiyer giremeyeceği dersi/dersleri ders gününden bir gün önce saat:18.00’a kadar kuruma yazılı olarak bildirmek zorundadır; aksi durumda kursiyerin giremediği ders, toplam kalan ders sayısından düşülerek ders işlenmiş kabul edilir.<br>
+                    b-) Kursiyerin toplam devamsızlığı ve ders iptal sınırı %20’yi aşamaz. Bu durum: Kursiyerin planlanmış aylık ders saatinin ancak %20’sinin mazaretli olarak iptal edilebileceğini ifade eder. Mazaret belirtmeden yapılan iptaller ders saatinin işlenmiş kabul edilmesi ile sonuçlanır.<br>
+                    c-) Kursiyerin bu sözleşmeye konu olan eğitimde özel ders şeklinde alacağı eğitimlerde, sözleşme ödeme planı ile eğitim planı parelel oluşturulmuştur. Bu durumda; taraflar, ödeme planı ödenerek tamamladığında, eğitiminde son bulmasında mutabık kalmışlardır. Devamsızlık durumu/hakkı göz önüne alınarak kursiyer ödeme planındaki son vade tarihi bittikten sonra en geç 30 gün içerisinde alamadığı derslerin planlanması ve derslerini almaya başlaması için kurum ile iletişime geçerek dersleri 30 gün içerisinde alabilir. Kurumdan kaynaklı bir problem olmadığı sürece bu durum 30 gün ile sınırlandırılmıştır. 30 günün sonunda alınmayan dersler; işlenmiş kabul edilir. Hakkaniyet çerçevesinde, alternatif olarak kurum tarafından belirlenen günün güncel fiyatı ile eski birim fiyatı üzerinden kıyaslama yapılıp güncel fiyattan kalan dersler için ödeme planı oluşturulur. Önceki birim fiyatı ile kalan dersler hesaplanarak güncel ücretten çıkarılır ve bu şekilde alınamayan derslerin fiyat güncellemesi yapılabilir.
+                </li>
+                <li>Kişisel Verilerin İşlenmesi ve Kullanılması Hakkında: <div class="legal onuc">
+                    Kişisel verilerin işlenmesi aydınlatma metni, 6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında gerçekleştirilecek aydınlatma yükümlülüğü sırasında uyulacak usul ve esasları belirleyen “Aydınlatma Yükümlülüğünün Yerine Getirilmesinde Uygulanacak Usul ve Esaslar Hakkında Tebliğ” kapsamında hazırlanmıştır.<br><br>
+
+                    Şirketimiz, 6698 Sayılı Kanun’da tanımlandığı şekli ile “Veri Sorumlusu” sıfatını haizdir. Şirket ile ilişkili tüm şahıslara ait her türlü kişisel verilerin 6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVK Kanunu”)’na uygun olarak işlenerek, muhafaza edilmesine özen göstermekteyiz. Kişisel verileriniz aşağıdaki kapsamda işlenmektedir.<br><br>
+
+                    <b>Veri Sorumlusu ve Temsilcisi</b><br>
+                    Şirketimiz, 6698 Sayılı Kişisel Verilerin Korunması Kanunu kapsamında “Veri Sorumlusudur”.<br><br>
+
+                    <b>Kişisel Verilerin Hangi Amaçla İşleneceği:</b><br>
+                    Kişisel verileriniz Şirketimiz tarafından sağlanan ürünler, hizmetler, ticari faaliyetler, insan kaynakları faaliyetleri ve tesis /bina/saha güvenlik önlemleri kapsamında toplanıp saklanmaktadır. Güvenlik amacıyla bina girişlerinde ziyaretçi kaydı alınıp açık ve kapalı alanlar güvenlik kamerası ile izlenmektedir.<br>
+                    Toplanan bütünün kişisel veriler hukuki ve ticari gereklerden dolayı şirketimiz veri envanterinde belirlenen süreler doğrultusunda işlenmeye devam etmektedir.<br><br>
+
+                    <b>Kişisel Verilerin Kimlere ve Hangi Amaçla Aktarılabileceği:</b><br>
+                    Kişisel Verileriniz, ilgili mevzuat kapsamında işveren olarak; dolaylı/doğrudan yurtiçi ve yurtdışı iştiraklerimiz ya da bağlı ortaklıklarımız, şirketimizce hizmet/destek/danışmanlık alınan ya da işbirliği yapılan ya da proje/program/finansman ortağı olunan yurt içi/yurt dışı/uluslararası, kamu/özel kurum ve kuruluşlar, şirketler ve sair 3. kişi ya da kuruluşlara aktarılabilecektir.<br><br>
+
+                    <b>Kişisel Veri Toplamanın Yöntemi ve Hukuki Sebebi:</b><br>
+                    Kişisel verileriniz sözlü, yazılı ve elektronik ortamlarda otomatik veya otomatik olmayan yöntemlerle toplanıp saklanmaktadır.<br><br>
+
+
+                </div></li>
+            </ol>
+        </div>
+
+        <div class="spacer"></div>
+
+        <!-- Sayfa 3 İmzalar -->
+        <div class="signsn">
+            <div class="signn">
+                Adı Soyadı : ____________________
+            </div>
+
+            <div class="signn son"  >
+                İmza: ____________________
+            </div>
+        </div>
+        <div class="foot">Sözleşme No: PSozlesmeNo</div>
+    </div>
+</section>
+<section class="page">
+    <div class="sheet">
+        <div class="section">
+            <ol class="articles legal onuc" start="5">
+
+                <li><b>Kişisel Veri Sahibinin 6698 sayılı Kanun’un 11. maddesinde Sayılan Hakları:</b> <div class="legal onuc">
+
+                    <br>
+                    Şirketimize müracaat ederek 6698 Sayılı Kanun’un 11. Maddesi uyarınca; kişisel verilerinizin işlenip islenmediğini, şayet islenmişse, buna ilişkin bilgileri, islenme amacını ve bu amaca uygun kullanılıp kullanılmadığını ve söz konusu verilerin aktarıldığı yurt içinde veya yurt dışındaki 3. kişileri öğrenme, kişisel verileriniz eksik ya da yanlış̧ islenmişse bunların düzeltilmesini, kişisel verilerinizin Kanunun 7. maddesinde öngörülen şartlar çerçevesinde silinmesini ya da yok edilmesini ve bu kapsamda şirketimizce yapılan işlemlerin bilgilerin aktarıldığı üçüncü kişilere bildirilmesini talep etme, kişisel verilerinizin münhasıran otomatik sistemler ile analiz edilmesi nedeniyle aleyhinize bir sonucun ortaya çıkması halinde buna itiraz etme ve kanuna aykırı olarak işlenmesi sebebiyle zarara uğramanız halinde zararın giderilmesini talep etme haklarına sahip  bulunmaktasınız.<br><br>
+
+
+
+                    6698 Sayılı Kanun’da yer aldığı şekli ile burada belirtilen haklarınızı kullanmanız mümkün olacaktır. Ancak taleplerinizin yerine getirilmesi için ek bir maliyet gerektirmesi halinde Şirketimizin, 6698 Sayılı Kanun’un “Veri Sorumlusuna Başvuru” başlıklı 13. maddesinde belirtilen esaslar uyarınca Kişisel Verileri Koruma Kurulu’nca belirlenen tarifesine göre ücret talep etme hakkımız saklıdır.<br><br>
+
+                    Sözleşme bir bütün olup yukarıda/önceki sayfalarda belirlenmiş maddeler taraflarca sözleşme tarihinden itibaren geçerli kabul edilir. Ödeme planı ve sözleşme tutarının karşılığında taahhüt edilen eğitim hizmeti  NGLS YABANCI DİL DÜNYASI EĞİTİM HİZMETLERİ LTD. ŞTİ. ŞİRKETİ’nde Eğitim Öğretim hizmeti alacak olan (veli/öğrenci) ile NGLS YABANCI DİL DÜNYASI EĞİTİM HİZMETLERİ LTD. ŞTİ. ŞİRKETİ arasındaki esasların kararlaştırılarak düzenlenmesini konu almıştır.<br><br>
+
+                    İş bu sözleşme taraflarca okunarak dört sayfa ve iki nüsha şeklinde düzenlenerek imzalanmış olup birer nüsha taraflara teslim edilmiştir.
+                </div></li>
+            </ol>
+        </div>
+
+        <div class="spacer"></div>
+
+        <!-- Sayfa 3 İmzalar -->
+        <div class="signs">
+            <div class="sign"><b>Kurum Yetkilisi</b><div>&nbsp;</div><div>İMZA</div></div>
+            <div class="sign"><b>Kursiyer</b><div>POgrAdSoyad</div><div>İMZA</div></div>
+            <div class="sign"><b>Veli</b><div>PVeliAdSoyad</div><div>İMZA</div></div>
+        </div>
+        <div class="foot">Sözleşme No: PSozlesmeNo</div>
+    </div>
+</section>
+</div>
+
+<!-- Yazdırma JS (Chrome uyumlu: gizli iframe ile) -->
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        var btn = document.getElementById('btnPrint');
+        if(!btn) return;
+
+        btn.addEventListener('click', function(e){
+            e.preventDefault();
+
+            var src = document.getElementById('doc');
+            if(!src) return;
+
+            // gizli iframe yöntemi (Chrome uyumlu)
+            var styles = Array.from(document.querySelectorAll('style,link[rel="stylesheet"]'))
+                .map(el => el.outerHTML).join('');
+
+            var iframe = document.createElement('iframe');
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
+            document.body.appendChild(iframe);
+
+            var doc = iframe.contentDocument || iframe.contentWindow.document;
+            doc.open();
+            doc.write('<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>Yazdır</title>'+
+                styles + '</head><body>' + src.innerHTML + '</body></html>');
+            doc.close();
+
+            iframe.onload = function(){
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+                setTimeout(() => document.body.removeChild(iframe), 500);
+            };
+        });
+    });
+</script>
+</body>
+</html>
