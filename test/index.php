@@ -437,7 +437,7 @@ require_once 'alanlar/sidebar.php';
 			</div>
 		</div>
 
-		<!-- ÖĞRENCİ ÖZET KARTI (TOPLAM / AKTİF / PASİF) -->
+		<!-- ÖĞRENCİ ÖZET KARTI (TOPLAM / AKTİF / PASİF) 
 		<div class="row mb-4">
 			<div class="col-xxl-3 col-sm-6 d-flex">
 				<div class="card flex-fill animate-card border-0">
@@ -448,13 +448,13 @@ require_once 'alanlar/sidebar.php';
 							</div>
 							<div class="overflow-hidden flex-fill">
 								<div class="d-flex align-items-center justify-content-between">
-									<!-- TOPLAM ÖĞRENCİ DİNAMİK -->
+									 
 									<h2 class="counter">
-										<?= (int) $toplamOgrenci ?>
+										 
 									</h2>
-									<!-- İstersen dinamik bir yüzde de koyabilirsin; şimdilik boş bırakıldı -->
+									 
 									<span class="badge bg-danger">
-										<?= $toplamOgrenci > 0 ? '100%' : '0%' ?>
+										 
 									</span>
 								</div>
 								<p>Toplam Öğrenci</p>
@@ -464,21 +464,21 @@ require_once 'alanlar/sidebar.php';
 							<p class="mb-0">
 								Aktif :
 								<span class="text-dark fw-semibold">
-									<?= (int) $aktifSay ?>
+								 
 								</span>
 							</p>
 							<span class="text-light">|</span>
 							<p>
 								Aktif Değil :
 								<span class="text-dark fw-semibold">
-									<?= (int) $pasifSay ?>
+									 
 								</span>
 							</p>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		</div>-->
 
 		<!-- ÖĞRENCİ LİSTESİ TABLOSU (DataTable)
 		<div class="card">
@@ -628,22 +628,6 @@ require_once 'alanlar/sidebar.php';
 			</div>
 		</div> -->
 
-		<!-- Page Header -->
-		<div class="d-md-flex d-block align-items-center justify-content-between mb-3">
-			<div class="my-auto mb-2">
-				<h3 class="page-title mb-1">Yönetici Paneli</h3>
-				<nav>
-					<ol class="breadcrumb mb-0">
-						<li class="breadcrumb-item">
-							<a href="index.html">Genel</a>
-						</li>
-						<li class="breadcrumb-item active" aria-current="page">Yönetici Paneli</li>
-					</ol>
-				</nav>
-			</div>
-
-		</div>
-		<!-- /Page Header -->
 
 		<div class="row">
 			<div class="col-md-12">
