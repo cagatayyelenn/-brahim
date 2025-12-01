@@ -26,6 +26,8 @@ ORDER BY o.ogrenci_numara DESC";
 
 $ogrenciler = $db->get($sql, [':sube_id' => $sube_id]);
 
+print_r($ogrenciler);
+
 /* ------------------ Yardımcı fonksiyonlar ------------------ */
 if (!function_exists('h')) {
 	function h($s)
@@ -635,20 +637,16 @@ require_once 'alanlar/sidebar.php';
 					<div class="alert alert-success rounded-pill d-flex align-items-center justify-content-between border-success mb-4"
 						role="alert">
 						<div class="d-flex align-items-center">
-							<span class="me-1 avatar avatar-sm flex-shrink-0"><img
-									src="assets/img/profiles/avatar-27.jpg" alt="Img"
-									class="img-fluid rounded-circle"></span>
+							<span class="me-1 avatar avatar-sm flex-shrink-0">
+								<img src="assets/img/profiles/avatar-27.jpg" alt="Img" class="img-fluid rounded-circle">
+							</span>
 							<p>Çağatay ders ödemesi yapıldı <strong class="mx-1">“İngilizce”</strong></p>
 						</div>
-						<button type="button" class="btn-close p-0" data-bs-dismiss="alert" aria-label="Close"><span><i
-									class="ti ti-x"></i></span></button>
+						<button type="button" class="btn-close p-0" data-bs-dismiss="alert" aria-label="Close">
+							<span><i class="ti ti-x"></i></span>
+						</button>
 					</div>
 				</div>
-
-				<!-- Dashboard Content -->
-
-				<!-- /Dashboard Content -->
-
 			</div>
 		</div>
 
@@ -662,17 +660,10 @@ require_once 'alanlar/sidebar.php';
 							<div class="avatar avatar-xl bg-danger-transparent me-2 p-1">
 								<img src="assets/img/icons/student.svg" alt="img">
 							</div>
-
-
-
-
-
-
-
 							<div class="overflow-hidden flex-fill">
 								<div class="d-flex align-items-center justify-content-between">
 									<h2 class="counter">550</h2>
-									<span class="badge bg-danger">1.2%</span>
+
 								</div>
 								<p>Toplam Öğrenci</p>
 							</div>
@@ -680,7 +671,7 @@ require_once 'alanlar/sidebar.php';
 						<div class="d-flex align-items-center justify-content-between border-top mt-3 pt-3">
 							<p class="mb-0">Aktif : <span class="text-dark fw-semibold">450</span></p>
 							<span class="text-light">|</span>
-							<p>Aktif Değil : <span class="text-dark fw-semibold">11</span></p>
+							<p>Pasif : <span class="text-dark fw-semibold">11</span></p>
 						</div>
 					</div>
 				</div>
