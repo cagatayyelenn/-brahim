@@ -205,7 +205,7 @@ require_once 'alanlar/sidebar.php';
 		<div class="row">
 
 			<!-- Schedules -->
-			<div class="col-xxl-4 col-xl-6 col-md-12 d-flex">
+			<div class="col-xxl-6 col-xl-6 col-md-6 d-flex">
 				<div class="card flex-fill">
 					<div class="card-header d-flex align-items-center justify-content-between">
 						<div>
@@ -316,7 +316,7 @@ require_once 'alanlar/sidebar.php';
 			</div>
 			<!-- /Schedules -->
 
-			<div class="col-xxl-5 col-xl-12 order-3 order-xxl-2 d-flex">
+			<div class="col-xxl-6 col-xl-6 col-md-6 order-3 order-xxl-2 d-flex">
 				<div class="card flex-fill">
 					<div class="card-header  d-flex align-items-center justify-content-between">
 						<h4 class="card-title">Duyuru Panosu</h4>
