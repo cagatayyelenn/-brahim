@@ -315,7 +315,7 @@ require_once 'alanlar/sidebar.php';
 			<div class="col-xxl-6 col-xl-6 col-md-6 order-3 order-xxl-2 d-flex">
 				<div class="card flex-fill">
 					<div class="card-header  d-flex align-items-center justify-content-between">
-						<h4 class="card-title">Duyuru Panosu</h4>
+						<h4 class="card-title">İşlem Geçmişi</h4>
 						<a href="notice-board.html" class="fw-medium">Tümünü Görüntüle</a>
 					</div>
 					<div class="card-body">
