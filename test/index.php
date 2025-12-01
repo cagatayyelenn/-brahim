@@ -213,8 +213,6 @@ require_once 'alanlar/sidebar.php';
 						</div>
 					</div>
 					<div class="card-body">
-
-						<h5 class="mb-3">Yaklaşan Etkinlikler</h5>
 						<div class="event-wrapper event-scroll">
 							<!-- Event Item -->
 							<div class="border-start border-skyblue border-3 shadow-sm p-3 mb-3">
