@@ -6,14 +6,7 @@ require_once 'dosyalar/oturum.php';
 $db = new Ydil();
 ?>
 
-
-
-
-
-
 <?php
-
-/* ------------------ Şube bazlı öğrenci listesi ------------------ */
 $sube_id = (int) ($_SESSION['sube_id'] ?? 0);
 
 $sql = "SELECT 
@@ -634,184 +627,6 @@ require_once 'alanlar/sidebar.php';
 				</div>
 			</div>
 		</div>
-
-	</div>
-</div>
-<!-- /Page Wrapper -->
-
-<!-- Düzenle Modal -->
-<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-	<div class="modal-dialog">
-		<form method="post" class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title">Görüşme Düzenle</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-			</div>
-			<div class="modal-body">
-				<input type="hidden" name="id" id="edit-id">
-				<div class="mb-3">
-					<label class="form-label">Ad Soyad</label>
-					<input type="text" class="form-control" name="ad_soyad" id="edit-ad" required>
-				</div>
-				<div class="mb-3">
-					<label class="form-label">Dil</label>
-					<select class="form-select" name="dil" id="edit-dil" required>
-						<?php
-						foreach (['Türkçe', 'İngilizce', 'Almanca', 'Fransızca', 'Arapça', 'Farsça', 'İspanyolca', 'İtalyanca', 'Korece', 'Japonca', 'Flemenkçe'] as $d) {
-							echo '<option>' . htmlspecialchars($d) . '</option>';
-						}
-						?>
-					</select>
-				</div>
-				<div class="mb-3">
-					<label class="form-label">Açıklama</label>
-					<input type="text" class="form-control" name="aciklama" id="edit-aciklama">
-				</div>
-				<div class="mb-3">
-					<label class="form-label">Sonuç</label>
-					<select class="form-select" name="sonuc" id="edit-sonuc" required>
-						<?php
-						foreach (['İletişime Geçildi', 'Kaydedildi', 'Randevu Verildi', 'Kayıt Oldu', 'Olumsuz', 'Beklemede'] as $s) {
-							echo '<option>' . htmlspecialchars($s) . '</option>';
-						}
-						?>
-					</select>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-light" type="button" data-bs-dismiss="modal">Kapat</button>
-				<button class="btn btn-primary" type="submit" name="gorusme_guncelle">Kaydet</button>
-			</div>
-		</form>
-	</div>
-</div>
-
-<!-- JS -->
-<script src="assets/js/jquery-3.7.1.min.js"></script>
-<script src="assets/js/bootstrap.bundle.min.js"></script>
-
-<script>
-	// Düzenle modalını doldur
-	document.addEventListener('click', function (e) {
-		const btn = e.target.closest('.btn-edit');
-		if (!btn) return;
-		document.getElementById('edit-id').value = btn.dataset.id || '';
-		document.getElementById('edit-ad').value = btn.dataset.ad || '';
-		document.getElementById('edit-dil').value = btn.dataset.dil || '';
-		document.getElementById('edit-aciklama').value = btn.dataset.aciklama || '';
-		document.getElementById('edit-sonuc').value = btn.dataset.sonuc || '';
-	}, false);
-</script>
-<script src="assets/js/jquery-3.7.1.min.js" type="text/javascript"></script>
-<script src="assets/js/bootstrap.bundle.min.js" type="text/javascript"></script>
-<script src="assets/js/moment.js" type="text/javascript"></script>
-<script src="assets/plugins/daterangepicker/daterangepicker.js" type="text/javascript"></script>
-<script src="assets/js/feather.min.js" type="text/javascript"></script>
-<script src="assets/js/jquery.slimscroll.min.js" type="text/javascript"></script>
-<script src="assets/js/jquery.dataTables.min.js" type="text/javascript"></script>
-<script src="assets/js/dataTables.bootstrap5.min.js" type="text/javascript"></script>
-<script src="assets/plugins/select2/js/select2.min.js" type="text/javascript"></script>
-<script src="assets/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
-<script src="assets/js/script.js" type="text/javascript"></script>
-
-<script>
-	document.addEventListener('DOMContentLoaded', function () {
-		// Bootstrap tooltips
-		if (window.bootstrap) {
-			document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
-				new bootstrap.Tooltip(el);
-			});
-		}
-
-		// Select-all
-		const selectAll = document.getElementById('select-all');
-		const checks = document.querySelectorAll('.row-check');
-		if (selectAll) {
-			selectAll.addEventListener('change', function () {
-				checks.forEach(ch => ch.checked = selectAll.checked);
-			});
-		}
-
-		// DataTables
-		if (window.jQuery && jQuery.fn.DataTable) {
-			jQuery('.datatable').DataTable({
-				pageLength: 25,
-				order: [[1, 'desc']], // Öğrenci No
-				columnDefs: [
-					{ targets: 'no-sort', orderable: false }
-				],
-				language: {
-					url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json'
-				}
-			});
-		}
-	});
-</script>
-<script src="assets/js/jquery-3.7.1.min.js" type="text/javascript"></script>
-<script src="assets/js/bootstrap.bundle.min.js" type="text/javascript"></script>
-<script src="assets/js/moment.js" type="text/javascript"></script>
-<script src="assets/plugins/daterangepicker/daterangepicker.js" type="text/javascript"></script>
-<script src="assets/js/feather.min.js" type="text/javascript"></script>
-<script src="assets/js/jquery.slimscroll.min.js" type="text/javascript"></script>
-<script src="assets/js/jquery.dataTables.min.js" type="text/javascript"></script>
-<script src="assets/js/dataTables.bootstrap5.min.js" type="text/javascript"></script>
-<script src="assets/plugins/select2/js/select2.min.js" type="text/javascript"></script>
-<script src="assets/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
-<script src="assets/js/script.js" type="text/javascript"></script>
-
-<script>
-	document.addEventListener('DOMContentLoaded', function () {
-		// Bootstrap tooltips
-		if (window.bootstrap) {
-			document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
-				new bootstrap.Tooltip(el);
-			});
-		}
-
-		// Select-all
-		const selectAll = document.getElementById('select-all');
-		const checks = document.querySelectorAll('.row-check');
-		if (selectAll) {
-			selectAll.addEventListener('change', function () {
-				checks.forEach(ch => ch.checked = selectAll.checked);
-			});
-		}
-
-		// DataTables
-		if (window.jQuery && jQuery.fn.DataTable) {
-			jQuery('.datatable').DataTable({
-				pageLength: 25,
-				order: [[1, 'desc']], // Öğrenci No
-				columnDefs: [
-					{ targets: 'no-sort', orderable: false }
-				],
-				language: {
-					url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json'
-				}
-			});
-		}
-	});
-</script>
-
-</body>
-
-</html>
-
-
-
-
-
-<?php
-$pageTitle = "Anasayfa";
-$page_styles[] = ['href' => 'assets/plugins/owlcarousel/owl.carousel.min.css'];
-$page_styles[] = ['href' => 'assets/plugins/owlcarousel/owl.theme.default.min.css'];
-require_once 'alanlar/header.php';
-require_once 'alanlar/sidebar.php';
-?>
-
-<!-- Page Wrapper -->
-<div class="page-wrapper">
-	<div class="content">
 
 		<!-- Page Header -->
 		<div class="d-md-flex d-block align-items-center justify-content-between mb-3">
@@ -2202,12 +2017,58 @@ require_once 'alanlar/sidebar.php';
 			<!-- /Todo -->
 
 		</div>
-	</div>
 
+	</div>
 </div>
 <!-- /Page Wrapper -->
 
-<!-- Add Class Routine -->
+<!-- Düzenle Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog">
+		<form method="post" class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Görüşme Düzenle</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" name="id" id="edit-id">
+				<div class="mb-3">
+					<label class="form-label">Ad Soyad</label>
+					<input type="text" class="form-control" name="ad_soyad" id="edit-ad" required>
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Dil</label>
+					<select class="form-select" name="dil" id="edit-dil" required>
+						<?php
+						foreach (['Türkçe', 'İngilizce', 'Almanca', 'Fransızca', 'Arapça', 'Farsça', 'İspanyolca', 'İtalyanca', 'Korece', 'Japonca', 'Flemenkçe'] as $d) {
+							echo '<option>' . htmlspecialchars($d) . '</option>';
+						}
+						?>
+					</select>
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Açıklama</label>
+					<input type="text" class="form-control" name="aciklama" id="edit-aciklama">
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Sonuç</label>
+					<select class="form-select" name="sonuc" id="edit-sonuc" required>
+						<?php
+						foreach (['İletişime Geçildi', 'Kaydedildi', 'Randevu Verildi', 'Kayıt Oldu', 'Olumsuz', 'Beklemede'] as $s) {
+							echo '<option>' . htmlspecialchars($s) . '</option>';
+						}
+						?>
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-light" type="button" data-bs-dismiss="modal">Kapat</button>
+				<button class="btn btn-primary" type="submit" name="gorusme_guncelle">Kaydet</button>
+			</div>
+		</form>
+	</div>
+</div>
+
 <div class="modal fade" id="add_class_routine">
 	<div class="modal-dialog modal-dialog-centered">
 		<div class="modal-content">
@@ -2498,26 +2359,105 @@ require_once 'alanlar/sidebar.php';
 		</div>
 	</div>
 </div>
-<!-- /Add Event -->
 
-</div>
-<!-- /Main Wrapper -->
+<!-- JS -->
 
-<!-- jQuery -->
+
+<script>
+	// Düzenle modalını doldur
+	document.addEventListener('click', function (e) {
+		const btn = e.target.closest('.btn-edit');
+		if (!btn) return;
+		document.getElementById('edit-id').value = btn.dataset.id || '';
+		document.getElementById('edit-ad').value = btn.dataset.ad || '';
+		document.getElementById('edit-dil').value = btn.dataset.dil || '';
+		document.getElementById('edit-aciklama').value = btn.dataset.aciklama || '';
+		document.getElementById('edit-sonuc').value = btn.dataset.sonuc || '';
+	}, false);
+</script>
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		// Bootstrap tooltips
+		if (window.bootstrap) {
+			document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+				new bootstrap.Tooltip(el);
+			});
+		}
+
+		// Select-all
+		const selectAll = document.getElementById('select-all');
+		const checks = document.querySelectorAll('.row-check');
+		if (selectAll) {
+			selectAll.addEventListener('change', function () {
+				checks.forEach(ch => ch.checked = selectAll.checked);
+			});
+		}
+
+		// DataTables
+		if (window.jQuery && jQuery.fn.DataTable) {
+			jQuery('.datatable').DataTable({
+				pageLength: 25,
+				order: [[1, 'desc']], // Öğrenci No
+				columnDefs: [
+					{ targets: 'no-sort', orderable: false }
+				],
+				language: {
+					url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json'
+				}
+			});
+		}
+	});
+</script>
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		// Bootstrap tooltips
+		if (window.bootstrap) {
+			document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+				new bootstrap.Tooltip(el);
+			});
+		}
+
+		// Select-all
+		const selectAll = document.getElementById('select-all');
+		const checks = document.querySelectorAll('.row-check');
+		if (selectAll) {
+			selectAll.addEventListener('change', function () {
+				checks.forEach(ch => ch.checked = selectAll.checked);
+			});
+		}
+
+		// DataTables
+		if (window.jQuery && jQuery.fn.DataTable) {
+			jQuery('.datatable').DataTable({
+				pageLength: 25,
+				order: [[1, 'desc']], // Öğrenci No
+				columnDefs: [
+					{ targets: 'no-sort', orderable: false }
+				],
+				language: {
+					url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json'
+				}
+			});
+		}
+	});
+</script>
+
 <script src="assets/js/jquery-3.7.1.min.js" type="text/javascript"></script>
 <script src="assets/js/bootstrap.bundle.min.js" type="text/javascript"></script>
 <script src="assets/js/moment.js" type="text/javascript"></script>
 <script src="assets/plugins/daterangepicker/daterangepicker.js" type="text/javascript"></script>
-<script src="assets/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
 <script src="assets/js/feather.min.js" type="text/javascript"></script>
 <script src="assets/js/jquery.slimscroll.min.js" type="text/javascript"></script>
+<script src="assets/js/jquery.dataTables.min.js" type="text/javascript"></script>
+<script src="assets/js/dataTables.bootstrap5.min.js" type="text/javascript"></script>
+<script src="assets/plugins/select2/js/select2.min.js" type="text/javascript"></script>
+<script src="assets/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+<script src="assets/js/script.js" type="text/javascript"></script>
 <script src="assets/plugins/apexchart/apexcharts.min.js" type="text/javascript"></script>
 <script src="assets/plugins/apexchart/chart-data.js" type="text/javascript"></script>
 <script src="assets/plugins/owlcarousel/owl.carousel.min.js" type="text/javascript"></script>
-<script src="assets/plugins/select2/js/select2.min.js" type="text/javascript"></script>
 <script src="assets/plugins/countup/jquery.counterup.min.js" type="text/javascript"></script>
-<script src="assets/plugins/countup/jquery.waypoints.min.js" type="text/javascript">	</script>
-<script src="assets/js/script.js" type="text/javascript"></script>
+<script src="assets/plugins/countup/jquery.waypoints.min.js" type="text/javascript"></script>
 
 
 </body>
