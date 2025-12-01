@@ -6,6 +6,7 @@ require_once 'dosyalar/oturum.php';
 $db = new Ydil();
 ?>
 
+
 <?php
 $sube_id = (int) ($_SESSION['sube_id'] ?? 0);
 
@@ -327,8 +328,7 @@ require_once 'alanlar/sidebar.php';
 					</table>
 				</div>
 
-				<!-- DataTables Bootstrap 5 CSS -->
-				<link rel="stylesheet" href="https://cdn.datatables.net/v/bs5/dt-1.13.8/fh-3.4.0/datatables.min.css" />
+
 
 				<style>
 					#gorusme-tablo td,
