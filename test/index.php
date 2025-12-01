@@ -211,10 +211,8 @@ require_once 'alanlar/sidebar.php';
 						<div>
 							<h4 class="card-title">Programlar</h4>
 						</div>
-						<a href="index.html#" class="link-primary fw-medium me-2" data-bs-toggle="modal"
-							data-bs-target="#add_event"><i class="ti ti-square-plus me-1"></i>Yeni Ekle</a>
 					</div>
-					<div class="card-bodym">
+					<div class="card-body">
 
 						<h5 class="mb-3">Yaklaşan Etkinlikler</h5>
 						<div class="event-wrapper event-scroll">
