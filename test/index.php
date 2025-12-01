@@ -480,7 +480,7 @@ require_once 'alanlar/sidebar.php';
 			</div>
 		</div>
 
-		<!-- ÖĞRENCİ LİSTESİ TABLOSU (DataTable) -->
+		<!-- ÖĞRENCİ LİSTESİ TABLOSU (DataTable)
 		<div class="card">
 			<div class="card-header d-flex align-items-center justify-content-between flex-wrap pb-0">
 				<h4 class="mb-3">Öğrenci Listesi</h4>
@@ -626,7 +626,7 @@ require_once 'alanlar/sidebar.php';
 					</table>
 				</div>
 			</div>
-		</div>
+		</div> -->
 
 		<!-- Page Header -->
 		<div class="d-md-flex d-block align-items-center justify-content-between mb-3">
