@@ -2183,7 +2183,7 @@ require_once 'alanlar/sidebar.php';
 	<div class="modal-dialog modal-dialog-centered">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title">New Event</h4>
+				<h4 class="modal-title">New Event ekleme</h4>
 				<button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<i class="ti ti-x"></i>
 				</button>
