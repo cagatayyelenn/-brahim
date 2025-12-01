@@ -23,7 +23,7 @@ ORDER BY o.ogrenci_numara DESC";
 
 $ogrenciler = $db->get($sql, [':sube_id' => $sube_id]);
 
-if (!$ogrenciler) {
+if (!empty($ogrenciler)) {
 	$aktifogr = 0;
 	$pasifogr = 0;
 	$toplamogr = 0;
