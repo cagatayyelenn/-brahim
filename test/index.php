@@ -26,7 +26,7 @@ ORDER BY o.ogrenci_numara DESC";
 
 $ogrenciler = $db->get($sql, [':sube_id' => $sube_id]);
 
-print_r(count($ogrenciler));
+$toplamOgrencisayisi = count($ogrenciler);
 
 /* ------------------ Yardımcı fonksiyonlar ------------------ */
 if (!function_exists('h')) {
@@ -662,7 +662,7 @@ require_once 'alanlar/sidebar.php';
 							</div>
 							<div class="overflow-hidden flex-fill">
 								<div class="d-flex align-items-center justify-content-between">
-									<h2 class="counter">550</h2>
+									<h2 class="counter"><?= $toplamOgrencisayisi ?></h2>
 
 								</div>
 								<p>Toplam Öğrenci</p>
