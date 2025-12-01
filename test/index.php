@@ -26,7 +26,7 @@ ORDER BY o.ogrenci_numara DESC";
 
 $ogrenciler = $db->get($sql, [':sube_id' => $sube_id]);
 
-print_r($ogrenciler);
+print_r(count($ogrenciler));
 
 /* ------------------ Yardımcı fonksiyonlar ------------------ */
 if (!function_exists('h')) {
