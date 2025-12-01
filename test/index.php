@@ -215,7 +215,7 @@ require_once 'alanlar/sidebar.php';
 							data-bs-target="#add_event"><i class="ti ti-square-plus me-1"></i>Yeni Ekle</a>
 					</div>
 					<div class="card-body">
-						<div class="datepic mb-4"></div>
+
 						<h5 class="mb-3">Yaklaşan Etkinlikler</h5>
 						<div class="event-wrapper event-scroll">
 							<!-- Event Item -->
