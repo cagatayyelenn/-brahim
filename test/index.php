@@ -316,6 +316,352 @@ require_once 'alanlar/sidebar.php';
 			</div>
 			<!-- /Schedules -->
 
+			<div class="col-xxl-5 col-xl-12 order-3 order-xxl-2 d-flex">
+				<div class="card flex-fill">
+					<div class="card-header  d-flex align-items-center justify-content-between">
+						<h4 class="card-title">Duyuru Panosu</h4>
+						<a href="notice-board.html" class="fw-medium">Tümünü Görüntüle</a>
+					</div>
+					<div class="card-body">
+						<div class="notice-widget">
+							<div class="d-sm-flex align-items-center justify-content-between mb-4">
+								<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
+									<span
+										class="bg-primary-transparent avatar avatar-md me-2 rounded-circle flex-shrink-0">
+										<i class="ti ti-books fs-16"></i>
+									</span>
+									<div class="overflow-hidden">
+										<h6 class="text-truncate mb-1">Yeni Ders Planları</h6>
+										<p><i class="ti ti-calendar me-2"></i>Eklendi : 11 kasım 2025</p>
+									</div>
+								</div>
+								<span class="badge bg-light text-dark"><i class="ti ti-clck me-1"></i>20
+									Days</span>
+							</div>
+							<div class="d-sm-flex align-items-center justify-content-between mb-4">
+								<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
+									<span
+										class="bg-success-transparent avatar avatar-md me-2 rounded-circle flex-shrink-0">
+										<i class="ti ti-note fs-16"></i>
+									</span>
+									<div class="overflow-hidden">
+										<h6 class="text-truncate mb-1">İspanyolca..!!
+										</h6>
+										<p><i class="ti ti-calendar me-2"></i>Eklendi : 01 kasım 2025</p>
+									</div>
+								</div>
+								<span class="badge bg-light text-dark"><i class="ti ti-clck me-1"></i>15
+									Gün</span>
+							</div>
+							<div class="d-sm-flex align-items-center justify-content-between mb-4">
+								<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
+									<span
+										class="bg-danger-transparent avatar avatar-md me-2 rounded-circle flex-shrink-0">
+										<i class="ti ti-bell-check fs-16"></i>
+									</span>
+									<div class="overflow-hidden">
+										<h6 class="text-truncate mb-1">Sınava Hazırlık Bildirimi!</h6>
+										<p><i class="ti ti-calendar me-2"></i>Eklendi : 05 kasım 2025</p>
+									</div>
+								</div>
+								<span class="badge bg-light text-dark"><i class="ti ti-clck me-1"></i>12
+									Gün</span>
+							</div>
+							<div class="d-sm-flex align-items-center justify-content-between mb-4">
+								<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
+									<span
+										class="bg-skyblue-transparent avatar avatar-md me-2 rounded-circle flex-shrink-0">
+										<i class="ti ti-notes fs-16"></i>
+									</span>
+									<div class="overflow-hidden">
+										<h6 class="text-truncate mb-1">Online Ders Hazırlıkları</h6>
+										<p><i class="ti ti-calendar me-2"></i>Eklendi : 04 kasım 2025</p>
+									</div>
+								</div>
+								<span class="badge bg-light text-dark"><i class="ti ti-clck me-1"></i>02
+									Gün</span>
+							</div>
+							<div class="d-sm-flex align-items-center justify-content-between mb-0">
+								<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
+									<span
+										class="bg-warning-transparent avatar avatar-md me-2 rounded-circle flex-shrink-0">
+										<i class="ti ti-package fs-16"></i>
+									</span>
+									<div class="overflow-hidden">
+										<h6 class="text-truncate mb-1">Sınav Takvimi Açıklaması</h6>
+										<p><i class="ti ti-calendar me-2"></i>Eklendi : 07 Kasım 2025</p>
+									</div>
+								</div>
+								<span class="badge bg-light text-dark"><i class="ti ti-clck me-1"></i>6
+									Gün</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+
+
+		</div>
+
+		<div class="row">
+
+			<!-- Fees Collection -->
+			<div class="col-xxl-6 col-xl-6 d-flex">
+				<div class="card flex-fill">
+					<div class="card-header  d-flex align-items-center justify-content-between">
+						<h4 class="card-title">Ödeme Tahsilleri</h4>
+						<div class="dropdown">
+							<a href="javascript:void(0);" class="bg-white dropdown-toggle" data-bs-toggle="dropdown"><i
+									class="ti ti-calendar  me-2"></i>Son 1 Hafta
+							</a>
+							<ul class="dropdown-menu mt-2 p-3">
+								<li>
+									<a href="javascript:void(0);" class="dropdown-item rounded-1">
+										Bu Ay
+									</a>
+								</li>
+								<li>
+									<a href="javascript:void(0);" class="dropdown-item rounded-1">
+										Bu Yıl
+									</a>
+								</li>
+								<li>
+									<a href="javascript:void(0);" class="dropdown-item rounded-1">
+										Son 12 Ay
+									</a>
+								</li>
+								<li>
+									<a href="javascript:void(0);" class="dropdown-item rounded-1">
+										Son 24 Ay
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="card-body pb-0">
+						<div id="fees-chart"></div>
+					</div>
+				</div>
+			</div>
+			<!-- /Fees Collection -->
+
+			<!-- Leave Requests -->
+			<div class="col-xxl-6 col-xl-6 d-flex">
+				<div class="card flex-fill">
+					<div class="card-header  d-flex align-items-center justify-content-between">
+						<h4 class="card-title">İzin Talepleri</h4>
+						<div class="dropdown">
+							<a href="javascript:void(0);" class="bg-white dropdown-toggle" data-bs-toggle="dropdown"><i
+									class="ti ti-calendar-due me-1"></i>Bugün
+							</a>
+							<ul class="dropdown-menu mt-2 p-3">
+								<li>
+									<a href="javascript:void(0);" class="dropdown-item rounded-1">
+										Bu Hafta
+									</a>
+								</li>
+								<li>
+									<a href="javascript:void(0);" class="dropdown-item rounded-1">
+										Geçen Hafta
+									</a>
+								</li>
+								<li>
+									<a href="javascript:void(0);" class="dropdown-item rounded-1">
+										Geçen Hafta
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="card-body">
+						<div class="card mb-2">
+							<div class="card-body p-3">
+								<div class="d-flex align-items-center justify-content-between mb-3">
+									<div class="d-flex align-items-center overflow-hidden me-2">
+										<a href="javascript:void(0);" class="avatar avatar-lg flex-shrink-0 me-2">
+											<img src="assets/img/profiles/avatar-14.jpg" alt="student">
+										</a>
+										<div class="overflow-hidden">
+											<h6 class="mb-1 text-truncate"><a href="javascript:void(0);">Timoor</a><span
+													class="badge badge-soft-danger ms-1">Acil</span></h6>
+											<p class="text-truncate">İngilizce</p>
+										</div>
+									</div>
+									<div class="d-flex align-items-center">
+										<a href="index.html#" class="avatar avatar-xs p-0 btn btn-success me-1"><i
+												class="ti ti-checks"></i></a>
+										<a href="index.html#" class="avatar avatar-xs p-0 btn btn-danger"><i
+												class="ti ti-x"></i></a>
+									</div>
+								</div>
+								<div class="d-flex align-items-center justify-content-between border-top pt-3">
+									<p class="mb-0">Ayrılış : <span class="fw-semibold">12 kasım</span></p>
+									<p>Başvur : <span class="fw-semibold">20 Kasım</span></p>
+								</div>
+							</div>
+						</div>
+						<div class="card mb-0">
+							<div class="card-body p-3">
+								<div class="d-flex align-items-center justify-content-between mb-3">
+									<div class="d-flex align-items-center overflow-hidden me-2">
+										<a href="javascript:void(0);" class="avatar avatar-lg flex-shrink-0 me-2">
+											<img src="assets/img/profiles/avatar-19.jpg" alt="student">
+										</a>
+										<div class="overflow-hidden">
+											<h6 class="mb-1 text-truncate "><a href="javascript:void(0);">Ali</a><span
+													class="badge badge-soft-warning ms-1">Gündelik</span></h6>
+											<p class="text-truncate">Muhasebe</p>
+										</div>
+									</div>
+									<div class="d-flex align-items-center">
+										<a href="index.html#" class="avatar avatar-xs p-0 btn btn-success me-1"><i
+												class="ti ti-checks"></i></a>
+										<a href="index.html#" class="avatar avatar-xs p-0 btn btn-danger"><i
+												class="ti ti-x"></i></a>
+									</div>
+								</div>
+								<div class="d-flex align-items-center justify-content-between border-top pt-3">
+									<p class="mb-0">Başlangıç : <span class="fw-semibold">13 kasım</span></p>
+									<p>Bitiş : <span class="fw-semibold">15 Kasım</span></p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /Leave Requests -->
+
+		</div>
+
+		<div class="row">
+
+			<!-- Links -->
+			<div class="col-xl-3 col-md-6 d-flex">
+				<a href="student-attendance.html"
+					class="card bg-warning-transparent border border-5 border-white animate-card flex-fill">
+					<div class="card-body">
+						<div class="d-flex align-items-center justify-content-between">
+							<div class="d-flex align-items-center">
+								<span class="avatar avatar-lg bg-warning rounded flex-shrink-0 me-2"><i
+										class="ti ti-calendar-share fs-24"></i></span>
+								<div class="overflow-hidden">
+									<h6 class="fw-semibold text-default">Katılımı Görüntüle</h6>
+								</div>
+							</div>
+							<span
+								class="btn btn-white warning-btn-hover avatar avatar-sm p-0 flex-shrink-0 rounded-circle"><i
+									class="ti ti-chevron-right fs-14"></i></span>
+						</div>
+					</div>
+				</a>
+			</div>
+			<!-- /Links -->
+
+			<!-- Links -->
+			<div class="col-xl-3 col-md-6 d-flex">
+				<a href="events.html"
+					class="card bg-success-transparent border border-5 border-white animate-card flex-fill ">
+					<div class="card-body">
+						<div class="d-flex align-items-center justify-content-between">
+							<div class="d-flex align-items-center">
+								<span class="avatar avatar-lg bg-success rounded flex-shrink-0 me-2"><i
+										class="ti ti-speakerphone fs-24"></i></span>
+								<div class="overflow-hidden">
+									<h6 class="fw-semibold text-default">Yeni Etkinlikler</h6>
+								</div>
+							</div>
+							<span
+								class="btn btn-white success-btn-hover avatar avatar-sm p-0 flex-shrink-0 rounded-circle"><i
+									class="ti ti-chevron-right fs-14"></i></span>
+						</div>
+					</div>
+				</a>
+			</div>
+			<!-- /Links -->
+
+			<!-- Links -->
+			<div class="col-xl-3 col-md-6 d-flex">
+				<a href="membership-plans.html"
+					class="card bg-danger-transparent border border-5 border-white animate-card flex-fill">
+					<div class="card-body">
+						<div class="d-flex align-items-center justify-content-between">
+							<div class="d-flex align-items-center">
+								<span class="avatar avatar-lg bg-danger rounded flex-shrink-0 me-2"><i
+										class="ti ti-sphere fs-24"></i></span>
+								<div class="overflow-hidden">
+									<h6 class="fw-semibold text-default">Üyelik Planları</h6>
+								</div>
+							</div>
+							<span
+								class="btn btn-white avatar avatar-sm p-0 flex-shrink-0 rounded-circle danger-btn-hover"><i
+									class="ti ti-chevron-right fs-14"></i></span>
+						</div>
+					</div>
+				</a>
+			</div>
+			<!-- /Links -->
+
+			<!-- Links -->
+			<div class="col-xl-3 col-md-6 d-flex">
+				<a href="student-attendance.html"
+					class="card bg-secondary-transparent border border-5 border-white animate-card flex-fill">
+					<div class="card-body">
+						<div class="d-flex align-items-center justify-content-between">
+							<div class="d-flex align-items-center">
+								<span class="avatar avatar-lg bg-secondary rounded flex-shrink-0 me-2"><i
+										class="ti ti-moneybag fs-24"></i></span>
+								<div class="overflow-hidden">
+									<h6 class="fw-semibold text-default">Finans ve Muhasebe</h6>
+								</div>
+							</div>
+							<span
+								class="btn btn-white secondary-btn-hover avatar avatar-sm p-0 flex-shrink-0 rounded-circle"><i
+									class="ti ti-chevron-right fs-14"></i></span>
+						</div>
+					</div>
+				</a>
+			</div>
+			<!-- /Links -->
+
+		</div>
+		<div class="row">
+
+			<!-- Total Earnings -->
+			<div class="col-xxl-4 col-xl-6 d-flex flex-column">
+				<div class="card flex-fill">
+					<div class="card-body">
+						<div class="d-flex align-items-center justify-content-between">
+							<div>
+								<h6 class="mb-1">Toplam Kazanç</h6>
+								<h2>₺164,522,24</h2>
+							</div>
+							<span class="avatar avatar-lg bg-primary">
+								<i class="ti ti-user-dollar"></i>
+							</span>
+						</div>
+					</div>
+					<div id="total-earning"></div>
+				</div>
+				<div class="card flex-fill">
+					<div class="card-body">
+						<div class="d-flex align-items-center justify-content-between">
+							<div>
+								<h6 class="mb-1">Toplam Giderler</h6>
+								<h2>₺60,522,24</h2>
+							</div>
+							<span class="avatar avatar-lg bg-danger">
+								<i class="ti ti-user-dollar"></i>
+							</span>
+						</div>
+					</div>
+					<div id="total-expenses"></div>
+				</div>
+			</div>
+			<!-- /Total Earnings -->
+
+			<!-- Notice Board -->
 			<!-- Attendance -->
 			<div class="col-xxl-4 col-xl-6 col-md-12 d-flex flex-column">
 
@@ -719,350 +1065,6 @@ require_once 'alanlar/sidebar.php';
 					</div>
 				</div>
 				<!-- /Class Wise Performance -->
-
-			</div>
-
-		</div>
-
-		<div class="row">
-
-			<!-- Fees Collection -->
-			<div class="col-xxl-8 col-xl-6 d-flex">
-				<div class="card flex-fill">
-					<div class="card-header  d-flex align-items-center justify-content-between">
-						<h4 class="card-title">Ödeme Tahsilleri</h4>
-						<div class="dropdown">
-							<a href="javascript:void(0);" class="bg-white dropdown-toggle" data-bs-toggle="dropdown"><i
-									class="ti ti-calendar  me-2"></i>Son 1 Hafta
-							</a>
-							<ul class="dropdown-menu mt-2 p-3">
-								<li>
-									<a href="javascript:void(0);" class="dropdown-item rounded-1">
-										Bu Ay
-									</a>
-								</li>
-								<li>
-									<a href="javascript:void(0);" class="dropdown-item rounded-1">
-										Bu Yıl
-									</a>
-								</li>
-								<li>
-									<a href="javascript:void(0);" class="dropdown-item rounded-1">
-										Son 12 Ay
-									</a>
-								</li>
-								<li>
-									<a href="javascript:void(0);" class="dropdown-item rounded-1">
-										Son 24 Ay
-									</a>
-								</li>
-							</ul>
-						</div>
-					</div>
-					<div class="card-body pb-0">
-						<div id="fees-chart"></div>
-					</div>
-				</div>
-			</div>
-			<!-- /Fees Collection -->
-
-			<!-- Leave Requests -->
-			<div class="col-xxl-4 col-xl-6 d-flex">
-				<div class="card flex-fill">
-					<div class="card-header  d-flex align-items-center justify-content-between">
-						<h4 class="card-title">İzin Talepleri</h4>
-						<div class="dropdown">
-							<a href="javascript:void(0);" class="bg-white dropdown-toggle" data-bs-toggle="dropdown"><i
-									class="ti ti-calendar-due me-1"></i>Bugün
-							</a>
-							<ul class="dropdown-menu mt-2 p-3">
-								<li>
-									<a href="javascript:void(0);" class="dropdown-item rounded-1">
-										Bu Hafta
-									</a>
-								</li>
-								<li>
-									<a href="javascript:void(0);" class="dropdown-item rounded-1">
-										Geçen Hafta
-									</a>
-								</li>
-								<li>
-									<a href="javascript:void(0);" class="dropdown-item rounded-1">
-										Geçen Hafta
-									</a>
-								</li>
-							</ul>
-						</div>
-					</div>
-					<div class="card-body">
-						<div class="card mb-2">
-							<div class="card-body p-3">
-								<div class="d-flex align-items-center justify-content-between mb-3">
-									<div class="d-flex align-items-center overflow-hidden me-2">
-										<a href="javascript:void(0);" class="avatar avatar-lg flex-shrink-0 me-2">
-											<img src="assets/img/profiles/avatar-14.jpg" alt="student">
-										</a>
-										<div class="overflow-hidden">
-											<h6 class="mb-1 text-truncate"><a href="javascript:void(0);">Timoor</a><span
-													class="badge badge-soft-danger ms-1">Acil</span></h6>
-											<p class="text-truncate">İngilizce</p>
-										</div>
-									</div>
-									<div class="d-flex align-items-center">
-										<a href="index.html#" class="avatar avatar-xs p-0 btn btn-success me-1"><i
-												class="ti ti-checks"></i></a>
-										<a href="index.html#" class="avatar avatar-xs p-0 btn btn-danger"><i
-												class="ti ti-x"></i></a>
-									</div>
-								</div>
-								<div class="d-flex align-items-center justify-content-between border-top pt-3">
-									<p class="mb-0">Ayrılış : <span class="fw-semibold">12 kasım</span></p>
-									<p>Başvur : <span class="fw-semibold">20 Kasım</span></p>
-								</div>
-							</div>
-						</div>
-						<div class="card mb-0">
-							<div class="card-body p-3">
-								<div class="d-flex align-items-center justify-content-between mb-3">
-									<div class="d-flex align-items-center overflow-hidden me-2">
-										<a href="javascript:void(0);" class="avatar avatar-lg flex-shrink-0 me-2">
-											<img src="assets/img/profiles/avatar-19.jpg" alt="student">
-										</a>
-										<div class="overflow-hidden">
-											<h6 class="mb-1 text-truncate "><a href="javascript:void(0);">Ali</a><span
-													class="badge badge-soft-warning ms-1">Gündelik</span></h6>
-											<p class="text-truncate">Muhasebe</p>
-										</div>
-									</div>
-									<div class="d-flex align-items-center">
-										<a href="index.html#" class="avatar avatar-xs p-0 btn btn-success me-1"><i
-												class="ti ti-checks"></i></a>
-										<a href="index.html#" class="avatar avatar-xs p-0 btn btn-danger"><i
-												class="ti ti-x"></i></a>
-									</div>
-								</div>
-								<div class="d-flex align-items-center justify-content-between border-top pt-3">
-									<p class="mb-0">Başlangıç : <span class="fw-semibold">13 kasım</span></p>
-									<p>Bitiş : <span class="fw-semibold">15 Kasım</span></p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<!-- /Leave Requests -->
-
-		</div>
-
-		<div class="row">
-
-			<!-- Links -->
-			<div class="col-xl-3 col-md-6 d-flex">
-				<a href="student-attendance.html"
-					class="card bg-warning-transparent border border-5 border-white animate-card flex-fill">
-					<div class="card-body">
-						<div class="d-flex align-items-center justify-content-between">
-							<div class="d-flex align-items-center">
-								<span class="avatar avatar-lg bg-warning rounded flex-shrink-0 me-2"><i
-										class="ti ti-calendar-share fs-24"></i></span>
-								<div class="overflow-hidden">
-									<h6 class="fw-semibold text-default">Katılımı Görüntüle</h6>
-								</div>
-							</div>
-							<span
-								class="btn btn-white warning-btn-hover avatar avatar-sm p-0 flex-shrink-0 rounded-circle"><i
-									class="ti ti-chevron-right fs-14"></i></span>
-						</div>
-					</div>
-				</a>
-			</div>
-			<!-- /Links -->
-
-			<!-- Links -->
-			<div class="col-xl-3 col-md-6 d-flex">
-				<a href="events.html"
-					class="card bg-success-transparent border border-5 border-white animate-card flex-fill ">
-					<div class="card-body">
-						<div class="d-flex align-items-center justify-content-between">
-							<div class="d-flex align-items-center">
-								<span class="avatar avatar-lg bg-success rounded flex-shrink-0 me-2"><i
-										class="ti ti-speakerphone fs-24"></i></span>
-								<div class="overflow-hidden">
-									<h6 class="fw-semibold text-default">Yeni Etkinlikler</h6>
-								</div>
-							</div>
-							<span
-								class="btn btn-white success-btn-hover avatar avatar-sm p-0 flex-shrink-0 rounded-circle"><i
-									class="ti ti-chevron-right fs-14"></i></span>
-						</div>
-					</div>
-				</a>
-			</div>
-			<!-- /Links -->
-
-			<!-- Links -->
-			<div class="col-xl-3 col-md-6 d-flex">
-				<a href="membership-plans.html"
-					class="card bg-danger-transparent border border-5 border-white animate-card flex-fill">
-					<div class="card-body">
-						<div class="d-flex align-items-center justify-content-between">
-							<div class="d-flex align-items-center">
-								<span class="avatar avatar-lg bg-danger rounded flex-shrink-0 me-2"><i
-										class="ti ti-sphere fs-24"></i></span>
-								<div class="overflow-hidden">
-									<h6 class="fw-semibold text-default">Üyelik Planları</h6>
-								</div>
-							</div>
-							<span
-								class="btn btn-white avatar avatar-sm p-0 flex-shrink-0 rounded-circle danger-btn-hover"><i
-									class="ti ti-chevron-right fs-14"></i></span>
-						</div>
-					</div>
-				</a>
-			</div>
-			<!-- /Links -->
-
-			<!-- Links -->
-			<div class="col-xl-3 col-md-6 d-flex">
-				<a href="student-attendance.html"
-					class="card bg-secondary-transparent border border-5 border-white animate-card flex-fill">
-					<div class="card-body">
-						<div class="d-flex align-items-center justify-content-between">
-							<div class="d-flex align-items-center">
-								<span class="avatar avatar-lg bg-secondary rounded flex-shrink-0 me-2"><i
-										class="ti ti-moneybag fs-24"></i></span>
-								<div class="overflow-hidden">
-									<h6 class="fw-semibold text-default">Finans ve Muhasebe</h6>
-								</div>
-							</div>
-							<span
-								class="btn btn-white secondary-btn-hover avatar avatar-sm p-0 flex-shrink-0 rounded-circle"><i
-									class="ti ti-chevron-right fs-14"></i></span>
-						</div>
-					</div>
-				</a>
-			</div>
-			<!-- /Links -->
-
-		</div>
-		<div class="row">
-
-			<!-- Total Earnings -->
-			<div class="col-xxl-4 col-xl-6 d-flex flex-column">
-				<div class="card flex-fill">
-					<div class="card-body">
-						<div class="d-flex align-items-center justify-content-between">
-							<div>
-								<h6 class="mb-1">Toplam Kazanç</h6>
-								<h2>₺164,522,24</h2>
-							</div>
-							<span class="avatar avatar-lg bg-primary">
-								<i class="ti ti-user-dollar"></i>
-							</span>
-						</div>
-					</div>
-					<div id="total-earning"></div>
-				</div>
-				<div class="card flex-fill">
-					<div class="card-body">
-						<div class="d-flex align-items-center justify-content-between">
-							<div>
-								<h6 class="mb-1">Toplam Giderler</h6>
-								<h2>₺60,522,24</h2>
-							</div>
-							<span class="avatar avatar-lg bg-danger">
-								<i class="ti ti-user-dollar"></i>
-							</span>
-						</div>
-					</div>
-					<div id="total-expenses"></div>
-				</div>
-			</div>
-			<!-- /Total Earnings -->
-
-			<!-- Notice Board -->
-			<div class="col-xxl-5 col-xl-12 order-3 order-xxl-2 d-flex">
-				<div class="card flex-fill">
-					<div class="card-header  d-flex align-items-center justify-content-between">
-						<h4 class="card-title">Duyuru Panosu</h4>
-						<a href="notice-board.html" class="fw-medium">Tümünü Görüntüle</a>
-					</div>
-					<div class="card-body">
-						<div class="notice-widget">
-							<div class="d-sm-flex align-items-center justify-content-between mb-4">
-								<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
-									<span
-										class="bg-primary-transparent avatar avatar-md me-2 rounded-circle flex-shrink-0">
-										<i class="ti ti-books fs-16"></i>
-									</span>
-									<div class="overflow-hidden">
-										<h6 class="text-truncate mb-1">Yeni Ders Planları</h6>
-										<p><i class="ti ti-calendar me-2"></i>Eklendi : 11 kasım 2025</p>
-									</div>
-								</div>
-								<span class="badge bg-light text-dark"><i class="ti ti-clck me-1"></i>20
-									Days</span>
-							</div>
-							<div class="d-sm-flex align-items-center justify-content-between mb-4">
-								<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
-									<span
-										class="bg-success-transparent avatar avatar-md me-2 rounded-circle flex-shrink-0">
-										<i class="ti ti-note fs-16"></i>
-									</span>
-									<div class="overflow-hidden">
-										<h6 class="text-truncate mb-1">İspanyolca..!!
-										</h6>
-										<p><i class="ti ti-calendar me-2"></i>Eklendi : 01 kasım 2025</p>
-									</div>
-								</div>
-								<span class="badge bg-light text-dark"><i class="ti ti-clck me-1"></i>15
-									Gün</span>
-							</div>
-							<div class="d-sm-flex align-items-center justify-content-between mb-4">
-								<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
-									<span
-										class="bg-danger-transparent avatar avatar-md me-2 rounded-circle flex-shrink-0">
-										<i class="ti ti-bell-check fs-16"></i>
-									</span>
-									<div class="overflow-hidden">
-										<h6 class="text-truncate mb-1">Sınava Hazırlık Bildirimi!</h6>
-										<p><i class="ti ti-calendar me-2"></i>Eklendi : 05 kasım 2025</p>
-									</div>
-								</div>
-								<span class="badge bg-light text-dark"><i class="ti ti-clck me-1"></i>12
-									Gün</span>
-							</div>
-							<div class="d-sm-flex align-items-center justify-content-between mb-4">
-								<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
-									<span
-										class="bg-skyblue-transparent avatar avatar-md me-2 rounded-circle flex-shrink-0">
-										<i class="ti ti-notes fs-16"></i>
-									</span>
-									<div class="overflow-hidden">
-										<h6 class="text-truncate mb-1">Online Ders Hazırlıkları</h6>
-										<p><i class="ti ti-calendar me-2"></i>Eklendi : 04 kasım 2025</p>
-									</div>
-								</div>
-								<span class="badge bg-light text-dark"><i class="ti ti-clck me-1"></i>02
-									Gün</span>
-							</div>
-							<div class="d-sm-flex align-items-center justify-content-between mb-0">
-								<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
-									<span
-										class="bg-warning-transparent avatar avatar-md me-2 rounded-circle flex-shrink-0">
-										<i class="ti ti-package fs-16"></i>
-									</span>
-									<div class="overflow-hidden">
-										<h6 class="text-truncate mb-1">Sınav Takvimi Açıklaması</h6>
-										<p><i class="ti ti-calendar me-2"></i>Eklendi : 07 Kasım 2025</p>
-									</div>
-								</div>
-								<span class="badge bg-light text-dark"><i class="ti ti-clck me-1"></i>6
-									Gün</span>
-							</div>
-						</div>
-					</div>
-				</div>
 
 			</div>
 			<!-- /Notice Board -->
