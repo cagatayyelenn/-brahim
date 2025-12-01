@@ -26,7 +26,21 @@ ORDER BY o.ogrenci_numara DESC";
 
 $ogrenciler = $db->get($sql, [':sube_id' => $sube_id]);
 
-$toplamOgrencisayisi = count($ogrenciler);
+if (!$ogrenciler) {
+	$aktifogr = 0;
+	$pasifogr = 0;
+	$toplamogr = 0;
+
+	foreach ($ogrenciler as $key => $value) {
+		if ($value['durum'] == 'Aktif') {
+			$aktifogr++;
+		}
+		if ($value['durum'] == 'Pasif') {
+			$pasifogr++;
+		}
+		$toplamogr++;
+	}
+}
 
 /* ------------------ Yardımcı fonksiyonlar ------------------ */
 if (!function_exists('h')) {
@@ -662,16 +676,16 @@ require_once 'alanlar/sidebar.php';
 							</div>
 							<div class="overflow-hidden flex-fill">
 								<div class="d-flex align-items-center justify-content-between">
-									<h2 class="counter"><?= $toplamOgrencisayisi ?></h2>
+									<h2 class="counter"><?= $toplamogr ?></h2>
 
 								</div>
 								<p>Toplam Öğrenci</p>
 							</div>
 						</div>
 						<div class="d-flex align-items-center justify-content-between border-top mt-3 pt-3">
-							<p class="mb-0">Aktif : <span class="text-dark fw-semibold">450</span></p>
+							<p class="mb-0">Aktif : <span class="text-dark fw-semibold"><?= $aktifogr ?></span></p>
 							<span class="text-light">|</span>
-							<p>Pasif : <span class="text-dark fw-semibold">11</span></p>
+							<p>Pasif : <span class="text-dark fw-semibold"><?= $pasifogr ?></span></p>
 						</div>
 					</div>
 				</div>
