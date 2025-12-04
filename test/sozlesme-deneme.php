@@ -135,8 +135,8 @@ require_once 'alanlar/sidebar.php';
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label class="form-label">Birim Fiyatı</label>
-                                        <input type="text" class="form-control money-input" name="birim_fiyat" id="birimFiyat"
-                                            placeholder="0,00" required>
+                                        <input type="text" class="form-control money-input" name="birim_fiyat"
+                                            id="birimFiyat" placeholder="0,00" required>
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label class="form-label">Miktar</label>
@@ -338,7 +338,36 @@ require_once 'alanlar/sidebar.php';
 
     // Navigasyon
     function nextStep(step) {
-        // Validasyon eklenebilir
+        // Mevcut adımı bul (Gidilecek adım - 1)
+        var currentStep = step - 1;
+        var valid = true;
+
+        // Mevcut adımdaki required olan input ve selectleri kontrol et
+        $('#step' + currentStep + ' [required]').each(function () {
+            if (!$(this).val()) {
+                valid = false;
+                $(this).addClass('is-invalid'); // Hata görseli ekle (Bootstrap class)
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+
+        if (!valid) {
+            // SweetAlert varsa kullan, yoksa alert
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Eksik Bilgi',
+                    text: 'Lütfen zorunlu alanları doldurunuz.',
+                    confirmButtonText: 'Tamam'
+                });
+            } else {
+                alert('Lütfen zorunlu alanları doldurunuz.');
+            }
+            return; // İlerlemeyi durdur
+        }
+
+        // Validasyon başarılıysa hesaplamaları yap
         if (step === 3) hesaplaStep2();
         if (step === 4) hesaplaStep3();
 
