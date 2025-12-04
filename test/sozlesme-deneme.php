@@ -21,7 +21,7 @@ $ogrenci = [];
 
 if ($ogrenci_id) {
     // Tablo adı: ogrenci1, URL'deki id: ogrenci_numara
-    $ogrenci = $db->get("SELECT * FROM ogrenci1 WHERE ogrenci_numara = :id", [':id' => $ogrenci_id]);
+    $ogrenci = $db->gets("SELECT * FROM ogrenci1 WHERE ogrenci_numara = :id", [':id' => $ogrenci_id]);
 }
 
 // Eğer öğrenci bulunamazsa listeye yönlendir
@@ -70,7 +70,8 @@ require_once 'alanlar/sidebar.php';
                                 <h5 class="mb-1 text-primary">Seçili Öğrenci</h5>
                                 <p class="mb-0 fs-16">
                                     <strong><?= htmlspecialchars($ogrenci['ogrenci_adi'] . ' ' . $ogrenci['ogrenci_soyadi']) ?></strong>
-                                    <span class="text-muted ms-2">(Öğrenci No: <?= htmlspecialchars($ogrenci['ogrenci_numara']) ?>)</span>
+                                    <span class="text-muted ms-2">(Öğrenci No:
+                                        <?= htmlspecialchars($ogrenci['ogrenci_numara']) ?>)</span>
                                 </p>
                             </div>
                         </div>
