@@ -135,8 +135,8 @@ require_once 'alanlar/sidebar.php';
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label class="form-label">Birim Fiyatı</label>
-                                        <input type="number" class="form-control" name="birim_fiyat" id="birimFiyat"
-                                            step="0.01" placeholder="0.00" required>
+                                        <input type="text" class="form-control money-input" name="birim_fiyat" id="birimFiyat"
+                                            placeholder="0,00" required>
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label class="form-label">Miktar</label>
@@ -177,8 +177,8 @@ require_once 'alanlar/sidebar.php';
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label class="form-label">Peşinat Tutarı</label>
-                                        <input type="number" class="form-control" name="pesinat" id="pesinat"
-                                            step="0.01" placeholder="0.00">
+                                        <input type="text" class="form-control money-input" name="pesinat" id="pesinat"
+                                            placeholder="0,00">
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label class="form-label">Ödeme Seçeneği</label>
@@ -280,30 +280,59 @@ require_once 'alanlar/sidebar.php';
         });
     })();
 
+    // Para formatlama fonksiyonu (1234.56 -> 1.234,56)
+    function formatMoney(n) {
+        var num = parseFloat(n) || 0;
+        return num.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Para ayrıştırma fonksiyonu (1.234,56 -> 1234.56)
+    function parseMoney(s) {
+        if (!s) return 0;
+        // Sadece sayı, virgül ve eksi işaretini bırak, gerisini sil (noktaları sil)
+        // 1.234,56 -> 1234,56 -> 1234.56
+        var clean = s.toString().replace(/\./g, '').replace(',', '.');
+        return parseFloat(clean) || 0;
+    }
+
+    // Input maskeleme (Basitçe blur'da formatla, focus'ta temizle)
+    $('.money-input').on('blur', function () {
+        var val = parseMoney($(this).val());
+        $(this).val(formatMoney(val));
+    }).on('focus', function () {
+        var val = parseMoney($(this).val());
+        if (val === 0) $(this).val('');
+        else $(this).val(val.toString().replace('.', ',')); // Düzenlerken virgüllü göster
+    });
+
     // Hesaplama Fonksiyonları
     function hesaplaStep2() {
-        var fiyat = parseFloat(document.getElementById('birimFiyat').value) || 0;
+        var fiyat = parseMoney(document.getElementById('birimFiyat').value);
         var miktar = parseFloat(document.getElementById('miktar').value) || 0;
         var toplam = fiyat * miktar;
-        document.getElementById('hesaplananTutar').value = toplam.toFixed(2) + ' TL';
+
+        document.getElementById('hesaplananTutar').value = formatMoney(toplam) + ' TL';
 
         // Step 3 verilerini hazırla
-        document.getElementById('odemeBirimTutar').value = fiyat.toFixed(2) + ' TL';
-        document.getElementById('odemeTutar').value = toplam.toFixed(2) + ' TL';
-        document.getElementById('odemeToplamTutar').value = toplam.toFixed(2) + ' TL';
+        document.getElementById('odemeBirimTutar').value = formatMoney(fiyat) + ' TL';
+        document.getElementById('odemeTutar').value = formatMoney(toplam) + ' TL';
+        document.getElementById('odemeToplamTutar').value = formatMoney(toplam) + ' TL';
+
+        // Eğer peşinat varsa kalan tutarı da güncelle
+        hesaplaStep3();
     }
 
     function hesaplaStep3() {
         var toplamStr = document.getElementById('odemeToplamTutar').value.replace(' TL', '');
-        var toplam = parseFloat(toplamStr) || 0;
-        var pesinat = parseFloat(document.getElementById('pesinat').value) || 0;
+        var toplam = parseMoney(toplamStr);
+        var pesinat = parseMoney(document.getElementById('pesinat').value);
         var kalan = toplam - pesinat;
 
-        document.getElementById('kalanTutar').value = kalan.toFixed(2) + ' TL';
+        document.getElementById('kalanTutar').value = formatMoney(kalan) + ' TL';
     }
 
     // Event Listeners
-    document.getElementById('birimFiyat').addEventListener('input', hesaplaStep2);
+    document.getElementById('birimFiyat').addEventListener('input', hesaplaStep2); // Yazarken de hesaplasın (arka planda parseMoney hallediyor)
     document.getElementById('miktar').addEventListener('input', hesaplaStep2);
     document.getElementById('pesinat').addEventListener('input', hesaplaStep3);
 
@@ -331,7 +360,7 @@ require_once 'alanlar/sidebar.php';
     // Taksit Oluşturma
     function taksitOlustur() {
         var kalanStr = document.getElementById('kalanTutar').value.replace(' TL', '');
-        var kalan = parseFloat(kalanStr) || 0;
+        var kalan = parseMoney(kalanStr);
         var taksitSayisi = parseInt(document.getElementById('taksitSayisi').value) || 1;
         var baslangicTarihi = new Date(document.getElementById('taksitBaslangic').value);
 
@@ -341,6 +370,9 @@ require_once 'alanlar/sidebar.php';
         }
 
         var taksitTutar = kalan / taksitSayisi;
+        // Küsürat düzeltmesi (toplam tutarın tam tutması için)
+        var toplamTaksit = 0;
+
         var tbody = document.querySelector('#taksitTablosu tbody');
         tbody.innerHTML = '';
 
@@ -353,10 +385,18 @@ require_once 'alanlar/sidebar.php';
             var yil = vade.getFullYear();
             var tarihFormat = gun + '.' + ay + '.' + yil;
 
+            // Son taksit kuruş farkını düzeltsin
+            var buTaksit = taksitTutar;
+            if (i === taksitSayisi - 1) {
+                buTaksit = kalan - toplamTaksit;
+            }
+            buTaksit = parseFloat(buTaksit.toFixed(2)); // Yuvarlama
+            toplamTaksit += buTaksit;
+
             var row = `<tr>
                 <td>${i + 1}</td>
                 <td>${tarihFormat}</td>
-                <td>${taksitTutar.toFixed(2)} TL</td>
+                <td>${formatMoney(buTaksit)} TL</td>
             </tr>`;
             tbody.innerHTML += row;
         }
