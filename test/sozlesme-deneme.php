@@ -449,9 +449,11 @@ require_once 'alanlar/sidebar.php';
         e.preventDefault();
 
         // Temel validasyonlar
-        var ogrenci_id = <?= (int) $ogrenci_id ?>;
+        // URL'deki id (numara) değil, veritabanındaki gerçek ID'yi (PK) kullanmalıyız
+        var ogrenci_id = <?= (int)($ogrenci['ogrenci_id'] ?? 0) ?>;
+        
         if (!ogrenci_id) {
-            alert("Lütfen bir öğrenci seçiniz (URL'de id parametresi yok).");
+            alert("Öğrenci kimliği bulunamadı.");
             return;
         }
 
