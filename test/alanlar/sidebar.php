@@ -1,13 +1,13 @@
-
-
 <div class="sidebar" id="sidebar">
     <div class="sidebar-inner slimscroll">
         <div id="sidebar-menu" class="sidebar-menu">
             <ul>
                 <li>
                     <a href="javascript:void(0);" class="d-flex align-items-center border bg-white rounded p-2 mb-4">
-                        <img src="assets/img/icons/global-img.svg" class="avatar avatar-md img-fluid rounded" alt="Profile">
-                        <span class="text-dark ms-2 fw-normal"><?= !empty($user['sube_adi']) ? htmlspecialchars($user['sube_adi']) . ' Şubesi' : 'Geçersiz Şube' ?></span>
+                        <img src="assets/img/icons/global-img.svg" class="avatar avatar-md img-fluid rounded"
+                            alt="Profile">
+                        <span
+                            class="text-dark ms-2 fw-normal"><?= !empty($user['sube_adi']) ? htmlspecialchars($user['sube_adi']) . ' Şubesi' : 'Geçersiz Şube' ?></span>
                     </a>
                 </li>
             </ul>
@@ -16,7 +16,8 @@
                     <h6 class="submenu-hdr"><span>Main</span></h6>
                     <ul>
 
-                        <li><a href="index.php" class="menuactive"><i class="ti ti-layout-dashboard"></i><span>Anasayfa</span></a></li>
+                        <li><a href="index.php" class="menuactive"><i
+                                    class="ti ti-layout-dashboard"></i><span>Anasayfa</span></a></li>
 
                     </ul>
                 </li>
@@ -24,11 +25,19 @@
                     <h6 class="submenu-hdr"><span>Kişiler</span></h6>
                     <ul>
 
-                        <li><a href="ogrenci-listesi.php" ><i class="ti ti-school"></i><span>Öğrenciler</span></a>
-                        <!--<li><a href="ogrenci-listesi.php" ><i class="ti ti-users"></i><span>Öğretmenler</span></a>
+                        <li><a href="ogrenci-listesi.php"><i class="ti ti-school"></i><span>Öğrenciler</span></a>
+                            <!--<li><a href="ogrenci-listesi.php" ><i class="ti ti-users"></i><span>Öğretmenler</span></a>
                         <li><a href="ogrenci-listesi.php" ><i class="ti ti-users-group"></i><span>Gruplar-Firmalar</span></a></li>-->
-                        <li><a href="personeller.php" ><i class="ti ti-user-bolt"></i><span>Personeller</span></a>
+                        <li><a href="personeller.php"><i class="ti ti-user-bolt"></i><span>Personeller</span></a>
 
+                    </ul>
+                </li>
+                <li>
+                    <h6 class="submenu-hdr"><span>İşlemler</span></h6>
+                    <ul>
+                        <li><a href="gorusme.php"><i class="ti ti-message-circle"></i><span>Görüşme</span></a></li>
+                        <li><a href="kitap.php"><i class="ti ti-book"></i><span>Kitap Satış</span></a></li>
+                        <li><a href="is-basvuru.php"><i class="ti ti-briefcase"></i><span>İş Başvuruları</span></a></li>
                     </ul>
                 </li>
                 <li>
@@ -41,7 +50,8 @@
                     <h6 class="submenu-hdr"><span>Yönetim</span></h6>
                     <ul>
                         <li class="submenu">
-                            <a href="javascript:void(0);"><i class="ti ti-layout-list"></i><span>Okul Parametreler</span><span class="menu-arrow"></span></a>
+                            <a href="javascript:void(0);"><i class="ti ti-layout-list"></i><span>Okul
+                                    Parametreler</span><span class="menu-arrow"></span></a>
                             <ul>
                                 <li><a href="alan-bilgisi.php">Alan Bilgisi</a></li>
                                 <li><a href="birim-bilgisi.php">Birim Bilgisi</a></li>
@@ -52,14 +62,16 @@
                             </ul>
                         </li>
                         <li class="submenu">
-                            <a href="javascript:void(0);"><i class="ti ti-location-pin"></i><span>Konum Parametreler</span><span class="menu-arrow"></span></a>
+                            <a href="javascript:void(0);"><i class="ti ti-location-pin"></i><span>Konum
+                                    Parametreler</span><span class="menu-arrow"></span></a>
                             <ul>
                                 <li><a href="il-bilgisi.php">İl Bilgisi</a></li>
                                 <li><a href="ilce-bilgisi.php">İlçe Bilgisi</a></li>
                             </ul>
                         </li>
                         <li class="submenu">
-                            <a href="javascript:void(0);" ><i class="ti ti-report-money"></i><span>Muhasebe Parametreleri</span><span class="menu-arrow"></span></a>
+                            <a href="javascript:void(0);"><i class="ti ti-report-money"></i><span>Muhasebe
+                                    Parametreleri</span><span class="menu-arrow"></span></a>
                             <ul>
                                 <li><a href="fees-group.html">Kasa Tercihleri</a></li>
                                 <li><a href="fees-type.html">Ödeme Yöntemleri</a></li>
@@ -68,7 +80,7 @@
                         </li>
                     </ul>
                 </li>
-               <!-- <li>
+                <!-- <li>
                     <h6 class="submenu-hdr"><span>HRM</span></h6>
                     <ul>
                         <li><a href="staffs.html"><i class="ti ti-users-group"></i><span>Staffs</span></a></li>
