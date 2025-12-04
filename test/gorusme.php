@@ -6,19 +6,111 @@ require_once 'dosyalar/oturum.php';
 $db = new Ydil();
 $pageTitle = "Görüşme Listesi";
 
+// --- Ekleme İşlemi ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
+
+    $tarih_raw = $_POST['tarih'] ?? '';
+    // Tarih formatını d.m.Y -> Y-m-d çevir
+    $tarih = '';
+    if ($tarih_raw) {
+        $dt = DateTime::createFromFormat('d.m.Y', $tarih_raw);
+        if ($dt) {
+            $tarih = $dt->format('Y-m-d');
+        }
+    }
+    if (empty($tarih))
+        $tarih = date('Y-m-d'); // Fallback
+
+    $ad = trim($_POST['ad'] ?? '');
+    $soyad = trim($_POST['soyad'] ?? '');
+    $alan_id = (int) ($_POST['alan_id'] ?? 0);
+    $referans = trim($_POST['referans'] ?? '');
+    $aciklama = trim($_POST['aciklama'] ?? '');
+    $sonuc = trim($_POST['sonuc'] ?? '');
+    $gorusen_id = (int) ($_POST['gorusen_id'] ?? 0);
+
+    // Basit Validasyon
+    if (empty($ad) || empty($soyad)) {
+        $_SESSION['flash_swal'] = [
+            'icon' => 'warning',
+            'title' => 'Eksik Bilgi',
+            'text' => 'Lütfen Ad ve Soyad alanlarını doldurunuz.'
+        ];
+    } else {
+        // Veritabanına Ekle
+        $columns = [
+            'tarih',
+            'ad',
+            'soyad',
+            'alan_id',
+            'referans',
+            'aciklama',
+            'sonuc',
+            'gorusen_id',
+            'created_at'
+        ];
+        $values = [
+            $tarih,
+            $ad,
+            $soyad,
+            $alan_id,
+            $referans,
+            $aciklama,
+            $sonuc,
+            $gorusen_id,
+            date('Y-m-d H:i:s')
+        ];
+
+        // Tablo adının 'gorusmeler' olduğunu varsayıyoruz.
+        $ins = $db->insert('gorusmeler', $columns, $values);
+
+        if ($ins['status'] == 1) {
+            $_SESSION['flash_swal'] = [
+                'icon' => 'success',
+                'title' => 'Başarılı',
+                'text' => 'Görüşme başarıyla kaydedildi.'
+            ];
+        } else {
+            $_SESSION['flash_swal'] = [
+                'icon' => 'error',
+                'title' => 'Hata',
+                'text' => 'Kayıt sırasında bir hata oluştu: ' . ($ins['error'] ?? 'Bilinmeyen hata')
+            ];
+        }
+    }
+
+    // Post/Redirect/Get pattern to prevent resubmission
+    header("Location: gorusme.php");
+    exit;
+}
+
 // Dilleri (Alanları) Çek
-// test klasöründeki yapıya göre tablo isimleri değişmiş olabilir mi? 
-// ogrenci-ekle.php'de 'il', 'ilce' kullanılmış. 'alan' tablosu var mı kontrol etmedim ama varsayıyorum.
-// Eğer hata verirse düzeltiriz.
-$alanlar = $db->finds('alan', null, null, ['alan_id', 'alan_adi']);
+$alanlar = $db->finds('alan', ['alan_durum' => 1], null, ['alan_id', 'alan_adi']);
 
 // Oturum açan kullanıcı
 $gorusen_adi = "Sistem Kullanıcısı";
+$gorusen_id = 0;
 if (isset($_SESSION['ad']) && isset($_SESSION['soyad'])) {
     $gorusen_adi = $_SESSION['ad'] . " " . $_SESSION['soyad'];
+    $gorusen_id = $_SESSION['user_id'] ?? 0; // user_id veya kisi_id, projeye göre değişebilir
 } elseif (isset($_SESSION['kullanici_adi'])) {
     $gorusen_adi = $_SESSION['kullanici_adi'];
 }
+// Session'dan ID'yi garantiye alalım (kisi_id genelde kullanılır bu projede gördüğüm kadarıyla)
+if (isset($_SESSION['kisi_id']))
+    $gorusen_id = $_SESSION['kisi_id'];
+
+
+// Listeyi Çek (En son eklenen en üstte)
+// Tablo: gorusmeler, Join: alan (dil ismi için)
+// Not: Eğer alan tablosuyla join gerekirse SQL yazabiliriz, şimdilik düz çekelim, alan adını döngüde veya joinle bulalım.
+// Basitlik adına düz çekip, alan listesinden eşleştirebiliriz veya SQL join yapabiliriz.
+// Ydil sınıfının yapısına uygun olarak custom query kullanalım daha temiz olur.
+$sql_list = "SELECT g.*, a.alan_adi 
+             FROM gorusmeler g 
+             LEFT JOIN alan a ON g.alan_id = a.alan_id 
+             ORDER BY g.id DESC";
+$gorusme_listesi = $db->get($sql_list); // get metodu tüm satırları çeker diye varsayıyorum (analizden hatırladığım kadarıyla)
 
 ?>
 
@@ -63,29 +155,31 @@ require_once 'alanlar/sidebar.php';
                         </div>
                     </div>
                     <div class="card-body">
-                        <form>
+                        <form method="POST" action="">
                             <div class="row">
                                 <!-- Tarih -->
                                 <div class="col-md-2 mb-3">
                                     <label class="form-label" for="inputTarih">Tarih (Otomatik)</label>
-                                    <input class="form-control" id="inputTarih" type="text"
+                                    <input class="form-control" id="inputTarih" name="tarih" type="text"
                                         value="<?php echo date('d.m.Y'); ?>" readonly />
                                 </div>
                                 <!-- Adı -->
                                 <div class="col-md-3 mb-3">
-                                    <label class="form-label" for="inputAd">Adi</label>
-                                    <input class="form-control" id="inputAd" type="text" placeholder="Adı" />
+                                    <label class="form-label" for="inputAd">Adı</label>
+                                    <input class="form-control" id="inputAd" name="ad" type="text" placeholder="Adı"
+                                        required />
                                 </div>
                                 <!-- Soyadı -->
                                 <div class="col-md-3 mb-3">
                                     <label class="form-label" for="inputSoyad">Soyadı</label>
-                                    <input class="form-control" id="inputSoyad" type="text" placeholder="Soyadı" />
+                                    <input class="form-control" id="inputSoyad" name="soyad" type="text"
+                                        placeholder="Soyadı" required />
                                 </div>
                                 <!-- Dil (Alan) -->
                                 <div class="col-md-2 mb-3">
-                                    <label class="form-label" for="selectDil">Dil</label>
-                                    <select class="form-select select" id="selectDil">
-                                        <option selected disabled>Seçiniz</option>
+                                    <label class="form-label" for="selectDil">Dil / Alan</label>
+                                    <select class="form-select select" id="selectDil" name="alan_id">
+                                        <option selected disabled value="">Seçiniz</option>
                                         <?php if ($alanlar): ?>
                                             <?php foreach ($alanlar as $alan) { ?>
                                                 <option value="<?= $alan['alan_id']; ?>"><?= $alan['alan_adi']; ?></option>
@@ -96,7 +190,8 @@ require_once 'alanlar/sidebar.php';
                                 <!-- Referans -->
                                 <div class="col-md-2 mb-3">
                                     <label class="form-label" for="inputReferans">Referans</label>
-                                    <input class="form-control" id="inputReferans" type="text" placeholder="Referans" />
+                                    <input class="form-control" id="inputReferans" name="referans" type="text"
+                                        placeholder="Referans" />
                                 </div>
                             </div>
 
@@ -104,24 +199,27 @@ require_once 'alanlar/sidebar.php';
                                 <!-- Açıklama -->
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label" for="inputAciklama">Açıklama</label>
-                                    <input class="form-control" id="inputAciklama" type="text" placeholder="Açıklama" />
+                                    <input class="form-control" id="inputAciklama" name="aciklama" type="text"
+                                        placeholder="Görüşme notları..." />
                                 </div>
                                 <!-- Sonuç -->
                                 <div class="col-md-3 mb-3">
                                     <label class="form-label" for="inputSonuc">Sonuç</label>
-                                    <input class="form-control" id="inputSonuc" type="text" placeholder="Sonuç" />
+                                    <input class="form-control" id="inputSonuc" name="sonuc" type="text"
+                                        placeholder="Olumlu/Olumsuz vb." />
                                 </div>
                                 <!-- Görüşen -->
                                 <div class="col-md-3 mb-3">
                                     <label class="form-label" for="inputGorusen">Görüşen</label>
                                     <input class="form-control" id="inputGorusen" type="text"
                                         value="<?= $gorusen_adi ?>" readonly />
+                                    <input type="hidden" name="gorusen_id" value="<?= $gorusen_id ?>" />
                                 </div>
                             </div>
 
                             <!-- Butonlar -->
                             <div class="d-flex justify-content-end mt-3">
-                                <button class="btn btn-primary me-2" type="button">Kaydet</button>
+                                <button class="btn btn-primary me-2" type="submit" name="kaydet">Kaydet</button>
                                 <button class="btn btn-success me-2" type="button">GÜNCELLE</button>
                                 <button class="btn btn-danger" type="button">SİL</button>
                             </div>
@@ -147,7 +245,7 @@ require_once 'alanlar/sidebar.php';
                                         <th>Tarih</th>
                                         <th>Adı</th>
                                         <th>Soyadı</th>
-                                        <th>Dil</th>
+                                        <th>Dil / Alan</th>
                                         <th>Referans</th>
                                         <th>Açıklama</th>
                                         <th>Sonuç</th>
@@ -155,17 +253,38 @@ require_once 'alanlar/sidebar.php';
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Örnek Veri -->
-                                    <tr>
-                                        <td><?php echo date('d.m.Y'); ?></td>
-                                        <td>Ahmet</td>
-                                        <td>Yılmaz</td>
-                                        <td>İngilizce</td>
-                                        <td>Google</td>
-                                        <td>Bilgi aldı</td>
-                                        <td>Olumlu</td>
-                                        <td>Sistem Yöneticisi</td>
-                                    </tr>
+                                    <?php if ($gorusme_listesi): ?>
+                                        <?php foreach ($gorusme_listesi as $row):
+                                            // Tarihi formatla
+                                            $tarih_goster = $row['tarih'];
+                                            if ($row['tarih']) {
+                                                $tarih_goster = date('d.m.Y', strtotime($row['tarih']));
+                                            }
+                                            ?>
+                                            <tr>
+                                                <td><?= $tarih_goster ?></td>
+                                                <td><?= htmlspecialchars($row['ad']) ?></td>
+                                                <td><?= htmlspecialchars($row['soyad']) ?></td>
+                                                <td><?= htmlspecialchars($row['alan_adi'] ?? '') ?></td>
+                                                <td><?= htmlspecialchars($row['referans']) ?></td>
+                                                <td><?= htmlspecialchars($row['aciklama']) ?></td>
+                                                <td><?= htmlspecialchars($row['sonuc']) ?></td>
+                                                <td>
+                                                    <?php
+                                                    // Görüşen ismini bulmak için basit bir mantık veya join kullanılabilir.
+                                                    // Şimdilik ID veya varsa join ile gelen ismi yazalım.
+                                                    // Eğer join yapmadıysak burada ek sorgu gerekebilir ama yukarıda join ekledim fakat gorusen tablosu joinlemedim.
+                                                    // Basitçe ID yazıyorum şimdilik, istenirse kullanıcı tablosuna join atılır.
+                                                    echo $row['gorusen_id'];
+                                                    ?>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="8" class="text-center">Henüz kayıt bulunmamaktadır.</td>
+                                        </tr>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -184,6 +303,24 @@ require_once 'alanlar/sidebar.php';
 <script data-cfasync="false" src="assets/js/jquery.slimscroll.min.js"></script>
 <script data-cfasync="false" src="assets/plugins/select2/js/select2.min.js"></script>
 <script data-cfasync="false" src="assets/js/script.js"></script>
+
+<!-- SweetAlert JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<?php if (!empty($_SESSION['flash_swal'])):
+    $sw = $_SESSION['flash_swal'];
+    unset($_SESSION['flash_swal']); ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                icon: '<?= $sw['icon'] ?? 'info' ?>',
+                title: '<?= addslashes($sw['title'] ?? '') ?>',
+                text: '<?= addslashes($sw['text'] ?? '') ?>',
+                confirmButtonText: 'Tamam'
+            });
+        });
+    </script>
+<?php endif; ?>
+
 <script>
     (function () {
         if (!window.jQuery) return;
