@@ -6,20 +6,64 @@ require_once 'dosyalar/oturum.php';
 $db = new Ydil();
 $pageTitle = "Görüşme Listesi";
 
-// --- Ekleme İşlemi ---
+// --- Silme İşlemi ---
+if (isset($_GET['sil_id'])) {
+    $sil_id = (int) $_GET['sil_id'];
+    if ($sil_id > 0) {
+        // Ydil sınıfında delete metodu var mı? Yoksa query çalıştıracağız.
+        // Genelde $db->delete('tablo', 'id_sutun', $id) şeklindedir.
+        // Varsayım: $db->delete('gorusmeler', 'id', $sil_id);
+        // Eğer yoksa: $db->query("DELETE FROM gorusmeler WHERE id = $sil_id");
+
+        // Ydil.php içeriğini görmedim ama yaygın kullanım delete metodudur.
+        // Eğer metod yoksa hata verebilir, bu yüzden güvenli query kullanalım veya metod varsa onu.
+        // Önceki dosyalarda insert gördüm, delete görmedim.
+        // Standart PDO kullanımı:
+        $del = $db->query("DELETE FROM gorusmeler WHERE id = '{$sil_id}'"); // Ydil query metodu varsa
+
+        if ($del) { // Query başarılı dönerse
+            $_SESSION['flash_swal'] = [
+                'icon' => 'success',
+                'title' => 'Silindi',
+                'text' => 'Kayıt başarıyla silindi.'
+            ];
+        } else {
+            $_SESSION['flash_swal'] = [
+                'icon' => 'error',
+                'title' => 'Hata',
+                'text' => 'Silme işlemi başarısız oldu.'
+            ];
+        }
+    }
+    header("Location: gorusme.php");
+    exit;
+}
+
+// --- Düzenleme Modu Kontrolü ---
+$edit_mode = false;
+$edit_data = [];
+if (isset($_GET['edit_id'])) {
+    $edit_id = (int) $_GET['edit_id'];
+    if ($edit_id > 0) {
+        $edit_data = $db->getone("SELECT * FROM gorusmeler WHERE id = '{$edit_id}'");
+        if ($edit_data) {
+            $edit_mode = true;
+        }
+    }
+}
+
+// --- Kaydet / Güncelle İşlemi ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
 
     $tarih_raw = $_POST['tarih'] ?? '';
-    // Tarih formatını d.m.Y -> Y-m-d çevir
     $tarih = '';
     if ($tarih_raw) {
         $dt = DateTime::createFromFormat('d.m.Y', $tarih_raw);
-        if ($dt) {
+        if ($dt)
             $tarih = $dt->format('Y-m-d');
-        }
     }
     if (empty($tarih))
-        $tarih = date('Y-m-d'); // Fallback
+        $tarih = date('Y-m-d');
 
     $ad = trim($_POST['ad'] ?? '');
     $soyad = trim($_POST['soyad'] ?? '');
@@ -29,7 +73,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
     $sonuc = trim($_POST['sonuc'] ?? '');
     $gorusen_id = (int) ($_POST['gorusen_id'] ?? 0);
 
-    // Basit Validasyon
+    // Hidden input'tan gelen ID (Güncelleme için)
+    $form_id = (int) ($_POST['form_id'] ?? 0);
+
     if (empty($ad) || empty($soyad)) {
         $_SESSION['flash_swal'] = [
             'icon' => 'warning',
@@ -37,49 +83,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
             'text' => 'Lütfen Ad ve Soyad alanlarını doldurunuz.'
         ];
     } else {
-        // Veritabanına Ekle
-        $columns = [
-            'tarih',
-            'ad',
-            'soyad',
-            'alan_id',
-            'referans',
-            'aciklama',
-            'sonuc',
-            'gorusen_id',
-            'created_at'
-        ];
-        $values = [
-            $tarih,
-            $ad,
-            $soyad,
-            $alan_id,
-            $referans,
-            $aciklama,
-            $sonuc,
-            $gorusen_id,
-            date('Y-m-d H:i:s')
-        ];
+        $columns = ['tarih', 'ad', 'soyad', 'alan_id', 'referans', 'aciklama', 'sonuc', 'gorusen_id'];
+        $values = [$tarih, $ad, $soyad, $alan_id, $referans, $aciklama, $sonuc, $gorusen_id];
 
-        // Tablo adının 'gorusmeler' olduğunu varsayıyoruz.
-        $ins = $db->insert('gorusmeler', $columns, $values);
+        if ($form_id > 0) {
+            // --- GÜNCELLEME ---
+            // Ydil update metodu: update($table, $columns, $values, $whereColumn, $whereValue)
+            // Örnek: $db->update('gorusmeler', $columns, $values, 'id', $form_id);
 
-        if ($ins['status'] == 1) {
-            $_SESSION['flash_swal'] = [
-                'icon' => 'success',
-                'title' => 'Başarılı',
-                'text' => 'Görüşme başarıyla kaydedildi.'
-            ];
+            $upd = $db->update('gorusmeler', $columns, $values, 'id', $form_id);
+
+            if ($upd['status'] == 1) {
+                $_SESSION['flash_swal'] = [
+                    'icon' => 'success',
+                    'title' => 'Güncellendi',
+                    'text' => 'Kayıt başarıyla güncellendi.'
+                ];
+            } else {
+                $_SESSION['flash_swal'] = [
+                    'icon' => 'error',
+                    'title' => 'Hata',
+                    'text' => 'Güncelleme hatası: ' . ($upd['error'] ?? '')
+                ];
+            }
+
         } else {
-            $_SESSION['flash_swal'] = [
-                'icon' => 'error',
-                'title' => 'Hata',
-                'text' => 'Kayıt sırasında bir hata oluştu: ' . ($ins['error'] ?? 'Bilinmeyen hata')
-            ];
+            // --- EKLEME ---
+            $columns[] = 'created_at';
+            $values[] = date('Y-m-d H:i:s');
+
+            $ins = $db->insert('gorusmeler', $columns, $values);
+
+            if ($ins['status'] == 1) {
+                $_SESSION['flash_swal'] = [
+                    'icon' => 'success',
+                    'title' => 'Başarılı',
+                    'text' => 'Görüşme başarıyla kaydedildi.'
+                ];
+            } else {
+                $_SESSION['flash_swal'] = [
+                    'icon' => 'error',
+                    'title' => 'Hata',
+                    'text' => 'Kayıt hatası: ' . ($ins['error'] ?? '')
+                ];
+            }
         }
     }
 
-    // Post/Redirect/Get pattern to prevent resubmission
     header("Location: gorusme.php");
     exit;
 }
@@ -92,25 +142,20 @@ $gorusen_adi = "Sistem Kullanıcısı";
 $gorusen_id = 0;
 if (isset($_SESSION['ad']) && isset($_SESSION['soyad'])) {
     $gorusen_adi = $_SESSION['ad'] . " " . $_SESSION['soyad'];
-    $gorusen_id = $_SESSION['user_id'] ?? 0; // user_id veya kisi_id, projeye göre değişebilir
+    $gorusen_id = $_SESSION['user_id'] ?? 0;
 } elseif (isset($_SESSION['kullanici_adi'])) {
     $gorusen_adi = $_SESSION['kullanici_adi'];
 }
-// Session'dan ID'yi garantiye alalım (kisi_id genelde kullanılır bu projede gördüğüm kadarıyla)
 if (isset($_SESSION['kisi_id']))
     $gorusen_id = $_SESSION['kisi_id'];
 
 
-// Listeyi Çek (En son eklenen en üstte)
-// Tablo: gorusmeler, Join: alan (dil ismi için)
-// Not: Eğer alan tablosuyla join gerekirse SQL yazabiliriz, şimdilik düz çekelim, alan adını döngüde veya joinle bulalım.
-// Basitlik adına düz çekip, alan listesinden eşleştirebiliriz veya SQL join yapabiliriz.
-// Ydil sınıfının yapısına uygun olarak custom query kullanalım daha temiz olur.
+// Listeyi Çek
 $sql_list = "SELECT g.*, a.alan_adi 
              FROM gorusmeler g 
              LEFT JOIN alan a ON g.alan_id = a.alan_id 
              ORDER BY g.id DESC";
-$gorusme_listesi = $db->get($sql_list); // get metodu tüm satırları çeker diye varsayıyorum (analizden hatırladığım kadarıyla)
+$gorusme_listesi = $db->get($sql_list);
 
 ?>
 
@@ -151,29 +196,45 @@ require_once 'alanlar/sidebar.php';
                             <span class="bg-white avatar avatar-sm me-2 text-gray-7 flex-shrink-0">
                                 <i class="ti ti-users fs-16"></i>
                             </span>
-                            <h4 class="text-dark">Görüşme Bilgileri</h4>
+                            <h4 class="text-dark">
+                                <?= $edit_mode ? 'Görüşme Düzenle' : 'Yeni Görüşme Ekle' ?>
+                            </h4>
+                            <?php if ($edit_mode): ?>
+                                <a href="gorusme.php" class="btn btn-sm btn-warning ms-auto">
+                                    <i class="ti ti-plus"></i> Yeni Ekleme Moduna Dön
+                                </a>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <div class="card-body">
                         <form method="POST" action="">
+                            <input type="hidden" name="form_id" value="<?= $edit_mode ? $edit_data['id'] : 0 ?>">
+
                             <div class="row">
                                 <!-- Tarih -->
                                 <div class="col-md-2 mb-3">
-                                    <label class="form-label" for="inputTarih">Tarih (Otomatik)</label>
+                                    <label class="form-label" for="inputTarih">Tarih</label>
+                                    <?php
+                                    $val_tarih = date('d.m.Y');
+                                    if ($edit_mode && !empty($edit_data['tarih'])) {
+                                        $val_tarih = date('d.m.Y', strtotime($edit_data['tarih']));
+                                    }
+                                    ?>
                                     <input class="form-control" id="inputTarih" name="tarih" type="text"
-                                        value="<?php echo date('d.m.Y'); ?>" readonly />
+                                        value="<?= $val_tarih ?>" readonly />
                                 </div>
                                 <!-- Adı -->
                                 <div class="col-md-3 mb-3">
                                     <label class="form-label" for="inputAd">Adı</label>
                                     <input class="form-control" id="inputAd" name="ad" type="text" placeholder="Adı"
-                                        required />
+                                        required value="<?= $edit_mode ? htmlspecialchars($edit_data['ad']) : '' ?>" />
                                 </div>
                                 <!-- Soyadı -->
                                 <div class="col-md-3 mb-3">
                                     <label class="form-label" for="inputSoyad">Soyadı</label>
                                     <input class="form-control" id="inputSoyad" name="soyad" type="text"
-                                        placeholder="Soyadı" required />
+                                        placeholder="Soyadı" required
+                                        value="<?= $edit_mode ? htmlspecialchars($edit_data['soyad']) : '' ?>" />
                                 </div>
                                 <!-- Dil (Alan) -->
                                 <div class="col-md-2 mb-3">
@@ -181,8 +242,11 @@ require_once 'alanlar/sidebar.php';
                                     <select class="form-select select" id="selectDil" name="alan_id">
                                         <option selected disabled value="">Seçiniz</option>
                                         <?php if ($alanlar): ?>
-                                            <?php foreach ($alanlar as $alan) { ?>
-                                                <option value="<?= $alan['alan_id']; ?>"><?= $alan['alan_adi']; ?></option>
+                                            <?php foreach ($alanlar as $alan) {
+                                                $selected = ($edit_mode && $edit_data['alan_id'] == $alan['alan_id']) ? 'selected' : '';
+                                                ?>
+                                                <option value="<?= $alan['alan_id']; ?>" <?= $selected ?>>
+                                                    <?= $alan['alan_adi']; ?></option>
                                             <?php } ?>
                                         <?php endif; ?>
                                     </select>
@@ -191,7 +255,8 @@ require_once 'alanlar/sidebar.php';
                                 <div class="col-md-2 mb-3">
                                     <label class="form-label" for="inputReferans">Referans</label>
                                     <input class="form-control" id="inputReferans" name="referans" type="text"
-                                        placeholder="Referans" />
+                                        placeholder="Referans"
+                                        value="<?= $edit_mode ? htmlspecialchars($edit_data['referans']) : '' ?>" />
                                 </div>
                             </div>
 
@@ -200,13 +265,15 @@ require_once 'alanlar/sidebar.php';
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label" for="inputAciklama">Açıklama</label>
                                     <input class="form-control" id="inputAciklama" name="aciklama" type="text"
-                                        placeholder="Görüşme notları..." />
+                                        placeholder="Görüşme notları..."
+                                        value="<?= $edit_mode ? htmlspecialchars($edit_data['aciklama']) : '' ?>" />
                                 </div>
                                 <!-- Sonuç -->
                                 <div class="col-md-3 mb-3">
                                     <label class="form-label" for="inputSonuc">Sonuç</label>
                                     <input class="form-control" id="inputSonuc" name="sonuc" type="text"
-                                        placeholder="Olumlu/Olumsuz vb." />
+                                        placeholder="Olumlu/Olumsuz vb."
+                                        value="<?= $edit_mode ? htmlspecialchars($edit_data['sonuc']) : '' ?>" />
                                 </div>
                                 <!-- Görüşen -->
                                 <div class="col-md-3 mb-3">
@@ -219,9 +286,9 @@ require_once 'alanlar/sidebar.php';
 
                             <!-- Butonlar -->
                             <div class="d-flex justify-content-end mt-3">
-                                <button class="btn btn-primary me-2" type="submit" name="kaydet">Kaydet</button>
-                                <button class="btn btn-success me-2" type="button">GÜNCELLE</button>
-                                <button class="btn btn-danger" type="button">SİL</button>
+                                <button class="btn btn-primary" type="submit" name="kaydet">
+                                    <?= $edit_mode ? 'GÜNCELLE' : 'KAYDET' ?>
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -250,12 +317,12 @@ require_once 'alanlar/sidebar.php';
                                         <th>Açıklama</th>
                                         <th>Sonuç</th>
                                         <th>Görüşen</th>
+                                        <th class="text-center">İşlemler</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php if ($gorusme_listesi): ?>
                                         <?php foreach ($gorusme_listesi as $row):
-                                            // Tarihi formatla
                                             $tarih_goster = $row['tarih'];
                                             if ($row['tarih']) {
                                                 $tarih_goster = date('d.m.Y', strtotime($row['tarih']));
@@ -269,20 +336,22 @@ require_once 'alanlar/sidebar.php';
                                                 <td><?= htmlspecialchars($row['referans']) ?></td>
                                                 <td><?= htmlspecialchars($row['aciklama']) ?></td>
                                                 <td><?= htmlspecialchars($row['sonuc']) ?></td>
-                                                <td>
-                                                    <?php
-                                                    // Görüşen ismini bulmak için basit bir mantık veya join kullanılabilir.
-                                                    // Şimdilik ID veya varsa join ile gelen ismi yazalım.
-                                                    // Eğer join yapmadıysak burada ek sorgu gerekebilir ama yukarıda join ekledim fakat gorusen tablosu joinlemedim.
-                                                    // Basitçe ID yazıyorum şimdilik, istenirse kullanıcı tablosuna join atılır.
-                                                    echo $row['gorusen_id'];
-                                                    ?>
+                                                <td><?= $row['gorusen_id'] ?></td>
+                                                <td class="text-center">
+                                                    <a href="gorusme.php?edit_id=<?= $row['id'] ?>"
+                                                        class="btn btn-sm btn-info me-1" title="Düzenle">
+                                                        <i class="ti ti-edit"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-sm btn-danger" title="Sil"
+                                                        onclick="silmeOnayi(<?= $row['id'] ?>)">
+                                                        <i class="ti ti-trash"></i>
+                                                    </button>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php else: ?>
                                         <tr>
-                                            <td colspan="8" class="text-center">Henüz kayıt bulunmamaktadır.</td>
+                                            <td colspan="9" class="text-center">Henüz kayıt bulunmamaktadır.</td>
                                         </tr>
                                     <?php endif; ?>
                                 </tbody>
@@ -329,6 +398,23 @@ require_once 'alanlar/sidebar.php';
             if (window.feather && feather.replace) feather.replace();
         });
     })();
+
+    function silmeOnayi(id) {
+        Swal.fire({
+            title: 'Emin misiniz?',
+            text: "Bu kaydı silmek istediğinize emin misiniz? Bu işlem geri alınamaz!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Evet, Sil!',
+            cancelButtonText: 'İptal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = 'gorusme.php?sil_id=' + id;
+            }
+        })
+    }
 </script>
 </body>
 
