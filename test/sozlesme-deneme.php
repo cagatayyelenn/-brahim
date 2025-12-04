@@ -11,13 +11,16 @@ $donemler = $db->finds('donem', 'donem_durum', 1);
 $siniflar = $db->finds('sinif', 'sinif_durum', 1);
 $gruplar = $db->finds('grup', 'grup_durum', 1);
 $alanlar = $db->finds('alan', 'alan_durum', 1);
-$birimler = $db->finds('birim', 'birim_durum', 1); // Birim tablosu varsayımı
-$kasalar = $db->finds('kasa', 'kasa_durum', 1);  // Kasa tablosu varsayımı
+$birimler = $db->finds('birim'); // Birim tablosunda durum kolonu yok
+$kasalar = $db->finds('kasa1', 'durum', 1);  // Kasa tablosu: kasa1, durum kolonu: durum
 
 // Öğrenci ID varsa bilgisini çekebiliriz (Opsiyonel)
 $ogrenci_id = isset($_GET['id']) ? $_GET['id'] : 0;
-// $ogrenci = ... (Gerekirse öğrenci adı vs. gösterilebilir)
-
+$ogrenci = [];
+if ($ogrenci_id) {
+    // Tablo adı: ogrenci1, URL'deki id: ogrenci_numara
+    $ogrenci = $db->get("SELECT * FROM ogrenci1 WHERE ogrenci_numara = :id", [':id' => $ogrenci_id]);
+}
 ?>
 
 <?php
@@ -50,6 +53,17 @@ require_once 'alanlar/sidebar.php';
                         <h4 class="text-dark">Sözleşme Sihirbazı</h4>
                     </div>
                     <div class="card-body">
+
+                        <?php if ($ogrenci): ?>
+                            <div class="alert alert-info d-flex align-items-center">
+                                <i class="ti ti-user me-2 fs-4"></i>
+                                <div>
+                                    Seçili Öğrenci:
+                                    <strong><?= htmlspecialchars($ogrenci['ogrenci_adi'] . ' ' . $ogrenci['ogrenci_soyadi']) ?></strong>
+                                    (No: <?= htmlspecialchars($ogrenci['ogrenci_numara']) ?>)
+                                </div>
+                            </div>
+                        <?php endif; ?>
 
                         <!-- Adım Göstergeleri (Opsiyonel) -->
                         <div class="progress mb-4" style="height: 20px;">
