@@ -10,18 +10,10 @@ $pageTitle = "Görüşme Listesi";
 if (isset($_GET['sil_id'])) {
     $sil_id = (int) $_GET['sil_id'];
     if ($sil_id > 0) {
-        // Ydil sınıfında delete metodu var mı? Yoksa query çalıştıracağız.
-        // Genelde $db->delete('tablo', 'id_sutun', $id) şeklindedir.
-        // Varsayım: $db->delete('gorusmeler', 'id', $sil_id);
-        // Eğer yoksa: $db->query("DELETE FROM gorusmeler WHERE id = $sil_id");
+        // Ydil sınıfındaki delete metodunu kullanıyoruz
+        $del = $db->delete('gorusmeler', $sil_id);
 
-        // Ydil.php içeriğini görmedim ama yaygın kullanım delete metodudur.
-        // Eğer metod yoksa hata verebilir, bu yüzden güvenli query kullanalım veya metod varsa onu.
-        // Önceki dosyalarda insert gördüm, delete görmedim.
-        // Standart PDO kullanımı:
-        $del = $db->query("DELETE FROM gorusmeler WHERE id = '{$sil_id}'"); // Ydil query metodu varsa
-
-        if ($del) { // Query başarılı dönerse
+        if ($del['status'] == 1) {
             $_SESSION['flash_swal'] = [
                 'icon' => 'success',
                 'title' => 'Silindi',
@@ -45,7 +37,8 @@ $edit_data = [];
 if (isset($_GET['edit_id'])) {
     $edit_id = (int) $_GET['edit_id'];
     if ($edit_id > 0) {
-        $edit_data = $db->getone("SELECT * FROM gorusmeler WHERE id = '{$edit_id}'");
+        // getone yerine gets kullanıyoruz (Ydil.php'de gets tanımlı)
+        $edit_data = $db->gets("SELECT * FROM gorusmeler WHERE id = '{$edit_id}'");
         if ($edit_data) {
             $edit_mode = true;
         }
@@ -246,7 +239,8 @@ require_once 'alanlar/sidebar.php';
                                                 $selected = ($edit_mode && $edit_data['alan_id'] == $alan['alan_id']) ? 'selected' : '';
                                                 ?>
                                                 <option value="<?= $alan['alan_id']; ?>" <?= $selected ?>>
-                                                    <?= $alan['alan_adi']; ?></option>
+                                                    <?= $alan['alan_adi']; ?>
+                                                </option>
                                             <?php } ?>
                                         <?php endif; ?>
                                     </select>
