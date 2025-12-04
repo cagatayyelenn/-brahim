@@ -15,12 +15,19 @@ $birimler = $db->finds('birim'); // Birim tablosunda durum kolonu yok
 $kasalar = $db->finds('kasa1', 'durum', 1);  // Kasa tablosu: kasa1, durum kolonu: durum
 $odemeYontemleri = $db->finds('odeme_yontem1', 'durum', 1); // Ödeme yöntemleri
 
-// Öğrenci ID varsa bilgisini çekebiliriz (Opsiyonel)
+// Öğrenci ID kontrolü
 $ogrenci_id = isset($_GET['id']) ? $_GET['id'] : 0;
 $ogrenci = [];
+
 if ($ogrenci_id) {
     // Tablo adı: ogrenci1, URL'deki id: ogrenci_numara
     $ogrenci = $db->get("SELECT * FROM ogrenci1 WHERE ogrenci_numara = :id", [':id' => $ogrenci_id]);
+}
+
+// Eğer öğrenci bulunamazsa listeye yönlendir
+if (!$ogrenci) {
+    header("Location: ogrenci-listesi.php");
+    exit;
 }
 ?>
 
@@ -55,16 +62,18 @@ require_once 'alanlar/sidebar.php';
                     </div>
                     <div class="card-body">
 
-                        <?php if ($ogrenci): ?>
-                            <div class="alert alert-info d-flex align-items-center">
-                                <i class="ti ti-user me-2 fs-4"></i>
-                                <div>
-                                    Seçili Öğrenci:
+                        <div class="alert alert-primary d-flex align-items-center mb-4">
+                            <span class="avatar avatar-md bg-primary text-white me-3">
+                                <i class="ti ti-user fs-4"></i>
+                            </span>
+                            <div>
+                                <h5 class="mb-1 text-primary">Seçili Öğrenci</h5>
+                                <p class="mb-0 fs-16">
                                     <strong><?= htmlspecialchars($ogrenci['ogrenci_adi'] . ' ' . $ogrenci['ogrenci_soyadi']) ?></strong>
-                                    (No: <?= htmlspecialchars($ogrenci['ogrenci_numara']) ?>)
-                                </div>
+                                    <span class="text-muted ms-2">(Öğrenci No: <?= htmlspecialchars($ogrenci['ogrenci_numara']) ?>)</span>
+                                </p>
                             </div>
-                        <?php endif; ?>
+                        </div>
 
                         <!-- Adım Göstergeleri (Opsiyonel) -->
                         <div class="progress mb-4" style="height: 20px;">
