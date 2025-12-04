@@ -13,6 +13,7 @@ $gruplar = $db->finds('grup', 'grup_durum', 1);
 $alanlar = $db->finds('alan', 'alan_durum', 1);
 $birimler = $db->finds('birim'); // Birim tablosunda durum kolonu yok
 $kasalar = $db->finds('kasa1', 'durum', 1);  // Kasa tablosu: kasa1, durum kolonu: durum
+$odemeYontemleri = $db->finds('odeme_yontem1', 'durum', 1); // Ödeme yöntemleri
 
 // Öğrenci ID varsa bilgisini çekebiliriz (Opsiyonel)
 $ogrenci_id = isset($_GET['id']) ? $_GET['id'] : 0;
@@ -183,9 +184,10 @@ require_once 'alanlar/sidebar.php';
                                     <div class="col-md-4 mb-3">
                                         <label class="form-label">Ödeme Seçeneği</label>
                                         <select class="form-select select" name="odeme_yontemi">
-                                            <option value="Nakit">Nakit</option>
-                                            <option value="Kredi Kartı">Kredi Kartı</option>
-                                            <option value="Havale/EFT">Havale/EFT</option>
+                                            <option value="">Seçiniz</option>
+                                            <?php foreach ($odemeYontemleri as $y): ?>
+                                                <option value="<?= $y['yontem_id'] ?>"><?= $y['yontem_adi'] ?></option>
+                                            <?php endforeach; ?>
                                         </select>
                                     </div>
                                     <div class="col-md-4 mb-3">
@@ -430,6 +432,103 @@ require_once 'alanlar/sidebar.php';
             tbody.innerHTML += row;
         }
     }
+</script>
+<script>
+    // Form Gönderimi (AJAX)
+    $('#contractForm').on('submit', function (e) {
+        e.preventDefault();
+
+        // Temel validasyonlar
+        var ogrenci_id = <?= (int) $ogrenci_id ?>;
+        if (!ogrenci_id) {
+            alert("Lütfen bir öğrenci seçiniz (URL'de id parametresi yok).");
+            return;
+        }
+
+        // Verileri topla
+        var formData = {
+            ogrenci_id: ogrenci_id,
+            donem_id: $('select[name="donem_id"]').val(),
+            sinif_id: $('select[name="sinif_id"]').val(),
+            grup_id: $('select[name="grup_id"]').val(),
+            alan_id: $('select[name="alan_id"]').val(),
+
+            birim_id: $('select[name="birim_id"]').val(),
+            birim_fiyat: parseMoney($('#birimFiyat').val()),
+            miktar: $('#miktar').val(),
+            toplam_ucret: parseMoney($('#hesaplananTutar').val().replace(' TL', '')),
+
+            pesinat: parseMoney($('#pesinat').val()),
+            yontem_id: $('select[name="odeme_yontemi"]').val(),
+            kasa_id: $('select[name="kasa_id"]').val(),
+
+            taksitler: []
+        };
+
+        // Taksitleri topla
+        $('#taksitTablosu tbody tr').each(function () {
+            var tarihStr = $(this).find('td:eq(1)').text(); // 01.01.2025
+            var tutarStr = $(this).find('td:eq(2)').text().replace(' TL', '');
+
+            // Tarihi YYYY-MM-DD formatına çevir
+            var parts = tarihStr.split('.');
+            var tarihYMD = parts[2] + '-' + parts[1] + '-' + parts[0];
+
+            formData.taksitler.push({
+                tarih: tarihYMD,
+                tutar: parseMoney(tutarStr)
+            });
+        });
+
+        formData.taksitler = JSON.stringify(formData.taksitler);
+
+        // AJAX İsteği
+        $.ajax({
+            url: 'sozlesme-ajax/sozlesme-kaydet.php',
+            method: 'POST',
+            data: formData,
+            dataType: 'json',
+            beforeSend: function () {
+                $('button[type="submit"]').prop('disabled', true).html('<i class="ti ti-loader animate-spin"></i> Kaydediliyor...');
+            },
+            success: function (res) {
+                if (res.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Başarılı!',
+                        text: 'Sözleşme başarıyla oluşturuldu.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Tamam'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // 1. Yeni sekmede sözleşme çıktısını aç
+                            var printUrl = res.redirect || ('sozlesme-belge.php?id=' + res.sozlesme_id);
+                            window.open(printUrl, '_blank');
+
+                            // 2. Mevcut sayfayı öğrenci listesine yönlendir
+                            window.location.href = 'ogrenci-listesi.php';
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Hata!',
+                        text: res.msg || 'Bir hata oluştu.'
+                    });
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Sunucu Hatası',
+                    text: 'İşlem gerçekleştirilemedi.'
+                });
+            },
+            complete: function () {
+                $('button[type="submit"]').prop('disabled', false).html('<i class="ti ti-check"></i> SÖZLEŞME OLUŞTUR');
+            }
+        });
+    });
 </script>
 </body>
 
