@@ -44,6 +44,21 @@
                     <h6 class="submenu-hdr"><span>Muhasebe</span></h6>
                     <ul>
                         <li><a href="kasa1.php"><i class="ti ti-report-money"></i><span>Kasa</span></a></li>
+                        <li><a href="ay-basi.php"><i class="ti ti-calendar-stats"></i><span>Ay Başı
+                                    Yapılacaklar</span></a></li>
+                    </ul>
+                </li>
+                <li>
+                    <h6 class="submenu-hdr"><span>Kurumsal</span></h6>
+                    <ul>
+                        <li><a href="sirketler.php"><i class="ti ti-building-handshake"></i><span>Şirket
+                                    İşbirlikleri</span></a></li>
+                        <li><a href="bilgilendirme.php"><i class="ti ti-info-circle"></i><span>Bilgilendirme
+                                    Formu</span></a></li>
+                        <li><a href="gruplar.php"><i class="ti ti-users"></i><span>Tüm Gruplar</span></a></li>
+                        <li><a href="meb-sinif.php"><i class="ti ti-school"></i><span>MEB Sınıfları</span></a></li>
+                        <li><a href="gecmis-islemler.php"><i class="ti ti-history"></i><span>İşlem Geçmişi</span></a>
+                        </li>
                     </ul>
                 </li>
                 <li>
