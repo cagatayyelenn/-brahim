@@ -7,7 +7,7 @@ $db = new Ydil();
 $pageTitle = "Görüşme Listesi";
 
 // Şube ID'sini al
-$sube_id = (int)($_SESSION['sube_id'] ?? 0);
+$sube_id = (int) ($_SESSION['sube_id'] ?? 0);
 
 // --- Silme İşlemi ---
 if (isset($_GET['sil_id'])) {
@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
             // --- EKLEME ---
             $columns[] = 'created_at';
             $values[] = date('Y-m-d H:i:s');
-            
+
             // Şube ID Ekleme
             $columns[] = 'sube_id';
             $values[] = $sube_id;
@@ -274,9 +274,9 @@ require_once 'alanlar/sidebar.php';
                                 <div class="col-md-3 mb-3">
                                     <label class="form-label" for="selectSonuc">Sonuç</label>
                                     <select class="form-select select" id="selectSonuc" name="sonuc">
-                                        <?php 
+                                        <?php
                                         $sonuc_opts = ['Kayıt yapıldı', 'Beklemede', 'Randevu verildi', 'Olumsuz'];
-                                        foreach($sonuc_opts as $opt) {
+                                        foreach ($sonuc_opts as $opt) {
                                             $sel = ($edit_mode && $edit_data['sonuc'] == $opt) ? 'selected' : '';
                                             echo "<option value='$opt' $sel>$opt</option>";
                                         }
@@ -307,7 +307,7 @@ require_once 'alanlar/sidebar.php';
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-bordered" id="datatablesSimple">
+                            <table class="table table-bordered fs-14" id="datatablesSimple">
                                 <thead>
                                     <tr>
                                         <th>Tarih</th>
@@ -329,32 +329,53 @@ require_once 'alanlar/sidebar.php';
                                                 $tarih_goster = date('d.m.Y', strtotime($row['tarih']));
                                             }
 
-                                            // Renklendirme
-                                            $rowClass = "";
-                                            if ($row['sonuc'] == 'Kayıt yapıldı') {
-                                                $rowClass = "bg-primary text-white";
-                                            } elseif ($row['sonuc'] == 'Beklemede') {
-                                                $rowClass = "bg-success text-white";
-                                            } elseif ($row['sonuc'] == 'Randevu verildi') {
-                                                $rowClass = "bg-secondary text-white";
-                                            } elseif ($row['sonuc'] == 'Olumsuz') {
-                                                $rowClass = "bg-danger text-white";
+                                            // Renklendirme - Inline Style ile Garanti Altına Alma
+                                            $rowStyle = "";
+                                            $textClass = "";
+
+                                            // Normalleştirme (boşluk temizleme vs.)
+                                            $sonuc = trim($row['sonuc']);
+
+                                            if ($sonuc == 'Kayıt yapıldı') {
+                                                // Mavi
+                                                $rowStyle = "background-color: #0d6efd !important; color: white !important;";
+                                                $textClass = "text-white";
+                                            } elseif ($sonuc == 'Beklemede') {
+                                                // Yeşil
+                                                $rowStyle = "background-color: #198754 !important; color: white !important;";
+                                                $textClass = "text-white";
+                                            } elseif ($sonuc == 'Randevu verildi') {
+                                                // Gri
+                                                $rowStyle = "background-color: #6c757d !important; color: white !important;";
+                                                $textClass = "text-white";
+                                            } elseif ($sonuc == 'Olumsuz') {
+                                                // Kırmızı
+                                                $rowStyle = "background-color: #dc3545 !important; color: white !important;";
+                                                $textClass = "text-white";
                                             }
-                                            
+
                                             // Personel Adı
                                             $personel_tam_ad = trim(($row['personel_adi'] ?? '') . ' ' . ($row['personel_soyadi'] ?? ''));
-                                            if (empty($personel_tam_ad)) $personel_tam_ad = "-";
+                                            if (empty($personel_tam_ad))
+                                                $personel_tam_ad = "-";
                                             ?>
-                                            <tr class="<?= $rowClass ?>">
-                                                <td class="<?= $rowClass ? 'text-white' : '' ?>"><?= $tarih_goster ?></td>
-                                                <td class="<?= $rowClass ? 'text-white' : '' ?>"><?= htmlspecialchars($row['ad']) ?></td>
-                                                <td class="<?= $rowClass ? 'text-white' : '' ?>"><?= htmlspecialchars($row['soyad']) ?></td>
-                                                <td class="<?= $rowClass ? 'text-white' : '' ?>"><?= htmlspecialchars($row['alan_adi'] ?? '') ?></td>
-                                                <td class="<?= $rowClass ? 'text-white' : '' ?>"><?= htmlspecialchars($row['referans']) ?></td>
-                                                <td class="<?= $rowClass ? 'text-white' : '' ?>"><?= htmlspecialchars($row['aciklama']) ?></td>
-                                                <td class="<?= $rowClass ? 'text-white' : '' ?>"><?= htmlspecialchars($row['sonuc']) ?></td>
-                                                <td class="<?= $rowClass ? 'text-white' : '' ?>"><?= htmlspecialchars($personel_tam_ad) ?></td>
-                                                <td class="text-center">
+                                            <tr style="<?= $rowStyle ?>">
+                                                <td class="<?= $textClass ?>" style="<?= $rowStyle ?>"><?= $tarih_goster ?></td>
+                                                <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
+                                                    <?= htmlspecialchars($row['ad']) ?></td>
+                                                <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
+                                                    <?= htmlspecialchars($row['soyad']) ?></td>
+                                                <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
+                                                    <?= htmlspecialchars($row['alan_adi'] ?? '') ?></td>
+                                                <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
+                                                    <?= htmlspecialchars($row['referans']) ?></td>
+                                                <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
+                                                    <?= htmlspecialchars($row['aciklama']) ?></td>
+                                                <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
+                                                    <?= htmlspecialchars($row['sonuc']) ?></td>
+                                                <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
+                                                    <?= htmlspecialchars($personel_tam_ad) ?></td>
+                                                <td class="text-center" style="<?= $rowStyle ?>">
                                                     <a href="gorusme.php?edit_id=<?= $row['id'] ?>"
                                                         class="btn btn-sm btn-info me-1" title="Düzenle">
                                                         <i class="ti ti-edit"></i>
