@@ -16,6 +16,7 @@ if (isset($_GET['sil_id'])) {
         $del = $db->delete('gorusmeler', $sil_id);
 
         if ($del['status'] == 1) {
+            $db->log('gorusmeler', $sil_id, 'SİLME', 'Görüşme kaydı silindi.');
             $_SESSION['flash_swal'] = [
                 'icon' => 'success',
                 'title' => 'Silindi',
@@ -84,6 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
             $upd = $db->update('gorusmeler', $columns, $values, 'id', $form_id);
 
             if ($upd['status'] == 1) {
+                $db->log('gorusmeler', $form_id, 'GÜNCELLEME', "$ad $soyad kişisinin görüşme kaydı güncellendi.");
                 $_SESSION['flash_swal'] = [
                     'icon' => 'success',
                     'title' => 'Güncellendi',
@@ -109,6 +111,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
             $ins = $db->insert('gorusmeler', $columns, $values);
 
             if ($ins['status'] == 1) {
+                $new_id = $ins['id'] ?? 0;
+                $db->log('gorusmeler', $new_id, 'EKLEME', "$ad $soyad için yeni görüşme kaydı eklendi.");
                 $_SESSION['flash_swal'] = [
                     'icon' => 'success',
                     'title' => 'Başarılı',
@@ -362,19 +366,26 @@ require_once 'alanlar/sidebar.php';
                                             <tr style="<?= $rowStyle ?>">
                                                 <td class="<?= $textClass ?>" style="<?= $rowStyle ?>"><?= $tarih_goster ?></td>
                                                 <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
-                                                    <?= htmlspecialchars($row['ad']) ?></td>
+                                                    <?= htmlspecialchars($row['ad']) ?>
+                                                </td>
                                                 <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
-                                                    <?= htmlspecialchars($row['soyad']) ?></td>
+                                                    <?= htmlspecialchars($row['soyad']) ?>
+                                                </td>
                                                 <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
-                                                    <?= htmlspecialchars($row['alan_adi'] ?? '') ?></td>
+                                                    <?= htmlspecialchars($row['alan_adi'] ?? '') ?>
+                                                </td>
                                                 <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
-                                                    <?= htmlspecialchars($row['referans']) ?></td>
+                                                    <?= htmlspecialchars($row['referans']) ?>
+                                                </td>
                                                 <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
-                                                    <?= htmlspecialchars($row['aciklama']) ?></td>
+                                                    <?= htmlspecialchars($row['aciklama']) ?>
+                                                </td>
                                                 <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
-                                                    <?= htmlspecialchars($row['sonuc']) ?></td>
+                                                    <?= htmlspecialchars($row['sonuc']) ?>
+                                                </td>
                                                 <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
-                                                    <?= htmlspecialchars($personel_tam_ad) ?></td>
+                                                    <?= htmlspecialchars($personel_tam_ad) ?>
+                                                </td>
                                                 <td class="text-center" style="<?= $rowStyle ?>">
                                                     <a href="gorusme.php?edit_id=<?= $row['id'] ?>"
                                                         class="btn btn-sm btn-info me-1" title="Düzenle">

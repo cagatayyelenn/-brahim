@@ -16,6 +16,7 @@ if (isset($_GET['sil_id'])) {
         $del = $db->delete('is_basvurulari', $sil_id);
 
         if ($del['status'] == 1) {
+            $db->log('is_basvurulari', $sil_id, 'SİLME', 'İş başvurusu silindi.');
             $_SESSION['flash_swal'] = [
                 'icon' => 'success',
                 'title' => 'Silindi',
@@ -85,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
             $upd = $db->update('is_basvurulari', $columns, $values, 'id', $form_id);
 
             if ($upd['status'] == 1) {
+                $db->log('is_basvurulari', $form_id, 'GÜNCELLEME', "$ad $soyad iş başvurusu güncellendi.");
                 $_SESSION['flash_swal'] = [
                     'icon' => 'success',
                     'title' => 'Güncellendi',
@@ -110,6 +112,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
             $ins = $db->insert('is_basvurulari', $columns, $values);
 
             if ($ins['status'] == 1) {
+                $new_id = $ins['id'] ?? 0;
+                $db->log('is_basvurulari', $new_id, 'EKLEME', "$ad $soyad için iş başvurusu eklendi.");
                 $_SESSION['flash_swal'] = [
                     'icon' => 'success',
                     'title' => 'Başarılı',

@@ -16,6 +16,7 @@ if (isset($_GET['sil_id'])) {
         $del = $db->delete('kitap_satis', $sil_id);
 
         if ($del['status'] == 1) {
+            $db->log('kitap_satis', $sil_id, 'SİLME', 'Kitap satış kaydı silindi.');
             $_SESSION['flash_swal'] = [
                 'icon' => 'success',
                 'title' => 'Silindi',
@@ -83,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
             $upd = $db->update('kitap_satis', $columns, $values, 'id', $form_id);
 
             if ($upd['status'] == 1) {
+                $db->log('kitap_satis', $form_id, 'GÜNCELLEME', "$kitap_adi ($ad_soyad) satış kaydı güncellendi.");
                 $_SESSION['flash_swal'] = [
                     'icon' => 'success',
                     'title' => 'Güncellendi',
@@ -108,6 +110,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
             $ins = $db->insert('kitap_satis', $columns, $values);
 
             if ($ins['status'] == 1) {
+                $new_id = $ins['id'] ?? 0;
+                $db->log('kitap_satis', $new_id, 'EKLEME', "$kitap_adi için $ad_soyad adına satış eklendi.");
                 $_SESSION['flash_swal'] = [
                     'icon' => 'success',
                     'title' => 'Başarılı',
@@ -138,6 +142,8 @@ if (isset($_SESSION['ad']) && isset($_SESSION['soyad'])) {
 }
 if (isset($_SESSION['kisi_id']))
     $satan_id = $_SESSION['kisi_id'];
+if (isset($_SESSION['personel_id']))
+    $satan_id = $_SESSION['personel_id'];
 
 // Listeyi Çek (Sadece ilgili şube)
 $sql_list = "SELECT * FROM kitap_satis WHERE sube_id = '{$sube_id}' ORDER BY id DESC";
@@ -253,13 +259,8 @@ require_once 'alanlar/sidebar.php';
                                         ?>
                                     </select>
                                 </div>
-                                <!-- Satan Kişi -->
-                                <div class="col-md-3 mb-3">
-                                    <label class="form-label" for="inputSatan">Satan Kişi</label>
-                                    <input class="form-control" id="inputSatan" type="text" value="<?= $satan_adi ?>"
-                                        readonly />
-                                    <input type="hidden" name="satan_id" value="<?= $satan_id ?>" />
-                                </div>
+                                <!-- Satan Kişi (Gizli) -->
+                                <input type="hidden" name="satan_id" value="<?= $satan_id ?>" />
                             </div>
 
                             <!-- Butonlar -->
