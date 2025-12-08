@@ -7,13 +7,12 @@ $db = new Ydil();
 $pageTitle = "Görüşme Listesi";
 
 // Şube ID'sini al
-$sube_id = (int) ($_SESSION['sube_id'] ?? 0);
+$sube_id = (int)($_SESSION['sube_id'] ?? 0);
 
 // --- Silme İşlemi ---
 if (isset($_GET['sil_id'])) {
     $sil_id = (int) $_GET['sil_id'];
     if ($sil_id > 0) {
-        // Ydil sınıfındaki delete metodunu kullanıyoruz
         $del = $db->delete('gorusmeler', $sil_id);
 
         if ($del['status'] == 1) {
@@ -40,7 +39,6 @@ $edit_data = [];
 if (isset($_GET['edit_id'])) {
     $edit_id = (int) $_GET['edit_id'];
     if ($edit_id > 0) {
-        // getone yerine gets kullanıyoruz (Ydil.php'de gets tanımlı)
         $edit_data = $db->gets("SELECT * FROM gorusmeler WHERE id = '{$edit_id}'");
         if ($edit_data) {
             $edit_mode = true;
@@ -69,7 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
     $sonuc = trim($_POST['sonuc'] ?? '');
     $gorusen_id = (int) ($_POST['gorusen_id'] ?? 0);
 
-    // Hidden input'tan gelen ID (Güncelleme için)
     $form_id = (int) ($_POST['form_id'] ?? 0);
 
     if (empty($ad) || empty($soyad)) {
@@ -84,9 +81,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
 
         if ($form_id > 0) {
             // --- GÜNCELLEME ---
-            // Ydil update metodu: update($table, $columns, $values, $whereColumn, $whereValue)
-            // Örnek: $db->update('gorusmeler', $columns, $values, 'id', $form_id);
-
             $upd = $db->update('gorusmeler', $columns, $values, 'id', $form_id);
 
             if ($upd['status'] == 1) {
@@ -107,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
             // --- EKLEME ---
             $columns[] = 'created_at';
             $values[] = date('Y-m-d H:i:s');
-
+            
             // Şube ID Ekleme
             $columns[] = 'sube_id';
             $values[] = $sube_id;
@@ -153,9 +147,11 @@ if (isset($_SESSION['personel_id']))
 
 
 // Listeyi Çek (Sadece ilgili şube)
-$sql_list = "SELECT g.*, a.alan_adi 
+// Personel tablosu join ediliyor
+$sql_list = "SELECT g.*, a.alan_adi, p.personel_adi, p.personel_soyadi 
              FROM gorusmeler g 
              LEFT JOIN alan a ON g.alan_id = a.alan_id 
+             LEFT JOIN personel1 p ON g.gorusen_id = p.personel_id
              WHERE g.sube_id = '{$sube_id}'
              ORDER BY g.id DESC";
 $gorusme_listesi = $db->get($sql_list);
@@ -212,6 +208,8 @@ require_once 'alanlar/sidebar.php';
                     <div class="card-body">
                         <form method="POST" action="">
                             <input type="hidden" name="form_id" value="<?= $edit_mode ? $edit_data['id'] : 0 ?>">
+                            <!-- Görüşen ID gizli input -->
+                            <input type="hidden" name="gorusen_id" value="<?= $gorusen_id ?>" />
 
                             <div class="row">
                                 <!-- Tarih -->
@@ -240,7 +238,7 @@ require_once 'alanlar/sidebar.php';
                                         value="<?= $edit_mode ? htmlspecialchars($edit_data['soyad']) : '' ?>" />
                                 </div>
                                 <!-- Dil (Alan) -->
-                                <div class="col-md-2 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label class="form-label" for="selectDil">Dil / Alan</label>
                                     <select class="form-select select" id="selectDil" name="alan_id">
                                         <option selected disabled value="">Seçiniz</option>
@@ -255,16 +253,16 @@ require_once 'alanlar/sidebar.php';
                                         <?php endif; ?>
                                     </select>
                                 </div>
+                            </div>
+
+                            <div class="row">
                                 <!-- Referans -->
-                                <div class="col-md-2 mb-3">
+                                <div class="col-md-3 mb-3">
                                     <label class="form-label" for="inputReferans">Referans</label>
                                     <input class="form-control" id="inputReferans" name="referans" type="text"
                                         placeholder="Referans"
                                         value="<?= $edit_mode ? htmlspecialchars($edit_data['referans']) : '' ?>" />
                                 </div>
-                            </div>
-
-                            <div class="row">
                                 <!-- Açıklama -->
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label" for="inputAciklama">Açıklama</label>
@@ -274,17 +272,16 @@ require_once 'alanlar/sidebar.php';
                                 </div>
                                 <!-- Sonuç -->
                                 <div class="col-md-3 mb-3">
-                                    <label class="form-label" for="inputSonuc">Sonuç</label>
-                                    <input class="form-control" id="inputSonuc" name="sonuc" type="text"
-                                        placeholder="Olumlu/Olumsuz vb."
-                                        value="<?= $edit_mode ? htmlspecialchars($edit_data['sonuc']) : '' ?>" />
-                                </div>
-                                <!-- Görüşen -->
-                                <div class="col-md-3 mb-3">
-                                    <label class="form-label" for="inputGorusen">Görüşen</label>
-                                    <input class="form-control" id="inputGorusen" type="text"
-                                        value="<?= $gorusen_adi ?>" readonly />
-                                    <input type="hidden" name="gorusen_id" value="<?= $gorusen_id ?>" />
+                                    <label class="form-label" for="selectSonuc">Sonuç</label>
+                                    <select class="form-select select" id="selectSonuc" name="sonuc">
+                                        <?php 
+                                        $sonuc_opts = ['Kayıt yapıldı', 'Beklemede', 'Randevu verildi', 'Olumsuz'];
+                                        foreach($sonuc_opts as $opt) {
+                                            $sel = ($edit_mode && $edit_data['sonuc'] == $opt) ? 'selected' : '';
+                                            echo "<option value='$opt' $sel>$opt</option>";
+                                        }
+                                        ?>
+                                    </select>
                                 </div>
                             </div>
 
@@ -310,7 +307,7 @@ require_once 'alanlar/sidebar.php';
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-striped table-bordered" id="datatablesSimple">
+                            <table class="table table-bordered" id="datatablesSimple">
                                 <thead>
                                     <tr>
                                         <th>Tarih</th>
@@ -331,16 +328,32 @@ require_once 'alanlar/sidebar.php';
                                             if ($row['tarih']) {
                                                 $tarih_goster = date('d.m.Y', strtotime($row['tarih']));
                                             }
+
+                                            // Renklendirme
+                                            $rowClass = "";
+                                            if ($row['sonuc'] == 'Kayıt yapıldı') {
+                                                $rowClass = "bg-primary text-white";
+                                            } elseif ($row['sonuc'] == 'Beklemede') {
+                                                $rowClass = "bg-success text-white";
+                                            } elseif ($row['sonuc'] == 'Randevu verildi') {
+                                                $rowClass = "bg-secondary text-white";
+                                            } elseif ($row['sonuc'] == 'Olumsuz') {
+                                                $rowClass = "bg-danger text-white";
+                                            }
+                                            
+                                            // Personel Adı
+                                            $personel_tam_ad = trim(($row['personel_adi'] ?? '') . ' ' . ($row['personel_soyadi'] ?? ''));
+                                            if (empty($personel_tam_ad)) $personel_tam_ad = "-";
                                             ?>
-                                            <tr>
-                                                <td><?= $tarih_goster ?></td>
-                                                <td><?= htmlspecialchars($row['ad']) ?></td>
-                                                <td><?= htmlspecialchars($row['soyad']) ?></td>
-                                                <td><?= htmlspecialchars($row['alan_adi'] ?? '') ?></td>
-                                                <td><?= htmlspecialchars($row['referans']) ?></td>
-                                                <td><?= htmlspecialchars($row['aciklama']) ?></td>
-                                                <td><?= htmlspecialchars($row['sonuc']) ?></td>
-                                                <td><?= $row['gorusen_id'] ?></td>
+                                            <tr class="<?= $rowClass ?>">
+                                                <td class="<?= $rowClass ? 'text-white' : '' ?>"><?= $tarih_goster ?></td>
+                                                <td class="<?= $rowClass ? 'text-white' : '' ?>"><?= htmlspecialchars($row['ad']) ?></td>
+                                                <td class="<?= $rowClass ? 'text-white' : '' ?>"><?= htmlspecialchars($row['soyad']) ?></td>
+                                                <td class="<?= $rowClass ? 'text-white' : '' ?>"><?= htmlspecialchars($row['alan_adi'] ?? '') ?></td>
+                                                <td class="<?= $rowClass ? 'text-white' : '' ?>"><?= htmlspecialchars($row['referans']) ?></td>
+                                                <td class="<?= $rowClass ? 'text-white' : '' ?>"><?= htmlspecialchars($row['aciklama']) ?></td>
+                                                <td class="<?= $rowClass ? 'text-white' : '' ?>"><?= htmlspecialchars($row['sonuc']) ?></td>
+                                                <td class="<?= $rowClass ? 'text-white' : '' ?>"><?= htmlspecialchars($personel_tam_ad) ?></td>
                                                 <td class="text-center">
                                                     <a href="gorusme.php?edit_id=<?= $row['id'] ?>"
                                                         class="btn btn-sm btn-info me-1" title="Düzenle">
