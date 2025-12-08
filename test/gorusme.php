@@ -148,6 +148,8 @@ if (isset($_SESSION['ad']) && isset($_SESSION['soyad'])) {
 }
 if (isset($_SESSION['kisi_id']))
     $gorusen_id = $_SESSION['kisi_id'];
+if (isset($_SESSION['personel_id']))
+    $gorusen_id = $_SESSION['personel_id'];
 
 
 // Listeyi Çek (Sadece ilgili şube)
