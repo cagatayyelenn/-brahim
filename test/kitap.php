@@ -6,6 +6,9 @@ require_once 'dosyalar/oturum.php';
 $db = new Ydil();
 $pageTitle = "Kitap Satış Listesi";
 
+// Şube ID'sini al
+$sube_id = (int) ($_SESSION['sube_id'] ?? 0);
+
 // --- Silme İşlemi ---
 if (isset($_GET['sil_id'])) {
     $sil_id = (int) $_GET['sil_id'];
@@ -98,6 +101,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
             $columns[] = 'created_at';
             $values[] = date('Y-m-d H:i:s');
 
+            // Şube ID Ekleme
+            $columns[] = 'sube_id';
+            $values[] = $sube_id;
+
             $ins = $db->insert('kitap_satis', $columns, $values);
 
             if ($ins['status'] == 1) {
@@ -132,11 +139,12 @@ if (isset($_SESSION['ad']) && isset($_SESSION['soyad'])) {
 if (isset($_SESSION['kisi_id']))
     $satan_id = $_SESSION['kisi_id'];
 
-// Listeyi Çek
-$sql_list = "SELECT * FROM kitap_satis ORDER BY id DESC";
+// Listeyi Çek (Sadece ilgili şube)
+$sql_list = "SELECT * FROM kitap_satis WHERE sube_id = '{$sube_id}' ORDER BY id DESC";
 $kitap_listesi = $db->get($sql_list);
 
 ?>
+
 
 <?php
 $page_styles[] = ['href' => 'assets/css/animate.css'];

@@ -6,6 +6,9 @@ require_once 'dosyalar/oturum.php';
 $db = new Ydil();
 $pageTitle = "İş Başvuruları";
 
+// Şube ID'sini al
+$sube_id = (int) ($_SESSION['sube_id'] ?? 0);
+
 // --- Silme İşlemi ---
 if (isset($_GET['sil_id'])) {
     $sil_id = (int) $_GET['sil_id'];
@@ -100,6 +103,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
             $columns[] = 'created_at';
             $values[] = date('Y-m-d H:i:s');
 
+            // Şube ID Ekleme
+            $columns[] = 'sube_id';
+            $values[] = $sube_id;
+
             $ins = $db->insert('is_basvurulari', $columns, $values);
 
             if ($ins['status'] == 1) {
@@ -122,11 +129,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
     exit;
 }
 
-// Listeyi Çek
-$sql_list = "SELECT * FROM is_basvurulari ORDER BY id DESC";
+// Listeyi Çek (Sadece ilgili şube)
+$sql_list = "SELECT * FROM is_basvurulari WHERE sube_id = '{$sube_id}' ORDER BY id DESC";
 $basvuru_listesi = $db->get($sql_list);
 
 ?>
+
 
 <?php
 $page_styles[] = ['href' => 'assets/css/animate.css'];
