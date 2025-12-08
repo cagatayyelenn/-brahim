@@ -42,6 +42,10 @@ if (!empty($ogrenciler)) {
 
 
 
+$sql_logs = "SELECT * FROM islem_gecmisi WHERE sube_id = :sube_id ORDER BY id DESC LIMIT 6";
+$son_islemler = $db->get($sql_logs, [':sube_id' => $sube_id]);
+
+
 /* ===================== Sayfa ===================== */
 $pageTitle = "Anasayfa";
 $page_styles[] = ['href' => 'assets/plugins/owlcarousel/owl.carousel.min.css'];
@@ -320,77 +324,52 @@ require_once 'alanlar/sidebar.php';
 					</div>
 					<div class="card-body">
 						<div class="notice-widget">
-							<div class="d-sm-flex align-items-center justify-content-between mb-4">
-								<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
-									<span
-										class="bg-primary-transparent avatar avatar-md me-2 rounded-circle flex-shrink-0">
-										<i class="ti ti-books fs-16"></i>
-									</span>
-									<div class="overflow-hidden">
-										<h6 class="text-truncate mb-1">Yeni Ders Planları</h6>
-										<p><i class="ti ti-calendar me-2"></i>Eklendi : 11 kasım 2025</p>
+							<?php if ($son_islemler): ?>
+								<?php foreach ($son_islemler as $log): 
+									$icon = "ti-activity";
+									$bgClass = "bg-primary-transparent"; // Default blue
+									$textClass = "text-primary";
+									
+									if ($log['islem_turu'] == 'EKLEME') {
+										$icon = "ti-plus";
+										$bgClass = "bg-success-transparent";
+										$textClass = "text-success";
+									} elseif ($log['islem_turu'] == 'GÜNCELLEME') {
+										$icon = "ti-edit";
+										$bgClass = "bg-warning-transparent";
+										$textClass = "text-warning";
+									} elseif ($log['islem_turu'] == 'SİLME') {
+										$icon = "ti-trash";
+										$bgClass = "bg-danger-transparent";
+										$textClass = "text-danger";
+									}
+
+									// Tarih formatı
+									$tarih = date('d.m.Y', strtotime($log['tarih']));
+									// Gün farkı hesaplama (opsiyonel görsel için)
+									$date1 = new DateTime($log['tarih']);
+									$date2 = new DateTime();
+									$diff = $date2->diff($date1);
+									$gun_farki = $diff->days;
+								?>
+								<div class="d-sm-flex align-items-center justify-content-between mb-4">
+									<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
+										<span class="<?= $bgClass ?> avatar avatar-md me-2 rounded-circle flex-shrink-0">
+											<i class="ti <?= $icon ?> fs-16 <?= $textClass ?>"></i>
+										</span>
+										<div class="overflow-hidden">
+											<h6 class="text-truncate mb-1"><?= htmlspecialchars($log['aciklama']) ?></h6>
+											<p><i class="ti ti-calendar me-2"></i><?= $tarih ?></p>
+										</div>
 									</div>
+									<span class="badge bg-light text-dark"><i class="ti ti-clock me-1"></i><?= $gun_farki ?> Gün</span>
 								</div>
-								<span class="badge bg-light text-dark"><i class="ti ti-clck me-1"></i>20
-									Days</span>
-							</div>
-							<div class="d-sm-flex align-items-center justify-content-between mb-4">
-								<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
-									<span
-										class="bg-success-transparent avatar avatar-md me-2 rounded-circle flex-shrink-0">
-										<i class="ti ti-note fs-16"></i>
-									</span>
-									<div class="overflow-hidden">
-										<h6 class="text-truncate mb-1">İspanyolca..!!
-										</h6>
-										<p><i class="ti ti-calendar me-2"></i>Eklendi : 01 kasım 2025</p>
-									</div>
+								<?php endforeach; ?>
+							<?php else: ?>
+								<div class="d-flex align-items-center justify-content-center">
+									<p class="text-muted">Henüz işlem geçmişi yok.</p>
 								</div>
-								<span class="badge bg-light text-dark"><i class="ti ti-clck me-1"></i>15
-									Gün</span>
-							</div>
-							<div class="d-sm-flex align-items-center justify-content-between mb-4">
-								<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
-									<span
-										class="bg-danger-transparent avatar avatar-md me-2 rounded-circle flex-shrink-0">
-										<i class="ti ti-bell-check fs-16"></i>
-									</span>
-									<div class="overflow-hidden">
-										<h6 class="text-truncate mb-1">Sınava Hazırlık Bildirimi!</h6>
-										<p><i class="ti ti-calendar me-2"></i>Eklendi : 05 kasım 2025</p>
-									</div>
-								</div>
-								<span class="badge bg-light text-dark"><i class="ti ti-clck me-1"></i>12
-									Gün</span>
-							</div>
-							<div class="d-sm-flex align-items-center justify-content-between mb-4">
-								<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
-									<span
-										class="bg-skyblue-transparent avatar avatar-md me-2 rounded-circle flex-shrink-0">
-										<i class="ti ti-notes fs-16"></i>
-									</span>
-									<div class="overflow-hidden">
-										<h6 class="text-truncate mb-1">Online Ders Hazırlıkları</h6>
-										<p><i class="ti ti-calendar me-2"></i>Eklendi : 04 kasım 2025</p>
-									</div>
-								</div>
-								<span class="badge bg-light text-dark"><i class="ti ti-clck me-1"></i>02
-									Gün</span>
-							</div>
-							<div class="d-sm-flex align-items-center justify-content-between mb-0">
-								<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
-									<span
-										class="bg-warning-transparent avatar avatar-md me-2 rounded-circle flex-shrink-0">
-										<i class="ti ti-package fs-16"></i>
-									</span>
-									<div class="overflow-hidden">
-										<h6 class="text-truncate mb-1">Sınav Takvimi Açıklaması</h6>
-										<p><i class="ti ti-calendar me-2"></i>Eklendi : 07 Kasım 2025</p>
-									</div>
-								</div>
-								<span class="badge bg-light text-dark"><i class="ti ti-clck me-1"></i>6
-									Gün</span>
-							</div>
+							<?php endif; ?>
 						</div>
 					</div>
 				</div>
