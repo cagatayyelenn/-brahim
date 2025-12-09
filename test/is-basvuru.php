@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
 
             if ($ins['status'] == 1) {
                 $new_id = $ins['id'] ?? 0;
-                $db->log('is_basvurulari', $new_id, 'EKLEME', "$ad $soyad için iş başvurusu eklendi.");
+                $db->log('is_basvurulari', $new_id, 'EKLEME', "$ad_soyad için iş başvurusu eklendi.");
                 $_SESSION['flash_swal'] = [
                     'icon' => 'success',
                     'title' => 'Başarılı',
