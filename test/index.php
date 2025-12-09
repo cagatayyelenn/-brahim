@@ -320,16 +320,16 @@ require_once 'alanlar/sidebar.php';
 				<div class="card flex-fill">
 					<div class="card-header  d-flex align-items-center justify-content-between">
 						<h4 class="card-title">İşlem Geçmişi</h4>
-						<a href="notice-board.html" class="fw-medium">Tümünü Görüntüle</a>
+						<a href="gecmis-islem.php" class="fw-medium">Tümünü Görüntüle</a>
 					</div>
 					<div class="card-body">
 						<div class="notice-widget">
 							<?php if ($son_islemler): ?>
-								<?php foreach ($son_islemler as $log): 
+								<?php foreach ($son_islemler as $log):
 									$icon = "ti-activity";
 									$bgClass = "bg-primary-transparent"; // Default blue
 									$textClass = "text-primary";
-									
+
 									if ($log['islem_turu'] == 'EKLEME') {
 										$icon = "ti-plus";
 										$bgClass = "bg-success-transparent";
@@ -351,19 +351,20 @@ require_once 'alanlar/sidebar.php';
 									$date2 = new DateTime();
 									$diff = $date2->diff($date1);
 									$gun_farki = $diff->days;
-								?>
-								<div class="d-sm-flex align-items-center justify-content-between mb-4">
-									<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
-										<span class="<?= $bgClass ?> avatar avatar-md me-2 rounded-circle flex-shrink-0">
-											<i class="ti <?= $icon ?> fs-16 <?= $textClass ?>"></i>
-										</span>
-										<div class="overflow-hidden">
-											<h6 class="text-truncate mb-1"><?= htmlspecialchars($log['aciklama']) ?></h6>
-											<p><i class="ti ti-calendar me-2"></i><?= $tarih ?></p>
+									?>
+									<div class="d-sm-flex align-items-center justify-content-between mb-4">
+										<div class="d-flex align-items-center overflow-hidden me-2 mb-2 mb-sm-0">
+											<span class="<?= $bgClass ?> avatar avatar-md me-2 rounded-circle flex-shrink-0">
+												<i class="ti <?= $icon ?> fs-16 <?= $textClass ?>"></i>
+											</span>
+											<div class="overflow-hidden">
+												<h6 class="text-truncate mb-1"><?= htmlspecialchars($log['aciklama']) ?></h6>
+												<p><i class="ti ti-calendar me-2"></i><?= $tarih ?></p>
+											</div>
 										</div>
+										<span class="badge bg-light text-dark"><i class="ti ti-clock me-1"></i><?= $gun_farki ?>
+											Gün</span>
 									</div>
-									<span class="badge bg-light text-dark"><i class="ti ti-clock me-1"></i><?= $gun_farki ?> Gün</span>
-								</div>
 								<?php endforeach; ?>
 							<?php else: ?>
 								<div class="d-flex align-items-center justify-content-center">
