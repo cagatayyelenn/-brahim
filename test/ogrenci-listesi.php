@@ -6,7 +6,7 @@ require_once 'dosyalar/oturum.php';
 $db = new Ydil();
 
 
-$sube_id = (int)($_SESSION['sube_id'] ?? 0);
+$sube_id = (int) ($_SESSION['sube_id'] ?? 0);
 
 $sql = "SELECT 
     o.ogrenci_id,
@@ -23,17 +23,23 @@ WHERE o.sube_id = :sube_id
 ORDER BY o.ogrenci_numara DESC ";
 
 $ogrenciler = $db->get($sql, [':sube_id' => $sube_id]);
- 
+
 
 
 // Küçük yardımcı
 if (!function_exists('h')) {
-    function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
+    function h($s)
+    {
+        return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
+    }
 }
 if (!function_exists('formatDateTRSafe')) {
-    function formatDateTRSafe($d){
-        if (function_exists('formatDateTR')) return formatDateTR($d);
-        if (!$d || $d==='0000-00-00') return '-';
+    function formatDateTRSafe($d)
+    {
+        if (function_exists('formatDateTR'))
+            return formatDateTR($d);
+        if (!$d || $d === '0000-00-00')
+            return '-';
         $ts = strtotime($d);
         return $ts ? date('d.m.Y', $ts) : '-';
     }
@@ -94,7 +100,7 @@ require_once 'alanlar/sidebar.php';
                 <h4 class="mb-3">Öğrenci Listesi</h4>
                 <div class="d-flex align-items-center flex-wrap">
                     <div class="dropdown mb-3 me-2">
-                      <!--  <a href="javascript:void(0);" class="btn btn-outline-light bg-white dropdown-toggle"
+                        <!--  <a href="javascript:void(0);" class="btn btn-outline-light bg-white dropdown-toggle"
                            data-bs-toggle="dropdown" data-bs-auto-close="outside"><i
                                     class="ti ti-filter me-2"></i>Filter</a>
                         <div class="dropdown-menu drop-width">
@@ -172,146 +178,153 @@ require_once 'alanlar/sidebar.php';
                 <div class="custom-datatable-filter table-responsive">
                     <table class="table datatable align-middle">
                         <thead class="thead-light">
-                        <tr>
-                            <th class="no-sort" style="width:44px">
-                                <div class="form-check form-check-md">
-                                    <input class="form-check-input" type="checkbox" id="select-all">
-                                </div>
-                            </th>
-                            <th style="min-width:120px;">Öğrenci No</th>
-                            <th style="min-width:120px;">TC</th>
-                            <th>Ad - Soyad</th>
-                            <th>Durum</th>
-                            <th>Doğum Tarihi</th>
-                            <th>Cinsiyet</th>
-                            <th class="no-sort" style="min-width:180px;">İşlemler</th>
-                        </tr>
+                            <tr>
+                                <th class="no-sort" style="width:44px">
+                                    <div class="form-check form-check-md">
+                                        <input class="form-check-input" type="checkbox" id="select-all">
+                                    </div>
+                                </th>
+                                <th style="min-width:120px;">Öğrenci No</th>
+                                <th style="min-width:120px;">TC</th>
+                                <th>Ad - Soyad</th>
+                                <th>Durum</th>
+                                <th>Doğum Tarihi</th>
+
+                                <th class="no-sort" style="min-width:180px;">İşlemler</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <?php if (!empty($ogrenciler)): ?>
-                            <?php foreach ($ogrenciler as $o):
-                                $numara    = h($o['ogrenci_no']   ?? '');
-                                $tc        = h($o['ogrenci_tc']   ?? '');
-                                $adSoyad   = h($o['ad_soyad']     ?? '');
-                                $telefon   = h($o['telefon']      ?? '');
-                                $eposta    = h($o['email']        ?? ($o['eposta'] ?? ''));
-                                $dogumRaw  = $o['dogum_tarihi']   ?? null;
-                                $dogum     = h(formatDateTRSafe($dogumRaw));
-                                $cinsiyetV = trim((string)($o['cinsiyet'] ?? ''));
-                                // 1/Erkek, 0/Kız, diğer durumlar:
-                                $cinsiyet  = $cinsiyetV==='' ? '-' : (($cinsiyetV==='1' || $cinsiyetV==='Erkek') ? 'Erkek' : (($cinsiyetV==='0' || $cinsiyetV==='Kız') ? 'Kız' : h($cinsiyetV)));
-                                $durumV    = trim((string)($o['durum'] ?? 'Belirsiz'));
-                                $isAktif   = (mb_strtolower($durumV,'UTF-8') === 'aktif');
-                                $badgeCls  = $isAktif ? 'badge badge-soft-success d-inline-flex align-items-center'
-                                    : 'badge badge-soft-secondary d-inline-flex align-items-center';
+                            <?php if (!empty($ogrenciler)): ?>
+                                <?php foreach ($ogrenciler as $o):
+                                    $numara = h($o['ogrenci_no'] ?? '');
+                                    $tc = h($o['ogrenci_tc'] ?? '');
+                                    $adSoyad = h($o['ad_soyad'] ?? '');
+                                    $telefon = h($o['telefon'] ?? '');
+                                    $eposta = h($o['email'] ?? ($o['eposta'] ?? ''));
+                                    $dogumRaw = $o['dogum_tarihi'] ?? null;
+                                    $dogum = h(formatDateTRSafe($dogumRaw));
+                                    $cinsiyetV = trim((string) ($o['cinsiyet'] ?? ''));
+                                    // 1/Erkek, 0/Kız, diğer durumlar:
+                                    $cinsiyet = $cinsiyetV === '' ? '-' : (($cinsiyetV === '1' || $cinsiyetV === 'Erkek') ? 'Erkek' : (($cinsiyetV === '0' || $cinsiyetV === 'Kız') ? 'Kız' : h($cinsiyetV)));
+                                    $durumV = trim((string) ($o['durum'] ?? 'Belirsiz'));
+                                    $isAktif = (mb_strtolower($durumV, 'UTF-8') === 'aktif');
+                                    $badgeCls = $isAktif ? 'badge badge-soft-success d-inline-flex align-items-center'
+                                        : 'badge badge-soft-secondary d-inline-flex align-items-center';
 
-                                // Avatar (isimden)
-                                $avatarUrl = 'https://ui-avatars.com/api/?name='.urlencode($adSoyad ?: $numara).'&size=64&background=DDD&color=333&bold=true';
-                                ?>
-                                <tr>
-                                    <td>
-                                        <div class="form-check form-check-md">
-                                            <input class="form-check-input row-check" type="checkbox" value="<?= $numara ?>">
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        <a href="ogrenci-detay.php?id=<?= $numara ?>" class="link-primary fw-semibold">
-                                            <?= $numara ?: '-' ?>
-                                        </a>
-                                    </td>
-
-                                    <td><?= $tc ?: '-' ?></td>
-
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                        <span class="avatar avatar-md me-2">
-                                            <img src="<?= h($avatarUrl) ?>" class="img-fluid rounded-circle" alt="avatar">
-                                        </span>
-                                            <div class="ms-1">
-                                                <a href="ogrenci-detay.php?id=<?= $numara ?>" class="text-dark fw-semibold"><?= $adSoyad ?: '-' ?></a>
-                                                <?php if ($telefon): ?>
-                                                    <div class="small text-muted"><?= h($telefon) ?></div>
-                                                <?php endif; ?>
+                                    // Avatar (isimden)
+                                    $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($adSoyad ?: $numara) . '&size=64&background=DDD&color=333&bold=true';
+                                    ?>
+                                    <tr>
+                                        <td>
+                                            <div class="form-check form-check-md">
+                                                <input class="form-check-input row-check" type="checkbox"
+                                                    value="<?= $numara ?>">
                                             </div>
-                                        </div>
-                                    </td>
+                                        </td>
 
-                                    <td>
-                                        <span class="<?= $badgeCls ?>">
-                                            <i class="ti ti-circle-filled fs-5 me-1"></i><?= h($durumV) ?>
-                                        </span>
-                                    </td>
-
-                                    <td><?= $dogum ?></td>
-
-                                    <td><?= h($cinsiyet) ?></td>
-
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <!-- Telefon -->
-                                            <a href="<?= $telefon ? 'tel:'.preg_replace('/\s+/','', $telefon) : '#' ?>"
-                                               class="btn btn-outline-light bg-white btn-icon d-flex align-items-center justify-content-center rounded-circle p-0 me-2"
-                                               data-bs-toggle="tooltip"
-                                               data-bs-placement="top"
-                                               title="<?= $telefon ? h($telefon) : 'Telefon numarası yok' ?>">
-                                                <i class="ti ti-phone<?= $telefon ? '' : ' text-muted' ?>"></i>
+                                        <td>
+                                            <a href="ogrenci-detay.php?id=<?= $numara ?>" class="link-primary fw-semibold">
+                                                <?= $numara ?: '-' ?>
                                             </a>
+                                        </td>
 
-                                            <!-- E-posta -->
-                                            <a href="<?= $eposta ? 'mailto:'.h($eposta) : '#' ?>"
-                                               class="btn btn-outline-light bg-white btn-icon d-flex align-items-center justify-content-center rounded-circle p-0 me-2"
-                                               data-bs-toggle="tooltip"
-                                               data-bs-placement="top"
-                                               title="<?= $eposta ? h($eposta) : 'E-posta adresi yok' ?>">
-                                                <i class="ti ti-mail<?= $eposta ? '' : ' text-muted' ?>"></i>
-                                            </a>
+                                        <td><?= $tc ?: '-' ?></td>
 
-                                            <a href="#"
-                                               class="btn btn-light btn-sm fw-semibold me-2 btn-taksitler"
-                                               data-ogr-no="<?= htmlspecialchars($numara, ENT_QUOTES, 'UTF-8') ?>"
-                                               data-bs-toggle="modal"
-                                               data-bs-target="#sozlesmeler">
-                                                Taksitler
-                                            </a>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <span class="avatar avatar-md me-2">
+                                                    <img src="<?= h($avatarUrl) ?>" class="img-fluid rounded-circle"
+                                                        alt="avatar">
+                                                </span>
+                                                <div class="ms-1">
+                                                    <a href="ogrenci-detay.php?id=<?= $numara ?>"
+                                                        class="text-dark fw-semibold"><?= $adSoyad ?: '-' ?></a>
+                                                    <?php if ($telefon): ?>
+                                                        <div class="small text-muted"><?= h($telefon) ?></div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </td>
 
-                                            <div class="dropdown">
-                                                <a href="#" class="btn btn-white btn-icon btn-sm d-flex align-items-center justify-content-center rounded-circle p-0"
-                                                   data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="ti ti-dots-vertical fs-14"></i>
+                                        <td>
+                                            <span class="<?= $badgeCls ?>">
+                                                <i class="ti ti-circle-filled fs-5 me-1"></i><?= h($durumV) ?>
+                                            </span>
+                                        </td>
+
+                                        <td><?= $dogum ?></td>
+
+
+
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <!-- Telefon -->
+                                                <a href="<?= $telefon ? 'tel:' . preg_replace('/\s+/', '', $telefon) : '#' ?>"
+                                                    class="btn btn-outline-light bg-white btn-icon d-flex align-items-center justify-content-center rounded-circle p-0 me-2"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="<?= $telefon ? h($telefon) : 'Telefon numarası yok' ?>">
+                                                    <i class="ti ti-phone<?= $telefon ? '' : ' text-muted' ?>"></i>
                                                 </a>
-                                                <ul class="dropdown-menu dropdown-menu-end p-2">
-                                                    <li>
-                                                        <a class="dropdown-item rounded-1" href="ogrenci-detay.php?id=<?= $numara ?>">
-                                                            <i class="ti ti-user-circle me-2"></i>Öğrenci Sayfası
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a class="dropdown-item rounded-1" href="ogrenci-duzenle.php?id=<?= $numara ?>">
-                                                            <i class="ti ti-edit-circle me-2"></i>Öğrenci Düzenle
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a class="dropdown-item rounded-1" href="sozlesme-olustur.php?id=<?= $numara ?>">
-                                                            <i class="ti ti-file-text me-2"></i>Sözleşme Oluştur
-                                                        </a>
-                                                    </li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li>
-                                                        <a class="dropdown-item text-danger rounded-1 btn-ogr-sil" href="#"
-                                                           data-numara="<?= $numara ?>">
-                                                            <i class="ti ti-trash-x me-2"></i>Öğrenci Sil
-                                                        </a>
-                                                    </li>
-                                                </ul>
+
+                                                <!-- E-posta -->
+                                                <a href="<?= $eposta ? 'mailto:' . h($eposta) : '#' ?>"
+                                                    class="btn btn-outline-light bg-white btn-icon d-flex align-items-center justify-content-center rounded-circle p-0 me-2"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="<?= $eposta ? h($eposta) : 'E-posta adresi yok' ?>">
+                                                    <i class="ti ti-mail<?= $eposta ? '' : ' text-muted' ?>"></i>
+                                                </a>
+
+                                                <a href="#" class="btn btn-light btn-sm fw-semibold me-2 btn-taksitler"
+                                                    data-ogr-no="<?= htmlspecialchars($numara, ENT_QUOTES, 'UTF-8') ?>"
+                                                    data-bs-toggle="modal" data-bs-target="#sozlesmeler">
+                                                    Taksitler
+                                                </a>
+
+                                                <div class="dropdown">
+                                                    <a href="#"
+                                                        class="btn btn-white btn-icon btn-sm d-flex align-items-center justify-content-center rounded-circle p-0"
+                                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="ti ti-dots-vertical fs-14"></i>
+                                                    </a>
+                                                    <ul class="dropdown-menu dropdown-menu-end p-2">
+                                                        <li>
+                                                            <a class="dropdown-item rounded-1"
+                                                                href="ogrenci-detay.php?id=<?= $numara ?>">
+                                                                <i class="ti ti-user-circle me-2"></i>Öğrenci Sayfası
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item rounded-1"
+                                                                href="ogrenci-duzenle.php?id=<?= $numara ?>">
+                                                                <i class="ti ti-edit-circle me-2"></i>Öğrenci Düzenle
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item rounded-1"
+                                                                href="sozlesme-olustur.php?id=<?= $numara ?>">
+                                                                <i class="ti ti-file-text me-2"></i>Sözleşme Oluştur
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <hr class="dropdown-divider">
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item text-danger rounded-1 btn-ogr-sil" href="#"
+                                                                data-numara="<?= $numara ?>">
+                                                                <i class="ti ti-trash-x me-2"></i>Öğrenci Sil
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">Kayıt bulunamadı.</td>
                                 </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr><td colspan="8" class="text-center text-muted">Kayıt bulunamadı.</td></tr>
-                        <?php endif; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -362,16 +375,16 @@ require_once 'alanlar/sidebar.php';
                 <div id="tks-wrap" class="table-responsive" style="display:none;">
                     <table class="table table-striped align-middle mb-0">
                         <thead class="thead-light">
-                        <tr>
-                            <th>Sözleşme No</th>
-                            <th>#</th>
-                            <th>Vade Tarihi</th>
-                            <th>Tutar</th>
-                            <th>Ödendi</th>
-                            <th>Kalan</th>
-                            <th>Durum</th>
-                            <th class="text-end">İşlem</th>
-                        </tr>
+                            <tr>
+                                <th>Sözleşme No</th>
+                                <th>#</th>
+                                <th>Vade Tarihi</th>
+                                <th>Tutar</th>
+                                <th>Ödendi</th>
+                                <th>Kalan</th>
+                                <th>Durum</th>
+                                <th class="text-end">İşlem</th>
+                            </tr>
                         </thead>
                         <tbody id="tks-tbody"><!-- JS dolduracak --></tbody>
                     </table>
@@ -401,10 +414,10 @@ require_once 'alanlar/sidebar.php';
 <script src="assets/js/script.js" type="text/javascript"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function(){
+    document.addEventListener('DOMContentLoaded', function () {
         // Bootstrap tooltips
         if (window.bootstrap) {
-            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el){
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
                 new bootstrap.Tooltip(el);
             });
         }
@@ -413,7 +426,7 @@ require_once 'alanlar/sidebar.php';
         const selectAll = document.getElementById('select-all');
         const checks = document.querySelectorAll('.row-check');
         if (selectAll) {
-            selectAll.addEventListener('change', function(){
+            selectAll.addEventListener('change', function () {
                 checks.forEach(ch => ch.checked = selectAll.checked);
             });
         }
@@ -433,8 +446,8 @@ require_once 'alanlar/sidebar.php';
         }
 
         // Örnek: Silme butonuna tıklama
-        document.querySelectorAll('.btn-ogr-sil').forEach(function(btn){
-            btn.addEventListener('click', function(e){
+        document.querySelectorAll('.btn-ogr-sil').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
                 e.preventDefault();
                 const numara = this.dataset.numara || '';
                 // burada swal ile sorup ajax ile silme yapabilirsiniz
@@ -446,44 +459,44 @@ require_once 'alanlar/sidebar.php';
 </script>
 
 <script>
-    (function(){
-        function tl(n){ return Number(n||0).toLocaleString('tr-TR', {style:'currency', currency:'TRY'}); }
-        function b(r){
-            if (r === 'Odendi')  return '<span class="badge bg-success"><i class="ti ti-circle-filled me-1"></i>Ödendi</span>';
-            if (r === 'Kismi')   return '<span class="badge bg-info"><i class="ti ti-circle-filled me-1"></i>Kısmi</span>';
-            if (r === 'Gecikmis')return '<span class="badge bg-danger"><i class="ti ti-alert-circle me-1"></i>Gecikmiş</span>';
+    (function () {
+        function tl(n) { return Number(n || 0).toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' }); }
+        function b(r) {
+            if (r === 'Odendi') return '<span class="badge bg-success"><i class="ti ti-circle-filled me-1"></i>Ödendi</span>';
+            if (r === 'Kismi') return '<span class="badge bg-info"><i class="ti ti-circle-filled me-1"></i>Kısmi</span>';
+            if (r === 'Gecikmis') return '<span class="badge bg-danger"><i class="ti ti-alert-circle me-1"></i>Gecikmiş</span>';
             return '<span class="badge bg-secondary"><i class="ti ti-circle-filled me-1"></i>Ödenmedi</span>';
         }
 
-        async function loadTaksitler(ogrNo){
+        async function loadTaksitler(ogrNo) {
             const loader = document.getElementById('tks-loader');
-            const empty  = document.getElementById('tks-empty');
-            const wrap   = document.getElementById('tks-wrap');
-            const tbody  = document.getElementById('tks-tbody');
+            const empty = document.getElementById('tks-empty');
+            const wrap = document.getElementById('tks-wrap');
+            const tbody = document.getElementById('tks-tbody');
 
-            loader.style.display='block';
-            empty.style.display='none';
-            wrap.style.display='none';
+            loader.style.display = 'block';
+            empty.style.display = 'none';
+            wrap.style.display = 'none';
             tbody.innerHTML = '';
 
-            try{
-                const res  = await fetch('sozlesme-ajax/ogrenci-taksitler.php', {
-                    method:'POST',
-                    headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'},
+            try {
+                const res = await fetch('sozlesme-ajax/ogrenci-taksitler.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
                     body: new URLSearchParams({ ogr_no: ogrNo })
                 });
                 const json = await res.json();
 
-                loader.style.display='none';
+                loader.style.display = 'none';
 
-                if(!json.ok || !Array.isArray(json.rows) || json.rows.length===0){
-                    empty.style.display='block';
+                if (!json.ok || !Array.isArray(json.rows) || json.rows.length === 0) {
+                    empty.style.display = 'block';
                     return;
                 }
 
                 // rows: sözleşme bazlı taksitler (her satır 1 taksit)
-                json.rows.forEach(r=>{
-                    const kalan = (Number(r.tutar||0) - Number(r.odendi_tutar||0));
+                json.rows.forEach(r => {
+                    const kalan = (Number(r.tutar || 0) - Number(r.odendi_tutar || 0));
                     const canPay = kalan > 0;
 
                     const tr = document.createElement('tr');
@@ -492,43 +505,42 @@ require_once 'alanlar/sidebar.php';
                       <td>${r.sira_no || '-'}</td>
                       <td>${r.vade_tarihi_tr || '-'}</td>
                       <td>${tl(r.tutar)}</td>
-                      <td>${tl(r.odendi_tutar||0)}</td>
+                      <td>${tl(r.odendi_tutar || 0)}</td>
                       <td>${tl(kalan)}</td>
                       <td>${b(r.durum)}</td>
                       <td class="text-end">
-                        ${
-                        canPay
+                        ${canPay
                             ? `<a href="#"
                     class="btn btn-sm btn-outline-success">
                    <i class="ti ti-cash me-1"></i> Ödenmedi
                  </a>`
                             : `<span class="text-muted">—</span>`
-                    }
+                        }
           </td>
         `;
                     tbody.appendChild(tr);
                 });
 
-                wrap.style.display='block';
+                wrap.style.display = 'block';
 
-            }catch(err){
-                loader.style.display='none';
-                empty.style.display='block';
+            } catch (err) {
+                loader.style.display = 'none';
+                empty.style.display = 'block';
                 empty.textContent = 'Bir hata oluştu.';
                 console.error(err);
             }
         }
 
         // “Taksitler” butonu tıklanınca modal açılırken yükle
-        document.addEventListener('click', function(e){
+        document.addEventListener('click', function (e) {
             const a = e.target.closest('.btn-taksitler');
-            if(!a) return;
+            if (!a) return;
             const ogrNo = a.getAttribute('data-ogr-no');
-            if(!ogrNo) return;
+            if (!ogrNo) return;
 
             // Modal açılınca fetch et
             const modalEl = document.getElementById('sozlesmeler');
-            const handler = function(){ loadTaksitler(ogrNo); modalEl.removeEventListener('shown.bs.modal', handler); };
+            const handler = function () { loadTaksitler(ogrNo); modalEl.removeEventListener('shown.bs.modal', handler); };
             modalEl.addEventListener('shown.bs.modal', handler);
         });
     })();
@@ -536,11 +548,11 @@ require_once 'alanlar/sidebar.php';
 
 
 <script>
-    (function($){
+    (function ($) {
         let secilenOgrNo = null;
 
         // Sil butonuna tıklayınca: öğrenci numarasını al, modalı aç
-        $(document).on('click', '.btn-ogr-sil', function(e){
+        $(document).on('click', '.btn-ogr-sil', function (e) {
             e.preventDefault();
             secilenOgrNo = $(this).data('numara');
             console.log("Silinecek öğrenci:", secilenOgrNo);
@@ -559,8 +571,8 @@ require_once 'alanlar/sidebar.php';
         // Modal içindeki "Evet, Pasife Al" butonu
         // Modal HTML’ine aşağıdaki butonu eklemen gerekiyor (aşağıda örnek var):
         // <button type="button" class="btn btn-danger" id="btnDeleteConfirm">Evet, Pasife Al</button>
-        $(document).on('click', '#btnDeleteConfirm', function(){
-            if(!secilenOgrNo){
+        $(document).on('click', '#btnDeleteConfirm', function () {
+            if (!secilenOgrNo) {
                 alert('Öğrenci numarası bulunamadı.');
                 return;
             }
@@ -571,27 +583,27 @@ require_once 'alanlar/sidebar.php';
                 method: 'POST',
                 dataType: 'json',
                 data: { ogrenci_numara: secilenOgrNo },
-                beforeSend: function(){
+                beforeSend: function () {
                     $('#btnDeleteConfirm').prop('disabled', true).text('İşleniyor...');
                 }
             })
-                .done(function(res){
+                .done(function (res) {
                     // Modalı kapat
                     const modalEl = document.getElementById('delete-modal');
                     const modalObj = bootstrap.Modal.getInstance(modalEl);
                     if (modalObj) modalObj.hide();
 
-                    if(res && res.ok){
+                    if (res && res.ok) {
                         // Başarı
                         Swal.fire({
                             icon: 'success',
                             title: 'Başarılı',
                             text: res.msg || 'Öğrenci pasife alındı.'
-                        }).then(()=> {
+                        }).then(() => {
                             // satırı kaldır veya sayfayı yenile
                             location.reload();
                         });
-                    }else{
+                    } else {
                         // Uyarı / Hata
                         Swal.fire({
                             icon: res.code === 'BORC_VAR' ? 'warning' : 'error',
@@ -600,10 +612,10 @@ require_once 'alanlar/sidebar.php';
                         });
                     }
                 })
-                .fail(function(xhr){
-                    Swal.fire({ icon:'error', title:'Hata', text:'Sunucuya ulaşılamadı.' });
+                .fail(function (xhr) {
+                    Swal.fire({ icon: 'error', title: 'Hata', text: 'Sunucuya ulaşılamadı.' });
                 })
-                .always(function(){
+                .always(function () {
                     $('#btnDeleteConfirm').prop('disabled', false).text('Evet, Pasife Al');
                 });
         });
