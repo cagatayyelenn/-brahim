@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kaydet'])) {
             $upd = $db->update('is_basvurulari', $columns, $values, 'id', $form_id);
 
             if ($upd['status'] == 1) {
-                $db->log('is_basvurulari', $form_id, 'GÜNCELLEME', "$ad $soyad iş başvurusu güncellendi.");
+                $db->log('is_basvurulari', $form_id, 'GÜNCELLEME', "$ad_soyad iş başvurusu güncellendi.");
                 $_SESSION['flash_swal'] = [
                     'icon' => 'success',
                     'title' => 'Güncellendi',
