@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="card">
                                 <div class="card-body p-4">
                                     <div class="mb-4">
-                                        <h2 class="mb-2">Hoşgeldiniz Neden Geldiniz</h2>
+                                        <h2 class="mb-2">Hoşgeldiniz</h2>
                                         <p class="mb-0">Lütfen giriş yapmak için bilgilerinizi girin</p>
                                     </div>
 
