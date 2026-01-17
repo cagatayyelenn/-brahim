@@ -49,29 +49,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // 4) Personel pasif
             $mesaj1 = '<small style="color: red;">Girmiş olduğunuz personel durumu pasiftir.</small>';
         } else {
-            // 5) Başarılı giriş
+            // 5) Başarılı giriş (ŞİFRE DOĞRU)
+            // Şimdi güvenlik sorusu kontrolüne yönlendiriyoruz.
             session_regenerate_id(true);
 
-            $_SESSION['personel_id'] = (int) $user['personel_id'];
-            $_SESSION['ad'] = trim(($user['personel_adi'] ?? '') . ' ' . ($user['personel_soyadi'] ?? ''));
-            $_SESSION['yetki'] = (string) $user['yetki'];      // '1' admin, '2' yönetici
-            $_SESSION['sube_id'] = $user['sube_id'] ?? null;    // admin için null/boş olabilir
-            $_SESSION['email'] = $user['eposta'] ?? null;
+            // Henüz tam oturum açmıyoruz, sadece kim olduğunu biliyoruz.
+            $_SESSION['temp_user_id'] = (int) $user['personel_id'];
 
-            if ((string) $user['yetki'] === '1') {
-                // admin -> şube seçimi
-                header("Location: sube.php");
-            } else {
+            // Eğer "Beni Hatırla" seçildiyse bunu da taşıyabiliriz ama şimdilik gerek yok,
+            // güvenlik sorusunu geçince tekrar bakabiliriz veya orada cookie set ederiz.
 
-                $row = $db->gets("SELECT sube_adi FROM sube WHERE sube_id = :sid LIMIT 1", [':sid' => $user['sube_id']]);
-                if ($row && !empty($row['sube_adi'])) {
-                    $user['sube_adi'] = $row['sube_adi'];
-                    // eğer istersen session'a da yazabiliriz:
-                    $_SESSION['sube_adi'] = $row['sube_adi'];
-                }
-                // yönetici -> anasayfa
-                header("Location: index.php");
-            }
+            header("Location: guvenlik-kontrol.php");
             exit;
         }
     }
