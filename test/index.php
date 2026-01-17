@@ -320,7 +320,7 @@ require_once 'alanlar/sidebar.php';
 				<div class="card flex-fill">
 					<div class="card-header  d-flex align-items-center justify-content-between">
 						<h4 class="card-title">İşlem Geçmişi</h4>
-						<a href="gecmis-islem.php" class="fw-medium">Tümünü Görüntüle</a>
+						<a href="gecmis-islemler.php" class="fw-medium">Tümünü Görüntüle</a>
 					</div>
 					<div class="card-body">
 						<div class="notice-widget">

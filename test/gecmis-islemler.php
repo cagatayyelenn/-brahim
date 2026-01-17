@@ -16,7 +16,9 @@ $where = "WHERE 1=1";
 
 // Eğer yönetici değilse sadece kendi şubesini görsün
 // (Yetki seviyesi kontrolünü projenize göre ayarlayın, şimdilik sube_id > 0 ise ekliyoruz)
-if ($sube_id > 0 && $yetki != 1) { // Örn: 1. seviye yönetici ise tümünü görsün, değilse şube
+// Eğer yönetici değilse sadece kendi şubesini görsün
+// (Yetki seviyesi kontrolünü projenize göre ayarlayın, şimdilik sube_id > 0 ise ekliyoruz)
+if ($sube_id > 0) { // Örn: 1. seviye yönetici ise tümünü görsün, değilse şube
     $where .= " AND i.sube_id = '{$sube_id}'";
 }
 

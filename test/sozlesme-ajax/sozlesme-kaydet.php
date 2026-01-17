@@ -3,107 +3,118 @@
 ob_start();
 header('Content-Type: application/json; charset=utf-8');
 
-require_once __DIR__.'/../dosyalar/config.php';
-require_once __DIR__.'/../dosyalar/Ydil.php';
-require_once __DIR__.'/../dosyalar/oturum.php';
+require_once __DIR__ . '/../dosyalar/config.php';
+require_once __DIR__ . '/../dosyalar/Ydil.php';
+require_once __DIR__ . '/../dosyalar/oturum.php';
 
 $db = new Ydil();
 $pdo = $db->conn;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['ok'=>false,'msg'=>'Geçersiz istek']); exit;
+    echo json_encode(['ok' => false, 'msg' => 'Geçersiz istek']);
+    exit;
 }
 
 // Güvenli al
-$ogrenci_id   = (int)($_POST['ogrenci_id'] ?? 0);
-$donem_id     = (int)($_POST['donem_id'] ?? 0);
-$sinif_id     = (int)($_POST['sinif_id'] ?? 0);
-$grup_id      = (int)($_POST['grup_id'] ?? 0);
-$alan_id      = (int)($_POST['alan_id'] ?? 0);
+$ogrenci_id = (int) ($_POST['ogrenci_id'] ?? 0);
+$donem_id = (int) ($_POST['donem_id'] ?? 0);
+$sinif_id = (int) ($_POST['sinif_id'] ?? 0);
+$grup_id = (int) ($_POST['grup_id'] ?? 0);
+$alan_id = (int) ($_POST['alan_id'] ?? 0);
 
-$birim_id     = (int)($_POST['birim_id'] ?? 0);
-$birim_fiyat  = (float)($_POST['birim_fiyat'] ?? 0);
-$miktar       = (int)($_POST['miktar'] ?? 0);
-$toplam_ucret = (float)($_POST['toplam_ucret'] ?? 0);
+$birim_id = (int) ($_POST['birim_id'] ?? 0);
+$birim_fiyat = (float) ($_POST['birim_fiyat'] ?? 0);
+$miktar = (int) ($_POST['miktar'] ?? 0);
+$toplam_ucret = (float) ($_POST['toplam_ucret'] ?? 0);
 
-$pesinat      = (float)($_POST['pesinat'] ?? 0);
-$yontem_id    = (int)($_POST['yontem_id'] ?? 0);
-$kasa_id      = (int)($_POST['kasa_id'] ?? 0);
+$pesinat = (float) ($_POST['pesinat'] ?? 0);
+$yontem_id = (int) ($_POST['yontem_id'] ?? 0);
+$kasa_id = (int) ($_POST['kasa_id'] ?? 0);
 
 // Taksit listesi JSON: [{tutar: 10000.00, tarih: "2025-11-01"}, ...]
-$taksit_json  = trim($_POST['taksitler'] ?? '[]');
-$taksitler    = json_decode($taksit_json, true);
+$taksit_json = trim($_POST['taksitler'] ?? '[]');
+$taksitler = json_decode($taksit_json, true);
 
-$sube_id      = (int)($_SESSION['sube_id'] ?? 0);
-$personel_id  = (int)($_SESSION['personel_id'] ?? 0);
+$sube_id = (int) ($_SESSION['sube_id'] ?? 0);
+$personel_id = (int) ($_SESSION['personel_id'] ?? 0);
 
-if (!$ogrenci_id || !$donem_id || !$alan_id || !$birim_id || $birim_fiyat<=0 || $miktar<=0 || $toplam_ucret<=0) {
-    echo json_encode(['ok'=>false,'msg'=>'Eksik ya da hatalı veri']); exit;
+if (!$ogrenci_id || !$donem_id || !$alan_id || !$birim_id || $birim_fiyat <= 0 || $miktar <= 0 || $toplam_ucret <= 0) {
+    echo json_encode(['ok' => false, 'msg' => 'Eksik ya da hatalı veri']);
+    exit;
 }
 
-if (!is_array($taksitler)) $taksitler = [];
+if (!is_array($taksitler))
+    $taksitler = [];
 
 $sum_taksit = 0.0;
-$minVade    = null;
-$maxVade    = null;
+$minVade = null;
+$maxVade = null;
 
 foreach ($taksitler as $i => $t) {
-    $tutar = (float)($t['tutar'] ?? 0);
+    $tutar = (float) ($t['tutar'] ?? 0);
     $tarih = trim($t['tarih'] ?? '');
     if ($tutar <= 0 || !$tarih) {
-        echo json_encode(['ok'=>false,'msg'=>'Taksit verisi hatalı']); exit;
+        echo json_encode(['ok' => false, 'msg' => 'Taksit verisi hatalı']);
+        exit;
     }
     $sum_taksit += $tutar;
 
     // yyyy-mm-dd bekliyoruz
     $d = date_create_from_format('Y-m-d', $tarih) ?: date_create($tarih);
-    if (!$d) { echo json_encode(['ok'=>false,'msg'=>'Taksit tarihi geçersiz']); exit; }
+    if (!$d) {
+        echo json_encode(['ok' => false, 'msg' => 'Taksit tarihi geçersiz']);
+        exit;
+    }
     $ds = $d->format('Y-m-d');
-    if ($minVade === null || $ds < $minVade) $minVade = $ds;
-    if ($maxVade === null || $ds > $maxVade) $maxVade = $ds;
+    if ($minVade === null || $ds < $minVade)
+        $minVade = $ds;
+    if ($maxVade === null || $ds > $maxVade)
+        $maxVade = $ds;
 
     // normalize
     $taksitler[$i]['tutar'] = round($tutar, 2);
     $taksitler[$i]['tarih'] = $ds;
 }
 
-$roundToplam    = round($toplam_ucret, 2);
-$roundPesinat   = round($pesinat, 2);
+$roundToplam = round($toplam_ucret, 2);
+$roundPesinat = round($pesinat, 2);
 $roundTaksitSum = round($sum_taksit, 2);
 
-if ( round($roundPesinat + $roundTaksitSum, 2) !== $roundToplam ) {
+if (round($roundPesinat + $roundTaksitSum, 2) !== $roundToplam) {
     echo json_encode([
-        'ok'=>false,
-        'msg'=>"Peşinat + taksit toplamı ({$roundPesinat} + {$roundTaksitSum}) toplam ücrete ({$roundToplam}) eşit değil."
+        'ok' => false,
+        'msg' => "Peşinat + taksit toplamı ({$roundPesinat} + {$roundTaksitSum}) toplam ücrete ({$roundToplam}) eşit değil."
     ]);
     exit;
 }
 
 // Sözleşme no üret
-function generateSozlesmeNo(PDO $pdo): string {
+function generateSozlesmeNo(PDO $pdo): string
+{
     $y = date('Ymd');
     $stmt = $pdo->prepare("SELECT COUNT(*) c FROM sozlesme1 WHERE DATE(olusturma_tarihi)=CURDATE()");
     $stmt->execute();
-    $c = (int)$stmt->fetchColumn();
-    return 'SZ-'.$y.'-'.str_pad((string)($c+1), 4, '0', STR_PAD_LEFT);
+    $c = (int) $stmt->fetchColumn();
+    return 'SZ-' . $y . '-' . str_pad((string) ($c + 1), 4, '0', STR_PAD_LEFT);
 }
 
 // Ödeme no üret
-function generateOdemeNo(PDO $pdo): string {
+function generateOdemeNo(PDO $pdo): string
+{
     $y = date('Ymd');
     $stmt = $pdo->prepare("SELECT COUNT(*) c FROM odeme1 WHERE DATE(created_at)=CURDATE()");
     $stmt->execute();
-    $c = (int)$stmt->fetchColumn();
-    return 'OD-'.$y.'-'.str_pad((string)($c+1), 4, '0', STR_PAD_LEFT);
+    $c = (int) $stmt->fetchColumn();
+    return 'OD-' . $y . '-' . str_pad((string) ($c + 1), 4, '0', STR_PAD_LEFT);
 }
 
 try {
     $pdo->beginTransaction();
 
-    $sozlesme_no   = generateSozlesmeNo($pdo);
+    $sozlesme_no = generateSozlesmeNo($pdo);
     $sozlesme_tarihi = date('Y-m-d');
     $baslangic_tarihi = $minVade ?: $sozlesme_tarihi;
-    $bitis_tarihi     = $maxVade ?: $sozlesme_tarihi;
+    $bitis_tarihi = $maxVade ?: $sozlesme_tarihi;
 
     // sozlesme1 insert
     $sqlS = "INSERT INTO sozlesme1
@@ -120,27 +131,27 @@ try {
     $stmtS = $pdo->prepare($sqlS);
     $stmtS->execute([
         ':sozlesme_no' => $sozlesme_no,
-        ':ogrenci_id'  => $ogrenci_id,
-        ':sube_id'     => $sube_id ?: null,
-        ':per_id'      => $personel_id ?: null,
-        ':donem_id'    => $donem_id,
-        ':sinif_id'    => $sinif_id ?: null,
-        ':grup_id'     => $grup_id  ?: null,
-        ':alan_id'     => $alan_id,
-        ':birim_id'    => $birim_id,
-        ':soz_tarih'   => $sozlesme_tarihi,
-        ':bas_tar'     => $baslangic_tarihi,
-        ':bit_tar'     => $bitis_tarihi,
-        ':toplam'      => $roundToplam,
-        ':indirim'     => 0.00,
-        ':net'         => $roundToplam,
-        ':taksit_say'  => count($taksitler),
-        ':odeme_tipi'  => (count($taksitler)>0 ? 'TAKSIT' : 'PESIN'),
-        ':durum'       => 'Aktif',
-        ':aciklama'    => null,
-        ':olusturan'   => $personel_id ?: null
+        ':ogrenci_id' => $ogrenci_id,
+        ':sube_id' => $sube_id ?: null,
+        ':per_id' => $personel_id ?: null,
+        ':donem_id' => $donem_id,
+        ':sinif_id' => $sinif_id ?: null,
+        ':grup_id' => $grup_id ?: null,
+        ':alan_id' => $alan_id,
+        ':birim_id' => $birim_id,
+        ':soz_tarih' => $sozlesme_tarihi,
+        ':bas_tar' => $baslangic_tarihi,
+        ':bit_tar' => $bitis_tarihi,
+        ':toplam' => $roundToplam,
+        ':indirim' => 0.00,
+        ':net' => $roundToplam,
+        ':taksit_say' => count($taksitler),
+        ':odeme_tipi' => (count($taksitler) > 0 ? 'TAKSIT' : 'PESIN'),
+        ':durum' => 'Aktif',
+        ':aciklama' => null,
+        ':olusturan' => $personel_id ?: null
     ]);
-    $sozlesme_id = (int)$pdo->lastInsertId();
+    $sozlesme_id = (int) $pdo->lastInsertId();
 
     // taksit1 insertleri
     if (count($taksitler) > 0) {
@@ -149,13 +160,13 @@ try {
             VALUES (:sid, :sira, :vade, :tutar, 0.00, 'Odenmedi', NOW())";
         $stmtT = $pdo->prepare($sqlT);
 
-        $sira=1;
+        $sira = 1;
         foreach ($taksitler as $t) {
             $stmtT->execute([
-                ':sid'  => $sozlesme_id,
+                ':sid' => $sozlesme_id,
                 ':sira' => $sira++,
                 ':vade' => $t['tarih'],
-                ':tutar'=> round((float)$t['tutar'],2)
+                ':tutar' => round((float) $t['tutar'], 2)
             ]);
         }
     }
@@ -174,14 +185,14 @@ try {
         $stmtO = $pdo->prepare($sqlO);
         $stmtO->execute([
             ':odeme_no' => $odeme_no,
-            ':sid'      => $sozlesme_id,
-            ':kasa_id'  => $kasa_id,
-            ':yontem_id'=> $yontem_id,
-            ':tutar'    => $roundPesinat,
+            ':sid' => $sozlesme_id,
+            ':kasa_id' => $kasa_id,
+            ':yontem_id' => $yontem_id,
+            ':tutar' => $roundPesinat,
             ':aciklama' => 'Sözleşme peşinatı',
-            ':pid'      => $personel_id ?: null
+            ':pid' => $personel_id ?: null
         ]);
-        $odeme_id = (int)$pdo->lastInsertId();
+        $odeme_id = (int) $pdo->lastInsertId();
 
         // kasa_hareketleri1 (GİRİŞ)
         $sqlK = "INSERT INTO kasa_hareketleri1
@@ -190,14 +201,22 @@ try {
           (:kasa_id, :odeme_id, :sid, :ogr_id, 'GIRIS', 'TAHSILAT', :tutar, :aciklama, NOW(), NOW(), :pid)";
         $stmtK = $pdo->prepare($sqlK);
         $stmtK->execute([
-            ':kasa_id'  => $kasa_id,
+            ':kasa_id' => $kasa_id,
             ':odeme_id' => $odeme_id,
-            ':sid'      => $sozlesme_id,
-            ':ogr_id'   => $ogrenci_id,
-            ':tutar'    => $roundPesinat,
+            ':sid' => $sozlesme_id,
+            ':ogr_id' => $ogrenci_id,
+            ':tutar' => $roundPesinat,
             ':aciklama' => 'Peşinat',
-            ':pid'      => $personel_id
+            ':pid' => $personel_id
         ]);
+    }
+
+    // Loglama: Sözleşme
+    $db->log('sozlesme1', $sozlesme_id, 'EKLEME', 'Yeni sözleşme oluşturuldu: ' . $sozlesme_no);
+
+    // Loglama: Peşinat (varsa)
+    if ($roundPesinat > 0 && isset($odeme_id) && $odeme_id > 0) {
+        $db->log('odeme1', $odeme_id, 'EKLEME', 'Peşinat tahsil edildi: ' . number_format($roundPesinat, 2, ',', '.') . ' ₺');
     }
 
     $pdo->commit();
@@ -207,13 +226,14 @@ try {
     echo json_encode([
         'ok' => true,
         'sozlesme_id' => $sozlesme_id,
-        'redirect' => 'sozlesme-belge.php?id='.$sozlesme_id
+        'redirect' => 'sozlesme-belge.php?id=' . $sozlesme_id
     ]);
     exit;
 
 } catch (Throwable $e) {
-    if ($pdo->inTransaction()) $pdo->rollBack();
-    error_log('SozlesmeKaydet HATA: '.$e->getMessage());
-    echo json_encode(['ok'=>false,'msg'=>'Kayıt sırasında hata: '.$e->getMessage()]);
+    if ($pdo->inTransaction())
+        $pdo->rollBack();
+    error_log('SozlesmeKaydet HATA: ' . $e->getMessage());
+    echo json_encode(['ok' => false, 'msg' => 'Kayıt sırasında hata: ' . $e->getMessage()]);
     exit;
 }
