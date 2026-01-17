@@ -77,7 +77,7 @@ require_once 'alanlar/sidebar.php';
 
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
 
-                <!-- Pasif Göster/Gizle Switch -->
+
                 <div class="form-check form-switch me-3 mb-2">
                     <input class="form-check-input" type="checkbox" id="chkPasif" <?= $showPasif ? 'checked' : '' ?>
                         onchange="window.location.search = '?showPasif=' + (this.checked ? '1' : '0')">
@@ -98,7 +98,7 @@ require_once 'alanlar/sidebar.php';
                                 class="ti ti-file-type-xls me-2"></i>Export as Excel </a>
                     </li>
                 </ul>
-            </div> -->
+            </div>
             <div class="mb-2">
                 <a href="ogrenci-ekle.php" class="btn btn-primary d-flex align-items-center">
                     <i class="ti ti-square-rounded-plus me-2"></i>Öğrenci Ekle
