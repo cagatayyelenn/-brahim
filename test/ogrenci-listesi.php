@@ -7,6 +7,12 @@ $db = new Ydil();
 
 
 $sube_id = (int) ($_SESSION['sube_id'] ?? 0);
+$showPasif = isset($_GET['showPasif']) && $_GET['showPasif'] == '1';
+
+$where = "WHERE o.sube_id = :sube_id";
+if (!$showPasif) {
+    $where .= " AND o.aktif = 1";
+}
 
 $sql = "SELECT 
     o.ogrenci_id,
@@ -19,8 +25,8 @@ $sql = "SELECT
     o.ogrenci_dogumtar AS dogum_tarihi,
     IF(o.aktif = 1, 'Aktif', 'Pasif') AS durum
 FROM ogrenci1 o
-WHERE o.sube_id = :sube_id
-ORDER BY o.ogrenci_numara DESC ";
+$where
+ORDER BY o.aktif DESC, o.ogrenci_id DESC";
 
 $ogrenciler = $db->get($sql, [':sube_id' => $sube_id]);
 
@@ -68,39 +74,44 @@ require_once 'alanlar/sidebar.php';
                     </ol>
                 </nav>
             </div>
+
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
 
-
-                <!--<div class="dropdown me-2 mb-2">
-                    <a href="javascript:void(0);"
-                       class="dropdown-toggle btn btn-light fw-medium d-inline-flex align-items-center"
-                       data-bs-toggle="dropdown">
-                        <i class="ti ti-file-export me-2"></i>Dışa Aktar
-                    </a>
-                    <ul class="dropdown-menu  dropdown-menu-end p-3">
-                        <li>
-                            <a href="javascript:void(0);" class="dropdown-item rounded-1"><i
-                                        class="ti ti-file-type-pdf me-2"></i>Export as PDF</a>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0);" class="dropdown-item rounded-1"><i
-                                        class="ti ti-file-type-xls me-2"></i>Export as Excel </a>
-                        </li>
-                    </ul>
-                </div> -->
-                <div class="mb-2">
-                    <a href="ogrenci-ekle.php" class="btn btn-primary d-flex align-items-center">
-                        <i class="ti ti-square-rounded-plus me-2"></i>Öğrenci Ekle
-                    </a>
+                <!-- Pasif Göster/Gizle Switch -->
+                <div class="form-check form-switch me-3 mb-2">
+                    <input class="form-check-input" type="checkbox" id="chkPasif" <?= $showPasif ? 'checked' : '' ?>
+                        onchange="window.location.search = '?showPasif=' + (this.checked ? '1' : '0')">
+                    <label class="form-check-label fw-medium" for="chkPasif">Pasifleri Göster</label>
                 </div>
+                <a href="javascript:void(0);"
+                    class="dropdown-toggle btn btn-light fw-medium d-inline-flex align-items-center"
+                    data-bs-toggle="dropdown">
+                    <i class="ti ti-file-export me-2"></i>Dışa Aktar
+                </a>
+                <ul class="dropdown-menu  dropdown-menu-end p-3">
+                    <li>
+                        <a href="javascript:void(0);" class="dropdown-item rounded-1"><i
+                                class="ti ti-file-type-pdf me-2"></i>Export as PDF</a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);" class="dropdown-item rounded-1"><i
+                                class="ti ti-file-type-xls me-2"></i>Export as Excel </a>
+                    </li>
+                </ul>
+            </div> -->
+            <div class="mb-2">
+                <a href="ogrenci-ekle.php" class="btn btn-primary d-flex align-items-center">
+                    <i class="ti ti-square-rounded-plus me-2"></i>Öğrenci Ekle
+                </a>
             </div>
         </div>
-        <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between flex-wrap pb-0">
-                <h4 class="mb-3">Öğrenci Listesi</h4>
-                <div class="d-flex align-items-center flex-wrap">
-                    <div class="dropdown mb-3 me-2">
-                        <!--  <a href="javascript:void(0);" class="btn btn-outline-light bg-white dropdown-toggle"
+    </div>
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap pb-0">
+            <h4 class="mb-3">Öğrenci Listesi</h4>
+            <div class="d-flex align-items-center flex-wrap">
+                <div class="dropdown mb-3 me-2">
+                    <!--  <a href="javascript:void(0);" class="btn btn-outline-light bg-white dropdown-toggle"
                            data-bs-toggle="dropdown" data-bs-auto-close="outside"><i
                                     class="ti ti-filter me-2"></i>Filter</a>
                         <div class="dropdown-menu drop-width">
@@ -171,167 +182,165 @@ require_once 'alanlar/sidebar.php';
                                 </div>
                             </form>
                         </div> -->
-                    </div>
-                </div>
-            </div>
-            <div class="card-body p-0 py-3">
-                <div class="custom-datatable-filter table-responsive">
-                    <table class="table datatable align-middle">
-                        <thead class="thead-light">
-                            <tr>
-                                <th class="no-sort" style="width:44px">
-                                    <div class="form-check form-check-md">
-                                        <input class="form-check-input" type="checkbox" id="select-all">
-                                    </div>
-                                </th>
-                                <th style="min-width:120px;">Öğrenci No</th>
-                                <th style="min-width:120px;">TC</th>
-                                <th>Ad - Soyad</th>
-                                <th>Durum</th>
-                                <th>Doğum Tarihi</th>
-
-                                <th class="no-sort" style="min-width:180px;">İşlemler</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (!empty($ogrenciler)): ?>
-                                <?php foreach ($ogrenciler as $o):
-                                    $numara = h($o['ogrenci_no'] ?? '');
-                                    $tc = h($o['ogrenci_tc'] ?? '');
-                                    $adSoyad = h($o['ad_soyad'] ?? '');
-                                    $telefon = h($o['telefon'] ?? '');
-                                    $eposta = h($o['email'] ?? ($o['eposta'] ?? ''));
-                                    $dogumRaw = $o['dogum_tarihi'] ?? null;
-                                    $dogum = h(formatDateTRSafe($dogumRaw));
-                                    $cinsiyetV = trim((string) ($o['cinsiyet'] ?? ''));
-                                    // 1/Erkek, 0/Kız, diğer durumlar:
-                                    $cinsiyet = $cinsiyetV === '' ? '-' : (($cinsiyetV === '1' || $cinsiyetV === 'Erkek') ? 'Erkek' : (($cinsiyetV === '0' || $cinsiyetV === 'Kız') ? 'Kız' : h($cinsiyetV)));
-                                    $durumV = trim((string) ($o['durum'] ?? 'Belirsiz'));
-                                    $isAktif = (mb_strtolower($durumV, 'UTF-8') === 'aktif');
-                                    $badgeCls = $isAktif ? 'badge badge-soft-success d-inline-flex align-items-center'
-                                        : 'badge badge-soft-secondary d-inline-flex align-items-center';
-
-                                    // Avatar (isimden)
-                                    $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($adSoyad ?: $numara) . '&size=64&background=DDD&color=333&bold=true';
-                                    ?>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check form-check-md">
-                                                <input class="form-check-input row-check" type="checkbox"
-                                                    value="<?= $numara ?>">
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <a href="ogrenci-detay.php?id=<?= $numara ?>" class="link-primary fw-semibold">
-                                                <?= $numara ?: '-' ?>
-                                            </a>
-                                        </td>
-
-                                        <td><?= $tc ?: '-' ?></td>
-
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <span class="avatar avatar-md me-2">
-                                                    <img src="<?= h($avatarUrl) ?>" class="img-fluid rounded-circle"
-                                                        alt="avatar">
-                                                </span>
-                                                <div class="ms-1">
-                                                    <a href="ogrenci-detay.php?id=<?= $numara ?>"
-                                                        class="text-dark fw-semibold"><?= $adSoyad ?: '-' ?></a>
-                                                    <?php if ($telefon): ?>
-                                                        <div class="small text-muted"><?= h($telefon) ?></div>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <span class="<?= $badgeCls ?>">
-                                                <i class="ti ti-circle-filled fs-5 me-1"></i><?= h($durumV) ?>
-                                            </span>
-                                        </td>
-
-                                        <td><?= $dogum ?></td>
-
-
-
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <!-- Telefon -->
-                                                <a href="<?= $telefon ? 'tel:' . preg_replace('/\s+/', '', $telefon) : '#' ?>"
-                                                    class="btn btn-outline-light bg-white btn-icon d-flex align-items-center justify-content-center rounded-circle p-0 me-2"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="<?= $telefon ? h($telefon) : 'Telefon numarası yok' ?>">
-                                                    <i class="ti ti-phone<?= $telefon ? '' : ' text-muted' ?>"></i>
-                                                </a>
-
-                                                <!-- E-posta -->
-                                                <a href="<?= $eposta ? 'mailto:' . h($eposta) : '#' ?>"
-                                                    class="btn btn-outline-light bg-white btn-icon d-flex align-items-center justify-content-center rounded-circle p-0 me-2"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="<?= $eposta ? h($eposta) : 'E-posta adresi yok' ?>">
-                                                    <i class="ti ti-mail<?= $eposta ? '' : ' text-muted' ?>"></i>
-                                                </a>
-
-                                                <a href="#" class="btn btn-light btn-sm fw-semibold me-2 btn-taksitler"
-                                                    data-ogr-no="<?= htmlspecialchars($numara, ENT_QUOTES, 'UTF-8') ?>"
-                                                    data-bs-toggle="modal" data-bs-target="#sozlesmeler">
-                                                    Taksitler
-                                                </a>
-
-                                                <div class="dropdown">
-                                                    <a href="#"
-                                                        class="btn btn-white btn-icon btn-sm d-flex align-items-center justify-content-center rounded-circle p-0"
-                                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="ti ti-dots-vertical fs-14"></i>
-                                                    </a>
-                                                    <ul class="dropdown-menu dropdown-menu-end p-2">
-                                                        <li>
-                                                            <a class="dropdown-item rounded-1"
-                                                                href="ogrenci-detay.php?id=<?= $numara ?>">
-                                                                <i class="ti ti-user-circle me-2"></i>Öğrenci Sayfası
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a class="dropdown-item rounded-1"
-                                                                href="ogrenci-duzenle.php?id=<?= $numara ?>">
-                                                                <i class="ti ti-edit-circle me-2"></i>Öğrenci Düzenle
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a class="dropdown-item rounded-1"
-                                                                href="sozlesme-olustur.php?id=<?= $numara ?>">
-                                                                <i class="ti ti-file-text me-2"></i>Sözleşme Oluştur
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <hr class="dropdown-divider">
-                                                        </li>
-                                                        <li>
-                                                            <a class="dropdown-item text-danger rounded-1 btn-ogr-sil" href="#"
-                                                                data-numara="<?= $numara ?>">
-                                                                <i class="ti ti-trash-x me-2"></i>Öğrenci Sil
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="8" class="text-center text-muted">Kayıt bulunamadı.</td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
+        <div class="card-body p-0 py-3">
+            <div class="custom-datatable-filter table-responsive">
+                <table class="table datatable align-middle">
+                    <thead class="thead-light">
+                        <tr>
+                            <th class="no-sort" style="width:44px">
+                                <div class="form-check form-check-md">
+                                    <input class="form-check-input" type="checkbox" id="select-all">
+                                </div>
+                            </th>
+                            <th style="min-width:120px;">Öğrenci No</th>
+                            <th style="min-width:120px;">TC</th>
+                            <th>Ad - Soyad</th>
+                            <th>Durum</th>
+                            <th>Doğum Tarihi</th>
 
+                            <th class="no-sort" style="min-width:180px;">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($ogrenciler)): ?>
+                            <?php foreach ($ogrenciler as $o):
+                                $numara = h($o['ogrenci_no'] ?? '');
+                                $tc = h($o['ogrenci_tc'] ?? '');
+                                $adSoyad = h($o['ad_soyad'] ?? '');
+                                $telefon = h($o['telefon'] ?? '');
+                                $eposta = h($o['email'] ?? ($o['eposta'] ?? ''));
+                                $dogumRaw = $o['dogum_tarihi'] ?? null;
+                                $dogum = h(formatDateTRSafe($dogumRaw));
+                                $cinsiyetV = trim((string) ($o['cinsiyet'] ?? ''));
+                                // 1/Erkek, 0/Kız, diğer durumlar:
+                                $cinsiyet = $cinsiyetV === '' ? '-' : (($cinsiyetV === '1' || $cinsiyetV === 'Erkek') ? 'Erkek' : (($cinsiyetV === '0' || $cinsiyetV === 'Kız') ? 'Kız' : h($cinsiyetV)));
+                                $durumV = trim((string) ($o['durum'] ?? 'Belirsiz'));
+                                $isAktif = (mb_strtolower($durumV, 'UTF-8') === 'aktif');
+                                $badgeCls = $isAktif ? 'badge badge-soft-success d-inline-flex align-items-center'
+                                    : 'badge badge-soft-secondary d-inline-flex align-items-center';
+
+                                // Avatar (isimden)
+                                $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($adSoyad ?: $numara) . '&size=64&background=DDD&color=333&bold=true';
+                                ?>
+                                <tr>
+                                    <td>
+                                        <div class="form-check form-check-md">
+                                            <input class="form-check-input row-check" type="checkbox" value="<?= $numara ?>">
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <a href="ogrenci-detay.php?id=<?= $numara ?>" class="link-primary fw-semibold">
+                                            <?= $numara ?: '-' ?>
+                                        </a>
+                                    </td>
+
+                                    <td><?= $tc ?: '-' ?></td>
+
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <span class="avatar avatar-md me-2">
+                                                <img src="<?= h($avatarUrl) ?>" class="img-fluid rounded-circle" alt="avatar">
+                                            </span>
+                                            <div class="ms-1">
+                                                <a href="ogrenci-detay.php?id=<?= $numara ?>"
+                                                    class="text-dark fw-semibold"><?= $adSoyad ?: '-' ?></a>
+                                                <?php if ($telefon): ?>
+                                                    <div class="small text-muted"><?= h($telefon) ?></div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <span class="<?= $badgeCls ?>">
+                                            <i class="ti ti-circle-filled fs-5 me-1"></i><?= h($durumV) ?>
+                                        </span>
+                                    </td>
+
+                                    <td><?= $dogum ?></td>
+
+
+
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <!-- Telefon -->
+                                            <a href="<?= $telefon ? 'tel:' . preg_replace('/\s+/', '', $telefon) : '#' ?>"
+                                                class="btn btn-outline-light bg-white btn-icon d-flex align-items-center justify-content-center rounded-circle p-0 me-2"
+                                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="<?= $telefon ? h($telefon) : 'Telefon numarası yok' ?>">
+                                                <i class="ti ti-phone<?= $telefon ? '' : ' text-muted' ?>"></i>
+                                            </a>
+
+                                            <!-- E-posta -->
+                                            <a href="<?= $eposta ? 'mailto:' . h($eposta) : '#' ?>"
+                                                class="btn btn-outline-light bg-white btn-icon d-flex align-items-center justify-content-center rounded-circle p-0 me-2"
+                                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="<?= $eposta ? h($eposta) : 'E-posta adresi yok' ?>">
+                                                <i class="ti ti-mail<?= $eposta ? '' : ' text-muted' ?>"></i>
+                                            </a>
+
+                                            <a href="#" class="btn btn-light btn-sm fw-semibold me-2 btn-taksitler"
+                                                data-ogr-no="<?= htmlspecialchars($numara, ENT_QUOTES, 'UTF-8') ?>"
+                                                data-bs-toggle="modal" data-bs-target="#sozlesmeler">
+                                                Taksitler
+                                            </a>
+
+                                            <div class="dropdown">
+                                                <a href="#"
+                                                    class="btn btn-white btn-icon btn-sm d-flex align-items-center justify-content-center rounded-circle p-0"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="ti ti-dots-vertical fs-14"></i>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-end p-2">
+                                                    <li>
+                                                        <a class="dropdown-item rounded-1"
+                                                            href="ogrenci-detay.php?id=<?= $numara ?>">
+                                                            <i class="ti ti-user-circle me-2"></i>Öğrenci Sayfası
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item rounded-1"
+                                                            href="ogrenci-duzenle.php?id=<?= $numara ?>">
+                                                            <i class="ti ti-edit-circle me-2"></i>Öğrenci Düzenle
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item rounded-1"
+                                                            href="sozlesme-olustur.php?id=<?= $numara ?>">
+                                                            <i class="ti ti-file-text me-2"></i>Sözleşme Oluştur
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <hr class="dropdown-divider">
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item text-danger rounded-1 btn-ogr-sil" href="#"
+                                                            data-numara="<?= $numara ?>">
+                                                            <i class="ti ti-trash-x me-2"></i>Öğrenci Sil
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">Kayıt bulunamadı.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
+
+</div>
 </div>
 <!-- /Page Wrapper -->
 
