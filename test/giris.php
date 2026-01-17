@@ -11,58 +11,54 @@ session_start();
 $db = new Ydil();
 
 
-$mesaj  = "";
+$mesaj = "";
 $mesaj1 = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $email_or_phone = trim($_POST['email_or_phone'] ?? '');
-    $password       = $_POST['password'] ?? '';
+    $password = $_POST['password'] ?? '';
 
     // 1) Mail mi, telefon mu?
-    $isEmail = (bool)preg_match('/^[^\s@]+@[^\s@]+\.[^\s@]+$/', $email_or_phone);
-    $isPhone = (bool)preg_match('/^[0-9]{10,15}$/', $email_or_phone);
+    $isEmail = (bool) preg_match('/^[^\s@]+@[^\s@]+\.[^\s@]+$/', $email_or_phone);
+    $isPhone = (bool) preg_match('/^[0-9]{10,15}$/', $email_or_phone);
 
     if (!$isEmail && !$isPhone) {
         $mesaj = '<small style="color: red;">Lütfen geçerli bir e-posta veya telefon numarası giriniz.</small>';
     } else {
-        $sutun  = $isEmail ? 'eposta' : 'telefon';
+        $sutun = $isEmail ? 'eposta' : 'telefon';
         $quoted = $db->conn->quote($email_or_phone); // injection riskini azalt
 
         // 2) Kullanıcıyı çek (ad & soyad dahil!)
         $sqlUser = " SELECT k.eposta, k.kisi_turu, k.sifre, k.telefon, p.personel_id, p.personel_adi, p.personel_soyadi, p.durum, p.sube_id, p.yetki FROM kullanici_giris1 k INNER JOIN personel1 p ON k.kisi_id = p.personel_id  WHERE {$sutun} = {$quoted}  LIMIT 1 ";
         $user = $db->gets($sqlUser);
 
-        
+
         if (!$user) {
             // 1) Kullanıcı yok
             $mesaj1 = '<small style="color: red;">Giriş bilgileri yanlış.</small>';
-        }
-        elseif ($user['sifre'] === '0' || $user['sifre'] === '') {
+        } elseif ($user['sifre'] === '0' || $user['sifre'] === '') {
             // 2) Sistemde şifre boş/0 -> şifre oluşturma
-            $_SESSION['kisi_id'] = (int)$user['personel_id'];
+            $_SESSION['kisi_id'] = (int) $user['personel_id'];
             header("Location: sifre-olusturma.php");
             exit;
-        }
-        elseif ($password === '' || !password_verify($password, $user['sifre'])) {
+        } elseif ($password === '' || !password_verify($password, $user['sifre'])) {
             // 3) Şifre girilmedi ya da hatalı
             $mesaj1 = '<small style="color: red;">Giriş bilgileri yanlış.</small>';
-        }
-        elseif ((string)$user['durum'] !== '1') {
+        } elseif ((string) $user['durum'] !== '1') {
             // 4) Personel pasif
             $mesaj1 = '<small style="color: red;">Girmiş olduğunuz personel durumu pasiftir.</small>';
-        }
-        else {
+        } else {
             // 5) Başarılı giriş
             session_regenerate_id(true);
 
-            $_SESSION['personel_id'] = (int)$user['personel_id'];
-            $_SESSION['ad']         = trim(($user['personel_adi'] ?? '').' '.($user['personel_soyadi'] ?? ''));
-            $_SESSION['yetki']      = (string)$user['yetki'];      // '1' admin, '2' yönetici
-            $_SESSION['sube_id']    = $user['sube_id'] ?? null;    // admin için null/boş olabilir
-            $_SESSION['email']      = $user['eposta'] ?? null;
+            $_SESSION['personel_id'] = (int) $user['personel_id'];
+            $_SESSION['ad'] = trim(($user['personel_adi'] ?? '') . ' ' . ($user['personel_soyadi'] ?? ''));
+            $_SESSION['yetki'] = (string) $user['yetki'];      // '1' admin, '2' yönetici
+            $_SESSION['sube_id'] = $user['sube_id'] ?? null;    // admin için null/boş olabilir
+            $_SESSION['email'] = $user['eposta'] ?? null;
 
-            if ((string)$user['yetki'] === '1') {
+            if ((string) $user['yetki'] === '1') {
                 // admin -> şube seçimi
                 header("Location: sube.php");
             } else {
@@ -83,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
@@ -103,17 +100,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="assets/css/feather.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        .pass-group .pass-input { padding-right: 40px; }
-        .pass-group .toggle-password { z-index: 3; }
+        .pass-group .pass-input {
+            padding-right: 40px;
+        }
+
+        .pass-group .toggle-password {
+            z-index: 3;
+        }
     </style>
 </head>
 
 <body class="account-page">
 
-<div class="main-wrapper">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-5 mx-auto">
+    <div class="main-wrapper">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-5 mx-auto">
                     <div class="d-flex flex-column justify-content-between vh-100">
                         <div class=" mx-auto p-4 text-center">
                             <img src="assets/img/authentication/authentication-logo.svg" class="img-fluid" alt="Logo">
@@ -123,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="card">
                                 <div class="card-body p-4">
                                     <div class="mb-4">
-                                        <h2 class="mb-2">Hoşgeldiniz</h2>
+                                        <h2 class="mb-2">Hoşgeldiniz Neden Geldiniz</h2>
                                         <p class="mb-0">Lütfen giriş yapmak için bilgilerinizi girin</p>
                                     </div>
 
@@ -141,21 +143,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <div class="mb-3">
                                         <label class="form-label">Mail adresin veya telefon numarası</label>
                                         <div class="input-icon mb-3 position-relative">
-                                              <span class="input-icon-addon">
+                                            <span class="input-icon-addon">
                                                 <i class="ti ti-mail"></i>
-                                              </span>
-                                            <input type="text" class="form-control" id="inputEmailPhone" name="email_or_phone" placeholder="ornek@site.com veya 5XXXXXXXXX" required>
+                                            </span>
+                                            <input type="text" class="form-control" id="inputEmailPhone"
+                                                name="email_or_phone" placeholder="ornek@site.com veya 5XXXXXXXXX"
+                                                required>
                                         </div>
-                                        <div id="validationMessage" class="mt-1 text-danger small"><?php echo $mesaj; ?></div>
+                                        <div id="validationMessage" class="mt-1 text-danger small"><?php echo $mesaj; ?>
+                                        </div>
 
 
                                         <label class="form-label">Şifreniz</label>
                                         <div class="pass-group position-relative">
-                                            <input type="password" class="pass-input form-control" id="password" name="password"
-                                                   placeholder="Şifrenizi girin (ilk girişte boş bırakın)">
-                                            <span class="ti toggle-password ti-eye-off"
-                                                  data-target="#password"
-                                                  style="cursor:pointer; position:absolute; right:3px; top:18px;"></span>
+                                            <input type="password" class="pass-input form-control" id="password"
+                                                name="password" placeholder="Şifrenizi girin (ilk girişte boş bırakın)">
+                                            <span class="ti toggle-password ti-eye-off" data-target="#password"
+                                                style="cursor:pointer; position:absolute; right:3px; top:18px;"></span>
                                         </div>
                                         <?php echo $mesaj1; ?>
                                     </div>
@@ -163,7 +167,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <div class="form-wrap form-wrap-checkbox mb-3">
                                         <div class="d-flex align-items-center">
                                             <div class="form-check form-check-md mb-0">
-                                                <input class="form-check-input mt-0" type="checkbox" id="remember" name="remember" value="1">
+                                                <input class="form-check-input mt-0" type="checkbox" id="remember"
+                                                    name="remember" value="1">
                                             </div>
                                             <label for="remember" class="ms-2 mb-0">Beni Hatırla</label>
                                         </div>
@@ -175,7 +180,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                                     <div class="text-center">
                                         <h6 class="fw-normal text-dark mb-0">
-                                            Şifrenizi unuttuysanız <span class="fw-normal text-success mb-0">Ngls Yabancı Dil Dünyası</span> ile iletişime geçin
+                                            Şifrenizi unuttuysanız <span class="fw-normal text-success mb-0">Ngls
+                                                Yabancı Dil Dünyası</span> ile iletişime geçin
                                         </h6>
                                     </div>
                                 </div>
@@ -185,71 +191,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <p class="mb-0 ">Copyright &copy; 2025 - Sqooler Okul Yönetim Sistemi </p>
                         </div>
                     </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script data-cfasync="false" src="assets/js/jquery-3.7.1.min.js"></script>
-<script data-cfasync="false" src="assets/js/bootstrap.bundle.min.js"></script>
- <script data-cfasync="false" src="assets/js/moment.js"></script>
-<script data-cfasync="false" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/tr.min.js"></script>
-<script data-cfasync="false" src="assets/js/bootstrap-datetimepicker.min.js"></script>
-<script data-cfasync="false" src="assets/plugins/select2/js/select2.min.js"></script>
-<script data-cfasync="false" src="assets/plugins/bootstrap-tagsinput/bootstrap-tagsinput.js"></script>
-<script data-cfasync="false" src="assets/js/feather.min.js"></script>
-<script data-cfasync="false" src="assets/js/jquery.slimscroll.min.js"></script>
- <script data-cfasync="false" src="assets/js/script.js"></script>
+    <script data-cfasync="false" src="assets/js/jquery-3.7.1.min.js"></script>
+    <script data-cfasync="false" src="assets/js/bootstrap.bundle.min.js"></script>
+    <script data-cfasync="false" src="assets/js/moment.js"></script>
+    <script data-cfasync="false"
+        src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/tr.min.js"></script>
+    <script data-cfasync="false" src="assets/js/bootstrap-datetimepicker.min.js"></script>
+    <script data-cfasync="false" src="assets/plugins/select2/js/select2.min.js"></script>
+    <script data-cfasync="false" src="assets/plugins/bootstrap-tagsinput/bootstrap-tagsinput.js"></script>
+    <script data-cfasync="false" src="assets/js/feather.min.js"></script>
+    <script data-cfasync="false" src="assets/js/jquery.slimscroll.min.js"></script>
+    <script data-cfasync="false" src="assets/js/script.js"></script>
 
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
 
-        // Basit istemci tarafı kontrolü (mail veya telefon) — form varsa bağla
-        const form = document.getElementById('loginForm');
-        if (form) {
-            form.addEventListener('submit', function(event) {
-                const input   = document.getElementById('inputEmailPhone').value.trim();
-                const message = document.getElementById('validationMessage');
+            // Basit istemci tarafı kontrolü (mail veya telefon) — form varsa bağla
+            const form = document.getElementById('loginForm');
+            if (form) {
+                form.addEventListener('submit', function (event) {
+                    const input = document.getElementById('inputEmailPhone').value.trim();
+                    const message = document.getElementById('validationMessage');
 
-                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                const phonePattern = /^(?:\+?90\s?0?|0)?\d{10}$/;
+                    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    const phonePattern = /^(?:\+?90\s?0?|0)?\d{10}$/;
 
-                if (!emailPattern.test(input) && !phonePattern.test(input)) {
-                    if (message) message.textContent = "Lütfen geçerli bir e-posta veya telefon numarası giriniz.";
-                    event.preventDefault();
-                } else {
-                    if (message) message.textContent = "";
-                }
-            });
-        }
-    });
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.addEventListener('click', function(e) {
-            const btn = e.target.closest('.toggle-password');
-            if (!btn) return; // tıklanan element göz ikonu değil
-            const targetSel = btn.getAttribute('data-target');
-            const input = document.querySelector(targetSel);
-            if (!input) return; // input bulunamadıysa çık
-            const icon = btn.querySelector('i');
-            if (!icon) return; // ikon bulunamadıysa çık
-
-            // toggle işlemi
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
+                    if (!emailPattern.test(input) && !phonePattern.test(input)) {
+                        if (message) message.textContent = "Lütfen geçerli bir e-posta veya telefon numarası giriniz.";
+                        event.preventDefault();
+                    } else {
+                        if (message) message.textContent = "";
+                    }
+                });
             }
         });
-    });
-</script>
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('click', function (e) {
+                const btn = e.target.closest('.toggle-password');
+                if (!btn) return; // tıklanan element göz ikonu değil
+                const targetSel = btn.getAttribute('data-target');
+                const input = document.querySelector(targetSel);
+                if (!input) return; // input bulunamadıysa çık
+                const icon = btn.querySelector('i');
+                if (!icon) return; // ikon bulunamadıysa çık
+
+                // toggle işlemi
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
