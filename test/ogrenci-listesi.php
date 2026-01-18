@@ -83,26 +83,29 @@ require_once 'alanlar/sidebar.php';
                         onchange="window.location.search = '?showPasif=' + (this.checked ? '1' : '0')">
                     <label class="form-check-label fw-medium" for="chkPasif">Pasifleri Göster</label>
                 </div>
-                <a href="javascript:void(0);"
-                    class="dropdown-toggle btn btn-light fw-medium d-inline-flex align-items-center"
-                    data-bs-toggle="dropdown">
-                    <i class="ti ti-file-export me-2"></i>Dışa Aktar
-                </a>
-                <ul class="dropdown-menu  dropdown-menu-end p-3">
-                    <li>
-                        <a href="javascript:void(0);" class="dropdown-item rounded-1"><i
-                                class="ti ti-file-type-pdf me-2"></i>Export as PDF</a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0);" class="dropdown-item rounded-1"><i
-                                class="ti ti-file-type-xls me-2"></i>Export as Excel </a>
-                    </li>
-                </ul>
-            </div>
-            <div class="mb-2">
-                <a href="ogrenci-ekle.php" class="btn btn-primary d-flex align-items-center">
-                    <i class="ti ti-square-rounded-plus me-2"></i>Öğrenci Ekle
-                </a>
+                <div class="dropdown me-2 mb-2">
+                    <a href="javascript:void(0);"
+                        class="dropdown-toggle btn btn-light fw-medium d-inline-flex align-items-center"
+                        data-bs-toggle="dropdown">
+                        <i class="ti ti-file-export me-2"></i>Dışa Aktar
+                    </a>
+                    <ul class="dropdown-menu  dropdown-menu-end p-3">
+                        <li>
+                            <a href="javascript:void(0);" class="dropdown-item rounded-1"><i
+                                    class="ti ti-file-type-pdf me-2"></i>Export as PDF</a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0);" class="dropdown-item rounded-1"><i
+                                    class="ti ti-file-type-xls me-2"></i>Export as Excel </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="mb-2">
+                    <a href="ogrenci-ekle.php" class="btn btn-primary d-flex align-items-center">
+                        <i class="ti ti-square-rounded-plus me-2"></i>Öğrenci Ekle
+                    </a>
+                </div>
             </div>
         </div>
     </div>
