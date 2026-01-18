@@ -300,11 +300,13 @@ require_once 'ogrenci-detay-ortak.php';
                                                                         <?php endif; ?>
                                                                     </td>
                                                                     <td class="text-end">
-                                                                        <?php if ($paid): ?>
-                                                                            <a class="btn btn-light btn-sm"
+                                                                        <?php if ($t['odenen'] > 0): ?>
+                                                                            <a class="btn btn-light btn-sm me-1"
                                                                                 href="odeme-belge.php?taksit=<?= (int) $t['taksit_id'] ?>"
-                                                                                target="_blank">Belge Göster</a>
-                                                                        <?php else: ?>
+                                                                                target="_blank" title="Makbuz"><i class="ti ti-receipt"></i></a>
+                                                                        <?php endif; ?>
+                                                                        
+                                                                        <?php if ((float)$t['eksik'] > 0): ?>
                                                                             <button class="btn btn-primary btn-sm btn-ode"
                                                                                 data-taksit-id="<?= (int) $t['taksit_id'] ?>"
                                                                                 data-ogrenci-id="<?= (int) $ogrenci_id ?>"
@@ -579,7 +581,7 @@ require_once 'ogrenci-detay-ortak.php';
                     </div>
 
                 </div>
-        </div>
+
         <div class="modal-footer">
             <a href="#" class="btn btn-light me-2" data-bs-dismiss="modal">Vazgeç</a>
             <button type="submit" class="btn btn-primary">Tahsil Et</button>
