@@ -219,7 +219,8 @@ require_once 'ogrenci-detay-ortak.php';
                                     <h2 class="accordion-header d-flex align-items-center">
                                         <button class="accordion-button flex-grow-1 <?= $i === 0 ? '' : 'collapsed' ?>"
                                             type="button" data-bs-toggle="collapse" data-bs-target="#<?= $collapseId ?>"
-                                            aria-expanded="<?= $i === 0 ? 'true' : 'false' ?>" aria-controls="<?= $collapseId ?>">
+                                            aria-expanded="<?= $i === 0 ? 'true' : 'false' ?>"
+                                            aria-controls="<?= $collapseId ?>">
                                             <span class="avatar avatar-sm bg-success me-2"><i class="ti ti-checks"></i></span>
                                             <?= htmlspecialchars('Sözleşme #' . $sid) ?>
                                             <?php if (!empty($h['sozlesme_tarihi'])): ?>
@@ -237,8 +238,8 @@ require_once 'ogrenci-detay-ortak.php';
                                         if ($odemeVar == 0) {
                                             echo '<a href="javascript:void(0);" 
                                                class="btn btn-outline-danger btn-sm flex-shrink-0 sozlesmeSilBtn"
-                                               data-id="' . $sid . '"
-                                               <i class="ti ti-trash"></i>Sil
+                                               data-id="' . $sid . '">
+                                               <i class="ti ti-trash"></i> Sil
                                             </a>';
                                         }
                                         ?>
@@ -258,7 +259,8 @@ require_once 'ogrenci-detay-ortak.php';
                                         </a>
                                     </h2>
 
-                                    <div id="<?= $collapseId ?>" class="accordion-collapse collapse <?= $i === 0 ? 'show' : '' ?>"
+                                    <div id="<?= $collapseId ?>"
+                                        class="accordion-collapse collapse <?= $i === 0 ? 'show' : '' ?>"
                                         data-bs-parent="#accordionSoz">
                                         <div class="accordion-body">
                                             <div class="table-responsive">
@@ -329,13 +331,16 @@ require_once 'ogrenci-detay-ortak.php';
                                                                     class="d-flex flex-wrap align-items-center justify-content-between">
                                                                     <div>Toplam Sözleşme:
                                                                         <strong><?= number_format($toplamSozlesme, 2, ',', '.') ?>
-                                                                            ₺</strong><span class="mx-2">|</span></div>
+                                                                            ₺</strong><span class="mx-2">|</span>
+                                                                    </div>
                                                                     <div>Ödenen:
                                                                         <strong><?= number_format($odenenTutar, 2, ',', '.') ?>
-                                                                            ₺</strong><span class="mx-2">|</span></div>
+                                                                            ₺</strong><span class="mx-2">|</span>
+                                                                    </div>
                                                                     <div>Ödenmesi Gereken:
                                                                         <strong><?= number_format($odenmesiGereken, 2, ',', '.') ?>
-                                                                            ₺</strong><span class="mx-2">|</span></div>
+                                                                            ₺</strong><span class="mx-2">|</span>
+                                                                    </div>
                                                                     <div>Gecikmiş Tutar: <strong
                                                                             class="text-warning"><?= number_format($o['gecikmis_tutar'], 2, ',', '.') ?>
                                                                             ₺</strong></div>
@@ -518,70 +523,70 @@ require_once 'ogrenci-detay-ortak.php';
                                     <option value="">Kasa Türü Seçiniz</option>
                                     <?php foreach ($kasalar as $k): ?>
                                         <option value="<?= (int) $k['kasa_id'] ?>">
-                                            <?= htmlspecialchars($k['kasa_adi']) ?>    <?php
-                                                  if (!empty($k['kasa_tipi']))
-                                                      echo ' - ' . htmlspecialchars($k['kasa_tipi']);
-                                                  ?>
+                                            <?= htmlspecialchars($k['kasa_adi']) ?>     <?php
+                                                   if (!empty($k['kasa_tipi']))
+                                                       echo ' - ' . htmlspecialchars($k['kasa_tipi']);
+                                                   ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            </div>
                         </div>
-                        <div class="col-lg-4">
-                            <div class="mb-3">
-                                <label class="form-label">Ödeme Tarihi</label>
-                                <div class="input-icon">
-                                    <input type="text" class="form-control datetimepicker" name="odeme_tarihi" value="<?= date('d.m.Y') ?>">
-                                    <span class="input-icon-addon"><i class="ti ti-calendar"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="mb-3"> </div>
-                        </div>
-                        <div id="alertFazla" class="alert alert-outline-danger alert-dismissible fade show d-none">
-                            Girmiş Olduğunuz Tutar Kalan Ödemenizden Fazladır.
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                                <i class="fas fa-xmark"></i>
-                            </button>
-                        </div>
-                        <div class="bg-light-300 p-3 pb-0 rounded pb-4">
-                            <div class="row align-items-center">
-                                <div class="col-lg-12">
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <div class="status-title">
-                                            <h5>Durum</h5>
-                                            <p>Farklı Tutar Ödemek İstiyorum</p>
-                                        </div>
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" role="switch"
-                                                id="chkFarkli">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="mb-3"> </div>
-                                </div>
-                                <div class="col-lg-12">
-                                    <div class="mb-0">
-                                        <label class="form-label">Tutar Giriniz</label>
-                                        <input type="text" class="form-control text-end" id="inpOdenecekTutar"
-                                            placeholder="0,00 TL" disabled>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Ödeme Tarihi</label>
+                            <div class="input-icon">
+                                <input type="text" class="form-control datetimepicker" name="odeme_tarihi"
+                                    value="<?= date('d.m.Y') ?>">
+                                <span class="input-icon-addon"><i class="ti ti-calendar"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="mb-3"> </div>
+                    </div>
+                    <div id="alertFazla" class="alert alert-outline-danger alert-dismissible fade show d-none">
+                        Girmiş Olduğunuz Tutar Kalan Ödemenizden Fazladır.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                            <i class="fas fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="bg-light-300 p-3 pb-0 rounded pb-4">
+                        <div class="row align-items-center">
+                            <div class="col-lg-12">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="status-title">
+                                        <h5>Durum</h5>
+                                        <p>Farklı Tutar Ödemek İstiyorum</p>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="chkFarkli">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3"> </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="mb-0">
+                                    <label class="form-label">Tutar Giriniz</label>
+                                    <input type="text" class="form-control text-end" id="inpOdenecekTutar"
+                                        placeholder="0,00 TL" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-                <div class="modal-footer">
-                    <a href="#" class="btn btn-light me-2" data-bs-dismiss="modal">Vazgeç</a>
-                    <button type="submit" class="btn btn-primary">Tahsil Et</button>
-                </div>
-            </form>
         </div>
+        <div class="modal-footer">
+            <a href="#" class="btn btn-light me-2" data-bs-dismiss="modal">Vazgeç</a>
+            <button type="submit" class="btn btn-primary">Tahsil Et</button>
+        </div>
+        </form>
     </div>
+</div>
 </div>
 
 <div class="modal fade" id="sozlesmeSilModal" tabindex="-1">
