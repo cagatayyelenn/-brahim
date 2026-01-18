@@ -314,15 +314,12 @@ require_once 'alanlar/sidebar.php';
                             <table class="table table-bordered fs-14" id="datatablesSimple">
                                 <thead>
                                     <tr>
-                                        <th>Tarih</th>
-                                        <th>Adı</th>
-                                        <th>Soyadı</th>
+                                        <th style="width: 100px;">Tarih</th>
+                                        <th>Ad Soyad</th>
                                         <th>Dil / Alan</th>
-                                        <th>Referans</th>
-                                        <th>Açıklama</th>
                                         <th>Sonuç</th>
-                                        <th>Görüşen</th>
-                                        <th class="text-center">İşlemler</th>
+                                        <th class="text-center" style="width: 100px;">Detay</th>
+                                        <th class="text-center" style="width: 120px;">İşlemler</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -366,25 +363,28 @@ require_once 'alanlar/sidebar.php';
                                             <tr style="<?= $rowStyle ?>">
                                                 <td class="<?= $textClass ?>" style="<?= $rowStyle ?>"><?= $tarih_goster ?></td>
                                                 <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
-                                                    <?= htmlspecialchars($row['ad']) ?>
-                                                </td>
-                                                <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
-                                                    <?= htmlspecialchars($row['soyad']) ?>
+                                                    <div class="fw-bold">
+                                                        <?= htmlspecialchars($row['ad'] . ' ' . $row['soyad']) ?></div>
                                                 </td>
                                                 <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
                                                     <?= htmlspecialchars($row['alan_adi'] ?? '') ?>
                                                 </td>
                                                 <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
-                                                    <?= htmlspecialchars($row['referans']) ?>
-                                                </td>
-                                                <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
-                                                    <?= htmlspecialchars($row['aciklama']) ?>
-                                                </td>
-                                                <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
                                                     <?= htmlspecialchars($row['sonuc']) ?>
                                                 </td>
-                                                <td class="<?= $textClass ?>" style="<?= $rowStyle ?>">
-                                                    <?= htmlspecialchars($personel_tam_ad) ?>
+                                                <td class="text-center" style="<?= $rowStyle ?>">
+                                                    <button type="button" class="btn btn-sm btn-light btn-detay"
+                                                        data-ad="<?= htmlspecialchars($row['ad']) ?>"
+                                                        data-soyad="<?= htmlspecialchars($row['soyad']) ?>"
+                                                        data-tarih="<?= $tarih_goster ?>"
+                                                        data-alan="<?= htmlspecialchars($row['alan_adi'] ?? '') ?>"
+                                                        data-referans="<?= htmlspecialchars($row['referans']) ?>"
+                                                        data-aciklama="<?= htmlspecialchars($row['aciklama']) ?>"
+                                                        data-sonuc="<?= htmlspecialchars($row['sonuc']) ?>"
+                                                        data-gorusen="<?= htmlspecialchars($personel_tam_ad) ?>"
+                                                        title="Detayları İncele">
+                                                        <i class="ti ti-eye text-dark"></i>
+                                                    </button>
                                                 </td>
                                                 <td class="text-center" style="<?= $rowStyle ?>">
                                                     <a href="gorusme.php?edit_id=<?= $row['id'] ?>"
@@ -400,7 +400,7 @@ require_once 'alanlar/sidebar.php';
                                         <?php endforeach; ?>
                                     <?php else: ?>
                                         <tr>
-                                            <td colspan="9" class="text-center">Henüz kayıt bulunmamaktadır.</td>
+                                            <td colspan="6" class="text-center">Henüz kayıt bulunmamaktadır.</td>
                                         </tr>
                                     <?php endif; ?>
                                 </tbody>
@@ -438,6 +438,97 @@ require_once 'alanlar/sidebar.php';
         });
     </script>
 <?php endif; ?>
+
+<!-- GÖRÜŞME DETAY MODALI -->
+<div class="modal fade" id="modalGorusmeDetay" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Görüşme Detayları</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="fw-bold text-muted small">AD SOYAD</label>
+                        <div id="detayAdSoyad" class="fs-16 fw-semibold text-dark"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="fw-bold text-muted small">TARİH</label>
+                        <div id="detayTarih" class="fs-16 text-dark"></div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="fw-bold text-muted small">DİL / ALAN</label>
+                        <div id="detayAlan" class="fs-15 text-dark"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="fw-bold text-muted small">REFERANS</label>
+                        <div id="detayReferans" class="fs-15 text-dark"></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold text-muted small">SONUÇ</label>
+                    <div><span id="detaySonucBadge" class="badge"></span></div>
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold text-muted small">GÖRÜŞME NOTLARI (AÇIKLAMA)</label>
+                    <div id="detayAciklama" class="p-3 bg-light rounded border text-dark"
+                        style="min-height: 100px; white-space: pre-wrap;"></div>
+                </div>
+                <div class="text-end text-muted small border-top pt-2">
+                    Görüşmeyi Yapan: <span id="detayGorusen" class="fw-bold"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modalEl = document.getElementById('modalGorusmeDetay');
+        const modal = new bootstrap.Modal(modalEl);
+
+        // Tüm detay butonlarını yakala
+        document.querySelectorAll('.btn-detay').forEach(btn => {
+            btn.addEventListener('click', function () {
+                // Data attribute'lardan veriyi al
+                const ad = this.dataset.ad;
+                const soyad = this.dataset.soyad;
+                const tarih = this.dataset.tarih;
+                const alan = this.dataset.alan;
+                const referans = this.dataset.referans;
+                const aciklama = this.dataset.aciklama;
+                const sonuc = this.dataset.sonuc;
+                const gorusen = this.dataset.gorusen;
+
+                // Modalı doldur
+                document.getElementById('detayAdSoyad').textContent = ad + ' ' + soyad;
+                document.getElementById('detayTarih').textContent = tarih;
+                document.getElementById('detayAlan').textContent = alan || '-';
+                document.getElementById('detayReferans').textContent = referans || '-';
+                document.getElementById('detayAciklama').textContent = aciklama || 'Not girilmemiş.';
+                document.getElementById('detayGorusen').textContent = gorusen || '-';
+
+                // Sonuç badge rengi
+                const badgeEl = document.getElementById('detaySonucBadge');
+                badgeEl.textContent = sonuc;
+                badgeEl.className = 'badge'; // reset
+                if (sonuc === 'Kayıt yapıldı') badgeEl.classList.add('bg-primary');
+                else if (sonuc === 'Beklemede') badgeEl.classList.add('bg-success');
+                else if (sonuc === 'Randevu verildi') badgeEl.classList.add('bg-secondary');
+                else if (sonuc === 'Olumsuz') badgeEl.classList.add('bg-danger');
+                else badgeEl.classList.add('bg-info');
+
+                modal.show();
+            });
+        });
+    });
+</script>
 
 <script>
     (function () {
