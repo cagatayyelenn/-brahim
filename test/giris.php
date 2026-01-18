@@ -222,6 +222,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
 
     <script>
+        // Login sayfasına gelindiğinde eski session timer'ı temizle
+        localStorage.removeItem('session_expiry_time');
+
         document.addEventListener('DOMContentLoaded', function () {
             document.addEventListener('click', function (e) {
                 const btn = e.target.closest('.toggle-password');

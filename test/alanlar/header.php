@@ -375,7 +375,8 @@ const SITE_NAME = "Sqooler Yönetim Sistemi";
                                         <div>
                                             <h6 class=""><?= htmlspecialchars($user['ad'] ?? 'Kullanıcı') ?></h6>
                                             <p class="text-primary mb-0">
-                                                <?= $rol = ($user['kisi_yetki'] == 1) ? 'Admin' : 'Personel'; ?></p>
+                                                <?= $rol = ($user['kisi_yetki'] == 1) ? 'Admin' : 'Personel'; ?>
+                                            </p>
                                         </div>
                                     </div>
                                     <hr class="m-0">
@@ -400,30 +401,146 @@ const SITE_NAME = "Sqooler Yönetim Sistemi";
 
         </div>
 
-        <!-- Session Timeout Script -->
+        <!-- Session Timeout Modal -->
+        <div class="modal fade" id="session-timeout-modal" data-bs-backdrop="static" data-bs-keyboard="false"
+            tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-body text-center p-5">
+                        <div class="avatar avatar-xl bg-danger-transparent mb-4">
+                            <span class="avatar-title rounded-circle">
+                                <i class="ti ti-clock-exclamation fs-36 text-danger"></i>
+                            </span>
+                        </div>
+                        <h3 class="mb-2">Oturum Süresi Doluyor!</h3>
+                        <p class="text-muted mb-4">
+                            Hiçbir işlem yapmadığınız için oturumunuz
+                            <span id="timeout-countdown" class="fw-bold text-dark fs-18 mx-1">10</span>
+                            saniye içinde kapatılacak.
+                        </p>
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-primary" id="btn-extend-session">
+                                <i class="ti ti-reload me-2"></i>Oturum Süresini Uzat
+                            </button>
+                            <a href="cikis.php" class="btn btn-light">
+                                <i class="ti ti-logout me-2"></i>Çıkış Yap
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Persistent Session Timer Script -->
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                // 30 dakika = 30 * 60 = 1800 saniye
-                var duration = 1800;
-                var display = document.querySelector('#sessionTimer');
-                var timer = duration, minutes, seconds;
+                const SESSION_DURATION_MS = 30 * 60 * 1000; // 30 dakika
+                const WARNING_DURATION_SEC = 10;            // Son 10 saniye uyarı
 
-                var intervalId = setInterval(function () {
-                    minutes = parseInt(timer / 60, 10);
-                    seconds = parseInt(timer % 60, 10);
+                const timerDisplay = document.getElementById('sessionTimer');
+                const modalEl = document.getElementById('session-timeout-modal');
+                const countdownEl = document.getElementById('timeout-countdown');
+                const extendBtn = document.getElementById('btn-extend-session');
 
-                    minutes = minutes < 10 ? "0" + minutes : minutes;
-                    seconds = seconds < 10 ? "0" + seconds : seconds;
+                let modalInstance = null;
+                let warningInterval = null;
 
-                    if (display) {
-                        display.textContent = minutes + ":" + seconds;
+                // localStorage anahtarını belirle (oturum bazlı olması için user_id vb eklenebilir ama şu an basit tutuyoruz)
+                const STORE_KEY = 'session_expiry_time';
+
+                // Helper: Zamanı formatla MM:SS
+                function formatTime(ms) {
+                    if (ms < 0) ms = 0;
+                    const totalSec = Math.floor(ms / 1000);
+                    const m = Math.floor(totalSec / 60);
+                    const s = totalSec % 60;
+                    return (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+                }
+
+                // Hedef zamanı al veya oluştur
+                function getExpiryTime() {
+                    let expiry = localStorage.getItem(STORE_KEY);
+                    if (!expiry || parseInt(expiry) < Date.now()) {
+                        // Eğer kayıt yoksa veya süre çoktan dolmuşsa (ve kullanıcı hala buradaysa) yeni süre başlat
+                        // (Login sonrası ilk yükleme veya süresi dolmuş ama oturum kapanmamışsa)
+                        expiry = setExpiryTime();
+                    }
+                    return parseInt(expiry);
+                }
+
+                function setExpiryTime() {
+                    const expiry = Date.now() + SESSION_DURATION_MS;
+                    localStorage.setItem(STORE_KEY, expiry);
+                    return expiry;
+                }
+
+                // Süreyi uzatma fonksiyonu
+                function extendSession() {
+                    setExpiryTime();
+                    // Modalı kapat
+                    if (modalInstance) modalInstance.hide();
+                    // Uyarı interval'i temizle
+                    if (warningInterval) {
+                        clearInterval(warningInterval);
+                        warningInterval = null;
+                    }
+                    // Sayaç hemen güncellensin
+                    updateTimer();
+                }
+
+                // Buton click eventi
+                if (extendBtn) {
+                    extendBtn.addEventListener('click', extendSession);
+                }
+
+                // Sayaç döngüsü
+                function updateTimer() {
+                    const expiry = getExpiryTime();
+                    const now = Date.now();
+                    const remaining = expiry - now;
+
+                    // Display güncelle
+                    if (timerDisplay) {
+                        timerDisplay.textContent = formatTime(remaining);
                     }
 
-                    if (--timer < 0) {
-                        clearInterval(intervalId);
-                        // Süre doldu, çıkış yap
-                        window.location.href = "cikis.php";
+                    // Süre doldu mu (tamamen)
+                    if (remaining <= 0) {
+                        // Çıkış yap
+                        localStorage.removeItem(STORE_KEY);
+                        window.location.href = 'cikis.php';
+                        return;
                     }
-                }, 1000);
+
+                    // Son 10 saniye mi? Modalı göster
+                    // (remaining <= 11000 çünkü 10000ms altında modalda geri sayım daha doğru görünsün)
+                    if (remaining <= (WARNING_DURATION_SEC * 1000) + 1000) {
+                        if (!modalInstance && window.bootstrap) {
+                            modalInstance = new bootstrap.Modal(modalEl);
+                            modalInstance.show();
+                        }
+
+                        // Modal içindeki geri sayımı güncelle
+                        if (countdownEl) {
+                            const secLeft = Math.ceil(remaining / 1000);
+                            countdownEl.textContent = secLeft;
+                        }
+                    }
+                }
+
+                // Eğer sayfa ilk açıldığında hedef süreye 30 dakikadan fazla varsa (saat değişimi vs) resetle
+                // Veya çoktan dolmuşsa (örn tarayıcı kapalı kaldı)
+                // updateTimer içinde zaten kontrol ediliyor ama...
+
+                // Başlat
+                // İlk okumada değer yoksa (login sonrası ilk hit) set eder.
+                // localStorage'da kayıtlı değer varsa onu kullanır (sayfa yenilemede resetlenmez).
+
+                // Eğer kullanıcı manuel olarak çıkış yaptıysa bu değeri temizlememiz lazım.
+                // `cikis.php`ye gidince JS çalışmaz. O yüzden en iyisi login sayfasında temizlemektir.
+                // Ama şimdilik basit mantıkla ilerliyoruz.
+
+                setInterval(updateTimer, 1000);
+                updateTimer(); // İlk çağrı
             });
         </script>
