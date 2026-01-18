@@ -131,7 +131,7 @@ const SITE_NAME = "Sqooler Yönetim Sistemi";
                         <div class="me-2">
                             <span class="btn btn-outline-light fw-normal bg-white d-flex align-items-center p-2"
                                 title="Oturum Süresi">
-                                <i class="ti ti-clock me-1"></i><span id="sessionTimer">30:00</span>
+                                <i class="ti ti-clock me-1"></i><span id="sessionTimer"></span>
                             </span>
                         </div>
 
@@ -455,12 +455,10 @@ const SITE_NAME = "Sqooler Yönetim Sistemi";
                     return (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
                 }
 
-                // Hedef zamanı al veya oluştur
                 function getExpiryTime() {
                     let expiry = localStorage.getItem(STORE_KEY);
-                    if (!expiry || parseInt(expiry) < Date.now()) {
-                        // Eğer kayıt yoksa veya süre çoktan dolmuşsa (ve kullanıcı hala buradaysa) yeni süre başlat
-                        // (Login sonrası ilk yükleme veya süresi dolmuş ama oturum kapanmamışsa)
+                    if (!expiry) {
+                        // Sadece kayıt yoksa yeni süre başlat
                         expiry = setExpiryTime();
                     }
                     return parseInt(expiry);
