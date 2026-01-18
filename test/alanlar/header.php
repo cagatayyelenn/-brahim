@@ -422,9 +422,7 @@ const SITE_NAME = "Sqooler Yönetim Sistemi";
                             <button type="button" class="btn btn-primary" id="btn-extend-session">
                                 <i class="ti ti-reload me-2"></i>Oturum Süresini Uzat
                             </button>
-                            <a href="cikis.php" class="btn btn-light">
-                                <i class="ti ti-logout me-2"></i>Çıkış Yap
-                            </a>
+
                         </div>
                     </div>
                 </div>
