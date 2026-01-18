@@ -17,7 +17,21 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 try {
 
     /* ====== 0. TEMEL VERİLER ====== */
-    $simdikitarih = date('Y-m-d H:i:s');
+    // Varsayılan tarih: şimdi
+    $post_tarih = trim($_POST['odeme_tarihi'] ?? '');
+    if ($post_tarih) {
+        // d.m.Y -> Y-m-d H:i:s
+        $dt = DateTime::createFromFormat('d.m.Y', $post_tarih);
+        if ($dt) {
+            $simdikitarih = $dt->format('Y-m-d') . ' ' . date('H:i:s');
+        } else {
+            // format hatası varsa 
+            $simdikitarih = date('Y-m-d H:i:s');
+        }
+    } else {
+        $simdikitarih = date('Y-m-d H:i:s');
+    }
+
     $personel_id = (int) ($_SESSION['personel_id'] ?? 0) ?: null;
 
     $taksit_id = (int) ($_POST['taksit_id'] ?? 0);

@@ -80,10 +80,11 @@ $roundToplam = round($toplam_ucret, 2);
 $roundPesinat = round($pesinat, 2);
 $roundTaksitSum = round($sum_taksit, 2);
 
-if (round($roundPesinat + $roundTaksitSum, 2) !== $roundToplam) {
+// Ufak kuruş farkı toleransı (0.05)
+if (abs(($roundPesinat + $roundTaksitSum) - $roundToplam) > 0.05) {
     echo json_encode([
         'ok' => false,
-        'msg' => "Peşinat + taksit toplamı ({$roundPesinat} + {$roundTaksitSum}) toplam ücrete ({$roundToplam}) eşit değil."
+        'msg' => "Peşinat + taksit toplamı ({$roundPesinat} + {$roundTaksitSum} = " . ($roundPesinat + $roundTaksitSum) . ") toplam ücrete ({$roundToplam}) eşit değil."
     ]);
     exit;
 }

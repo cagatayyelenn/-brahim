@@ -12,28 +12,28 @@ if (!isset($_GET['id']) || $_GET['id'] === '') {
 
 $sel_donem = $sel_sinif = $sel_grup = $sel_alan = $sel_birim = null;
 
-$donemler = $db->finds('donem', null, null, ['donem_id','donem_adi']);
-$siniflar = $db->finds('sinif', null, null, ['sinif_id','sinif_adi']);
-$gruplar  = $db->finds('grup',  null, null, ['grup_id','grup_adi']);
-$alanlar  = $db->finds('alan',  null, null, ['alan_id','alan_adi']);
-$birimler  = $db->finds('birim',  null, null, ['birim_id','birim_adi']);
+$donemler = $db->finds('donem', null, null, ['donem_id', 'donem_adi']);
+$siniflar = $db->finds('sinif', null, null, ['sinif_id', 'sinif_adi']);
+$gruplar = $db->finds('grup', null, null, ['grup_id', 'grup_adi']);
+$alanlar = $db->finds('alan', null, null, ['alan_id', 'alan_adi']);
+$birimler = $db->finds('birim', null, null, ['birim_id', 'birim_adi']);
 
-$odemeYontemleri = $db->finds('odeme_yontem1', 'durum', 1, ['yontem_id','yontem_adi','sira']);
-usort($odemeYontemleri, fn($a,$b)=>($a['sira']<=>$b['sira']));
+$odemeYontemleri = $db->finds('odeme_yontem1', 'durum', 1, ['yontem_id', 'yontem_adi', 'sira']);
+usort($odemeYontemleri, fn($a, $b) => ($a['sira'] <=> $b['sira']));
 
 // Kasaları Çek
-$aktifSubeId = (int)($_SESSION['sube_id'] ?? 0);
+$aktifSubeId = (int) ($_SESSION['sube_id'] ?? 0);
 
 if ($aktifSubeId) {
     $kasalar = $db->get(
         "SELECT kasa_id, kasa_adi, kasa_tipi FROM kasa1
        WHERE durum=1 AND (sube_id=:sid OR sube_id IS NULL)
        ORDER BY sira ASC, kasa_adi ASC",
-        [':sid'=>$aktifSubeId]
+        [':sid' => $aktifSubeId]
     );
 } else {
-    $kasalar = $db->finds('kasa1', 'durum', 1, ['kasa_id','kasa_adi','kasa_tipi']);
-    usort($kasalar, fn($a,$b)=>($a['sira']<=>$b['sira']) ?: strcmp($a['kasa_adi'],$b['kasa_adi']));
+    $kasalar = $db->finds('kasa1', 'durum', 1, ['kasa_id', 'kasa_adi', 'kasa_tipi']);
+    usort($kasalar, fn($a, $b) => ($a['sira'] <=> $b['sira']) ?: strcmp($a['kasa_adi'], $b['kasa_adi']));
 }
 
 $ogr_no = $_GET['id'];                         // ogrenci_numara
@@ -91,16 +91,22 @@ require_once 'alanlar/sidebar.php';
                 <div class="card border-white">
                     <div class="card-header">
                         <div class="d-flex align-items-center flex-wrap row-gap-3">
-                            <div class="d-flex align-items-center justify-content-center avatar avatar-xxl border border-dashed me-2 flex-shrink-0 text-dark frames">
-                                <img src="https://ui-avatars.com/api/?name=<?= $ogrenci['ogrenci_adi'] ?>+<?= $ogrenci['ogrenci_soyadi'] ?>" class="img-fluid" alt="img">
+                            <div
+                                class="d-flex align-items-center justify-content-center avatar avatar-xxl border border-dashed me-2 flex-shrink-0 text-dark frames">
+                                <img src="https://ui-avatars.com/api/?name=<?= $ogrenci['ogrenci_adi'] ?>+<?= $ogrenci['ogrenci_soyadi'] ?>"
+                                    class="img-fluid" alt="img">
                             </div>
                             <div class="overflow-hidden">
                                 <?php
-                                 if($ogrenci['aktif'] == 1){ echo '<span class="badge badge-soft-success"><i class="ti ti-circle-filled"></i> Aktif</span>'; }
-                                 else{ echo '<span class="badge badge-soft-secondary"><i class="ti ti-circle-filled"></i> Pasif</span>';}
+                                if ($ogrenci['aktif'] == 1) {
+                                    echo '<span class="badge badge-soft-success"><i class="ti ti-circle-filled"></i> Aktif</span>';
+                                } else {
+                                    echo '<span class="badge badge-soft-secondary"><i class="ti ti-circle-filled"></i> Pasif</span>';
+                                }
 
                                 ?>
-                                <h5 class="mb-1 text-truncate"><?= $ogrenci['ogrenci_adi']." ".$ogrenci['ogrenci_soyadi'] ?></h5>
+                                <h5 class="mb-1 text-truncate">
+                                    <?= $ogrenci['ogrenci_adi'] . " " . $ogrenci['ogrenci_soyadi'] ?></h5>
                                 <p class="text-primary"><?= $ogrenci['ogrenci_numara'] ?></p>
                             </div>
                         </div>
@@ -109,7 +115,7 @@ require_once 'alanlar/sidebar.php';
                     <div class="card-body">
                         <h5 class="mb-3">Öğrenci bilgileri</h5>
                         <?php
-                        $adSoyad   = trim(($ogrenci['ogrenci_adi'] ?? '').' '.($ogrenci['ogrenci_soyadi'] ?? ''));
+                        $adSoyad = trim(($ogrenci['ogrenci_adi'] ?? '') . ' ' . ($ogrenci['ogrenci_soyadi'] ?? ''));
                         $cinsiyetT = ($ogrenci['ogrenci_cinsiyet'] === '1' || $ogrenci['ogrenci_cinsiyet'] === 1) ? 'Erkek'
                             : (($ogrenci['ogrenci_cinsiyet'] === '0' || $ogrenci['ogrenci_cinsiyet'] === 0) ? 'Kız' : '-');
                         ?>
@@ -121,7 +127,7 @@ require_once 'alanlar/sidebar.php';
                             <dt class="col-6 fw-medium text-dark mb-3">Cinsiyet</dt>
                             <dd class="col-6 mb-3"><?= htmlspecialchars($cinsiyetT) ?></dd>
                             <dt class="col-6 fw-medium text-dark mb-3">Doğum Tarihi</dt>
-                            <dd class="col-6 mb-3"><?=  formatDateTR($ogrenci['ogrenci_dogumtar']); ?></dd>
+                            <dd class="col-6 mb-3"><?= formatDateTR($ogrenci['ogrenci_dogumtar']); ?></dd>
                             <dt class="col-6 fw-medium text-dark mb-3">Telefon</dt>
                             <dd class="col-6 mb-3"><?= htmlspecialchars($ogrenci['ogrenci_tel'] ?? '-') ?></dd>
                             <dt class="col-6 fw-medium text-dark mb-3">E-posta</dt>
@@ -166,7 +172,7 @@ require_once 'alanlar/sidebar.php';
                                 <?= $gecikenSay ?>
                                 <?php if ($gecikenSay > 0): ?>
                                     <a href="taksit-ode.php?ogrenci_id=<?= $ogrenci_id ?>&durum=geciken"
-                                       class="btn btn-sm btn-outline-danger ms-2">
+                                        class="btn btn-sm btn-outline-danger ms-2">
                                         Öde
                                     </a>
                                 <?php endif; ?>
@@ -189,9 +195,9 @@ require_once 'alanlar/sidebar.php';
                                 <div class="card">
                                     <div class="card-header bg-light">
                                         <div class="d-flex align-items-center">
-                                              <span class="bg-white avatar avatar-sm me-2 text-gray-7 flex-shrink-0">
+                                            <span class="bg-white avatar avatar-sm me-2 text-gray-7 flex-shrink-0">
                                                 <i class="ti ti-user-check fs-16"></i>
-                                              </span>
+                                            </span>
                                             <h4 class="text-dark">Öğrenci Kurs Bilgisi</h4>
                                         </div>
                                     </div>
@@ -206,7 +212,8 @@ require_once 'alanlar/sidebar.php';
                                                         <select class="form-control" name="donem_id" id="donem_id">
                                                             <option value="">Seçiniz</option>
                                                             <?php foreach ($donemler as $d): ?>
-                                                                <option value="<?= (int)$d['donem_id'] ?>"><?= htmlspecialchars($d['donem_adi']) ?></option>
+                                                                <option value="<?= (int) $d['donem_id'] ?>">
+                                                                    <?= htmlspecialchars($d['donem_adi']) ?></option>
                                                             <?php endforeach; ?>
                                                         </select>
                                                     </div>
@@ -219,7 +226,8 @@ require_once 'alanlar/sidebar.php';
                                                         <select class="form-control" name="sinif_id" id="sinif_id">
                                                             <option value="">Seçiniz</option>
                                                             <?php foreach ($siniflar as $s): ?>
-                                                                <option value="<?= (int)$s['sinif_id'] ?>"><?= htmlspecialchars($s['sinif_adi']) ?></option>
+                                                                <option value="<?= (int) $s['sinif_id'] ?>">
+                                                                    <?= htmlspecialchars($s['sinif_adi']) ?></option>
                                                             <?php endforeach; ?>
                                                         </select>
                                                     </div>
@@ -232,7 +240,8 @@ require_once 'alanlar/sidebar.php';
                                                         <select class="form-control" name="grup_id" id="grup_id">
                                                             <option value="">Seçiniz</option>
                                                             <?php foreach ($gruplar as $g): ?>
-                                                                <option value="<?= (int)$g['grup_id'] ?>"><?= htmlspecialchars($g['grup_adi']) ?></option>
+                                                                <option value="<?= (int) $g['grup_id'] ?>">
+                                                                    <?= htmlspecialchars($g['grup_adi']) ?></option>
                                                             <?php endforeach; ?>
                                                         </select>
                                                     </div>
@@ -245,7 +254,8 @@ require_once 'alanlar/sidebar.php';
                                                         <select class="form-control" name="alan_id" id="alan_id">
                                                             <option value="">Seçiniz</option>
                                                             <?php foreach ($alanlar as $a): ?>
-                                                                <option value="<?= (int)$a['alan_id'] ?>"><?= htmlspecialchars($a['alan_adi']) ?></option>
+                                                                <option value="<?= (int) $a['alan_id'] ?>">
+                                                                    <?= htmlspecialchars($a['alan_adi']) ?></option>
                                                             <?php endforeach; ?>
                                                         </select>
                                                     </div>
@@ -257,10 +267,12 @@ require_once 'alanlar/sidebar.php';
 
                                     <div class="pt-2 pb-2 bg-light-transparent">
                                         <div class="d-flex justify-content-end" style="padding-right:18px;">
-                                            <button type="button" data-section="kurs_section" id="btnKursDuzenle" class="btn btn-outline-secondary me-2" style="display:none;">
+                                            <button type="button" data-section="kurs_section" id="btnKursDuzenle"
+                                                class="btn btn-outline-secondary me-2" style="display:none;">
                                                 Düzenle
                                             </button>
-                                            <button type="button" data-section="kurs_section" id="btnKursDevam" class="btn btn-outline-info">
+                                            <button type="button" data-section="kurs_section" id="btnKursDevam"
+                                                class="btn btn-outline-info">
                                                 Devam Et
                                             </button>
                                         </div>
@@ -272,9 +284,9 @@ require_once 'alanlar/sidebar.php';
                                 <div class="card">
                                     <div class="card-header bg-light">
                                         <div class="d-flex align-items-center">
-                                          <span class="bg-white avatar avatar-sm me-2 text-gray-7 flex-shrink-0">
-                                            <i class="ti ti-user-check fs-16"></i>
-                                          </span>
+                                            <span class="bg-white avatar avatar-sm me-2 text-gray-7 flex-shrink-0">
+                                                <i class="ti ti-user-check fs-16"></i>
+                                            </span>
                                             <h4 class="text-dark">Kurs Sözleşme Bilgisi</h4>
                                         </div>
                                     </div>
@@ -288,7 +300,8 @@ require_once 'alanlar/sidebar.php';
                                                         <select class="select2" name="birim_id" id="birimId">
                                                             <option value="">Seçiniz</option>
                                                             <?php foreach ($birimler as $b): ?>
-                                                                <option value="<?= (int)$b['birim_id'] ?>" <?= ($sel_birim == $b['birim_adi']) ? 'selected' : '' ?>>
+                                                                <option value="<?= (int) $b['birim_id'] ?>"
+                                                                    <?= ($sel_birim == $b['birim_adi']) ? 'selected' : '' ?>>
                                                                     <?= htmlspecialchars($b['birim_adi']) ?>
                                                                 </option>
                                                             <?php endforeach; ?>
@@ -299,21 +312,25 @@ require_once 'alanlar/sidebar.php';
                                                 <div class="col-lg-3 col-md-6">
                                                     <div class="mb-3">
                                                         <label class="form-label">Birim Fiyatı</label>
-                                                        <input type="text" name="birimFiyat" class="form-control text-end" id="birimFiyat" placeholder="Örn: 5.000,00">
+                                                        <input type="text" name="birimFiyat"
+                                                            class="form-control text-end" id="birimFiyat"
+                                                            placeholder="Örn: 5.000,00">
                                                     </div>
                                                 </div>
 
                                                 <div class="col-lg-3 col-md-6">
                                                     <div class="mb-3">
                                                         <label class="form-label">Miktar</label>
-                                                        <input type="number" class="form-control text-end" name="miktar" id="miktar" min="1" step="1" placeholder="Örn: 10">
+                                                        <input type="number" class="form-control text-end" name="miktar"
+                                                            id="miktar" min="1" step="1" placeholder="Örn: 10">
                                                     </div>
                                                 </div>
 
                                                 <div class="col-lg-3 col-md-6">
                                                     <div class="mb-3">
                                                         <label class="form-label">Toplam Tutar</label>
-                                                        <input type="text" name="toplamTutar" class="form-control text-end" id="toplamTutar" readonly>
+                                                        <input type="text" name="toplamTutar"
+                                                            class="form-control text-end" id="toplamTutar" readonly>
                                                     </div>
                                                 </div>
                                             </div>
@@ -322,7 +339,8 @@ require_once 'alanlar/sidebar.php';
 
                                     <div class="pt-2 pb-2 bg-light-transparent">
                                         <div class="text-end" style="padding-right: 18px;">
-                                            <button type="button" id="btnHesapla" class="btn btn-outline-primary">Ödemeyi Hesapla</button>
+                                            <button type="button" id="btnHesapla"
+                                                class="btn btn-outline-primary">Ödemeyi Hesapla</button>
                                         </div>
                                     </div>
                                 </div>
@@ -331,9 +349,9 @@ require_once 'alanlar/sidebar.php';
                                 <div class="card" id="odemeCard">
                                     <div class="card-header bg-light">
                                         <div class="d-flex align-items-center">
-                                              <span class="bg-white avatar avatar-sm me-2 text-gray-7 flex-shrink-0">
+                                            <span class="bg-white avatar avatar-sm me-2 text-gray-7 flex-shrink-0">
                                                 <i class="ti ti-user-check fs-16"></i>
-                                              </span>
+                                            </span>
                                             <h4 class="text-dark">Ödeme Bilgisi</h4>
                                         </div>
                                     </div>
@@ -343,26 +361,30 @@ require_once 'alanlar/sidebar.php';
                                                 <div class="col-lg-4 col-md-6">
                                                     <div class="mb-4">
                                                         <label class="form-label">Birim Tutar</label>
-                                                        <input type="text" class="form-control text-end text-success" id="odmBirimTutar" name="odmBirimTutar" readonly>
+                                                        <input type="text" class="form-control text-end text-success"
+                                                            id="odmBirimTutar" name="odmBirimTutar" readonly>
                                                     </div>
                                                 </div>
                                                 <div class="col-lg-4 col-md-6">
                                                     <div class="mb-4">
                                                         <label class="form-label">Tutar</label>
-                                                        <input type="text" class="form-control text-end text-success" id="odmTutar" name="odmTutar" readonly>
+                                                        <input type="text" class="form-control text-end text-success"
+                                                            id="odmTutar" name="odmTutar" readonly>
                                                     </div>
                                                 </div>
                                                 <div class="col-lg-4 col-md-6">
                                                     <div class="mb-4">
                                                         <label class="form-label">Toplam Tutar</label>
-                                                        <input type="text" class="form-control text-end text-success" id="odmToplam" name="odmToplam" readonly>
+                                                        <input type="text" class="form-control text-end text-success"
+                                                            id="odmToplam" name="odmToplam" readonly>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-lg-4 col-md-6">
                                                     <div class="mb-4">
                                                         <label class="form-label">Peşinat Tutarı</label>
-                                                        <input type="text" class="form-control text-end" id="pesinat" name="pesinat" placeholder="Örn: 2.000,00">
+                                                        <input type="text" class="form-control text-end" id="pesinat"
+                                                            name="pesinat" placeholder="Örn: 2.000,00">
                                                     </div>
                                                 </div>
 
@@ -372,7 +394,7 @@ require_once 'alanlar/sidebar.php';
                                                         <select class="select" id="odemeSecenegi" name="odemeSecenegi">
                                                             <option value="">Seçiniz</option>
                                                             <?php foreach ($odemeYontemleri as $y): ?>
-                                                                <option value="<?= (int)$y['yontem_id'] ?>">
+                                                                <option value="<?= (int) $y['yontem_id'] ?>">
                                                                     <?= htmlspecialchars($y['yontem_adi']) ?>
                                                                 </option>
                                                             <?php endforeach; ?>
@@ -386,10 +408,11 @@ require_once 'alanlar/sidebar.php';
                                                         <select class="select" id="kasaId" name="kasaId">
                                                             <option value="">Seçiniz</option>
                                                             <?php foreach ($kasalar as $k): ?>
-                                                                <option value="<?= (int)$k['kasa_id'] ?>">
-                                                                    <?= htmlspecialchars($k['kasa_adi']) ?><?php
-                                                                    if (!empty($k['kasa_tipi'])) echo ' - '.htmlspecialchars($k['kasa_tipi']);
-                                                                    ?>
+                                                                <option value="<?= (int) $k['kasa_id'] ?>">
+                                                                    <?= htmlspecialchars($k['kasa_adi']) ?>    <?php
+                                                                          if (!empty($k['kasa_tipi']))
+                                                                              echo ' - ' . htmlspecialchars($k['kasa_tipi']);
+                                                                          ?>
                                                                 </option>
                                                             <?php endforeach; ?>
                                                         </select>
@@ -402,7 +425,8 @@ require_once 'alanlar/sidebar.php';
 
                                     <div class="pt-2 pb-2 bg-light-transparent">
                                         <div class="text-end" style="padding-right: 18px;">
-                                            <button type="button" id="btnOdemeDevam" class="btn btn-outline-primary">Devam</button>
+                                            <button type="button" id="btnOdemeDevam"
+                                                class="btn btn-outline-primary">Devam</button>
                                         </div>
                                     </div>
                                 </div>
@@ -413,9 +437,9 @@ require_once 'alanlar/sidebar.php';
                                 <div class="card" id="taksitCard">
                                     <div class="card-header bg-light">
                                         <div class="d-flex align-items-center">
-                                              <span class="bg-white avatar avatar-sm me-2 text-gray-7 flex-shrink-0">
+                                            <span class="bg-white avatar avatar-sm me-2 text-gray-7 flex-shrink-0">
                                                 <i class="ti ti-shopping-cart-copy fs-16"></i>
-                                              </span>
+                                            </span>
                                             <h4 class="text-dark">Taksit Bilgisi</h4>
                                         </div>
                                     </div>
@@ -425,7 +449,8 @@ require_once 'alanlar/sidebar.php';
                                                 <div class="col-lg-4 col-md-6">
                                                     <div class="mb-4">
                                                         <label class="form-label">Kalan Tutar</label>
-                                                        <input type="text" class="form-control text-end text-success" name="kalan_tutar" id="kalanTutar">
+                                                        <input type="text" class="form-control text-end text-success"
+                                                            name="kalan_tutar" id="kalanTutar">
                                                     </div>
                                                 </div>
 
@@ -433,7 +458,9 @@ require_once 'alanlar/sidebar.php';
                                                     <div class="mb-3">
                                                         <label class="form-label">Taksit Başlangıcı</label>
                                                         <div class="input-icon position-relative">
-                                                            <input name="taksitBaslangic" type="text" class="form-control datetimepicker" id="taksitBaslangic" required>
+                                                            <input name="taksitBaslangic" type="text"
+                                                                class="form-control datetimepicker" id="taksitBaslangic"
+                                                                required>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -441,13 +468,16 @@ require_once 'alanlar/sidebar.php';
                                                 <div class="col-lg-3 col-md-6">
                                                     <div class="mb-3">
                                                         <label class="form-label">Taksit Sayısı</label>
-                                                        <input type="number" min="1" max="36" class="form-control" id="taksitSayisi"  name="taksitSayisi" placeholder="Max. 36 taksit">
+                                                        <input type="number" min="1" max="36" class="form-control"
+                                                            id="taksitSayisi" name="taksitSayisi"
+                                                            placeholder="Max. 36 taksit">
                                                     </div>
                                                 </div>
 
                                                 <div class="col-lg-2">
                                                     <div class="mb-3">
-                                                        <button type="button" class="btn btn-primary" id="btnTaksitOlustur">
+                                                        <button type="button" class="btn btn-primary"
+                                                            id="btnTaksitOlustur">
                                                             <i class="ti ti-plus me-2"></i>Taksit Oluştur
                                                         </button>
                                                     </div>
@@ -458,14 +488,26 @@ require_once 'alanlar/sidebar.php';
                                                         <div class="table-responsive pb-4 ">
                                                             <table class="table text-nowrap table-striped table-hover">
                                                                 <thead>
-                                                                <tr>
-                                                                    <th scope="col" >Taksit Tutarı</th>
-                                                                    <th scope="col">Ödeme Tarihi</th>
-                                                                </tr>
+                                                                    <tr>
+                                                                        <th scope="col">Taksit Tutarı</th>
+                                                                        <th scope="col">Ödeme Tarihi</th>
+                                                                        <th scope="col" style="width: 50px;"></th>
+                                                                    </tr>
                                                                 </thead>
                                                                 <tbody id="taksitTbody">
-                                                                <!-- JS ile doldurulacak -->
+                                                                    <!-- JS ile doldurulacak -->
                                                                 </tbody>
+                                                                <tfoot>
+                                                                    <tr>
+                                                                        <td colspan="3">
+                                                                            <button type="button"
+                                                                                class="btn btn-sm btn-outline-secondary"
+                                                                                id="btnAddManualRow">
+                                                                                <i class="ti ti-plus"></i> Satır Ekle
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tfoot>
                                                             </table>
                                                         </div>
                                                     </div>
@@ -484,11 +526,13 @@ require_once 'alanlar/sidebar.php';
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label class="form-label">Sözleşme Bilgisi</label>
-                                                        <textarea rows="5" cols="5" class="form-control" placeholder="Enter text here"></textarea>
+                                                        <textarea rows="5" cols="5" class="form-control"
+                                                            placeholder="Enter text here"></textarea>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label class="form-label">Şartlar Ve Koşullar </label>
-                                                        <textarea rows="5" cols="5" class="form-control" placeholder="Enter text here"></textarea>
+                                                        <textarea rows="5" cols="5" class="form-control"
+                                                            placeholder="Enter text here"></textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -535,34 +579,34 @@ require_once 'alanlar/sidebar.php';
 
 <!-- Kurs alanı -->
 <script>
-    async function apiCall(payload){
+    async function apiCall(payload) {
         const res = await fetch('sozlesme-ajax/sozlesme-kurs.php', {
             method: 'POST',
-            headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'},
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
             body: new URLSearchParams(payload)
         });
         return await res.json();
     }
-    function setLockedUI(sections=null){
+    function setLockedUI(sections = null) {
         // values varsa set et
-        if(sections){
+        if (sections) {
             Object.keys(sections).forEach(key => {
                 const valueSections = sections[key].values;
                 const sectionLocked = sections[key].locked;
                 console.log(valueSections)
-                Object.keys(valueSections).forEach(key=>{
+                Object.keys(valueSections).forEach(key => {
                     console.log(key)
-                    const inp=document.getElementById(key)
-                    inp.value =valueSections[key]
+                    const inp = document.getElementById(key)
+                    inp.value = valueSections[key]
                     inp.disabled = !!sectionLocked;
                     // select2 varsa:
 
-                    try { if(window.$) $(inp).trigger('change.select2'); } catch(e){}
+                    try { if (window.$) $(inp).trigger('change.select2'); } catch (e) { }
                     try {
-                        if(window.$ && $(inp).data('select2')){
+                        if (window.$ && $(inp).data('select2')) {
                             $(inp).prop('disabled', !!sectionLocked);
                         }
-                    } catch(e){}
+                    } catch (e) { }
                     console.log(inp)
                 });
 
@@ -618,56 +662,56 @@ require_once 'alanlar/sidebar.php';
 
     }
 
-    (function(){
+    (function () {
 
         // Bu sayfadaki ogrenci_id'yi bir yerde elinizde tutuyorsunuz:
         // Örn: PHP'den basın:
-        const OGR_ID = <?= (int)$ogrenci['ogrenci_id'] ?>;
+        const OGR_ID = <?= (int) $ogrenci['ogrenci_id'] ?>;
 
         const selDonem = document.getElementById('donem_id');
         const selSinif = document.getElementById('sinif_id');
-        const selGrup  = document.getElementById('grup_id');
-        const selAlan  = document.getElementById('alan_id');
+        const selGrup = document.getElementById('grup_id');
+        const selAlan = document.getElementById('alan_id');
 
 
-        const birimId      = document.getElementById('birimId');
-        const birimFiyat   = document.getElementById('birimFiyat');
-        const miktar       = document.getElementById('miktar');
-        const toplamTutar  = document.getElementById('toplamTutar');
+        const birimId = document.getElementById('birimId');
+        const birimFiyat = document.getElementById('birimFiyat');
+        const miktar = document.getElementById('miktar');
+        const toplamTutar = document.getElementById('toplamTutar');
 
 
 
 
-        const btnDevam   = document.getElementById('btnKursDevam');
+        const btnDevam = document.getElementById('btnKursDevam');
         const btnDuzenle = document.getElementById('btnKursDuzenle');
 
-        const section           = btnDevam.getAttribute('data-section');
-        const sectionDuzenle    = btnDuzenle.getAttribute('data-section');
+        const section = btnDevam.getAttribute('data-section');
+        const sectionDuzenle = btnDuzenle.getAttribute('data-section');
 
 
 
 
 
         // İlk yüklemede state’i getir
-        document.addEventListener('DOMContentLoaded', async function(){
-            try{
-                const json = await apiCall({action:'get', ogrenci_id: OGR_ID});
-                if(json.ok){
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                const json = await apiCall({ action: 'get', ogrenci_id: OGR_ID });
+                if (json.ok) {
                     setLockedUI(json.state);
-                }else{
+                } else {
                     setLockedUI(false, null);
                 }
-            }catch(e){
+            } catch (e) {
                 setLockedUI(null);
             }
         });
 
         // Devam Et → Lock
-        btnDevam?.addEventListener('click', async function(){
-            const donem_id   = selDonem.value || 0;
-            const sinif_id   = selSinif.value || 0;
-            const grup_id    = selGrup.value  || 0;
-            const alan_id    = selAlan.value  || 0;
+        btnDevam?.addEventListener('click', async function () {
+            const donem_id = selDonem.value || 0;
+            const sinif_id = selSinif.value || 0;
+            const grup_id = selGrup.value || 0;
+            const alan_id = selAlan.value || 0;
             const section_id = "kurs_section"
 
             console.log(donem_id)
@@ -677,32 +721,32 @@ require_once 'alanlar/sidebar.php';
 
 
             // basit doğrulama
-            if(!Number(donem_id) || !Number(alan_id)){
+            if (!Number(donem_id) || !Number(alan_id)) {
                 alert('Lütfen en az Dönem ve Alan seçiniz.');
                 return;
             }
 
             const json = await apiCall({
-                action:'lock',
+                action: 'lock',
                 ogrenci_id: OGR_ID,
-                donem_id, sinif_id, grup_id, alan_id,section_id
+                donem_id, sinif_id, grup_id, alan_id, section_id
             });
 
-            if(json.ok){
+            if (json.ok) {
                 setLockedUI(json.state);
                 // burada aşağıdaki “Ücret / Peşinat / Taksit” kartını aktif edebilirsin
                 // document.getElementById('odemeKart').classList.remove('disabled')
-            }else{
+            } else {
                 alert(json.msg || 'Kilitlenemedi.');
             }
         });
 
         // Düzenle → Unlock
-        btnDuzenle?.addEventListener('click', async function(){
-            const json = await apiCall({action:'unlock', ogrenci_id: OGR_ID,section_id:sectionDuzenle});
-            if(json.ok){
+        btnDuzenle?.addEventListener('click', async function () {
+            const json = await apiCall({ action: 'unlock', ogrenci_id: OGR_ID, section_id: sectionDuzenle });
+            if (json.ok) {
                 setLockedUI(json.state);
-            }else{
+            } else {
                 alert(json.msg || 'Kilidi kaldıramadım.');
             }
         });
@@ -711,15 +755,15 @@ require_once 'alanlar/sidebar.php';
 
 
     // ₺ formatlayıcı
-    function tl(n){
+    function tl(n) {
         const num = Number(n || 0);
         return num.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
     }
     // Türkçe girdiyi sayıya çevir (5.000,25 -> 5000.25)
-    function parseTl(s){
+    function parseTl(s) {
         if (typeof s === 'number') return s;
         if (!s) return 0;
-        s = (''+s).trim()
+        s = ('' + s).trim()
             .replace(/\s/g, '')
             .replace(/\./g, '')
             .replace(/,/g, '.')
@@ -729,20 +773,20 @@ require_once 'alanlar/sidebar.php';
     }
 
     // DOM elemanları
-    const elBirim   = document.getElementById('birimId');
-    const elFiyat   = document.getElementById('birimFiyat');
-    const elMiktar  = document.getElementById('miktar');
-    const elToplam  = document.getElementById('toplamTutar');
-    const btnHesap  = document.getElementById('btnHesapla');
+    const elBirim = document.getElementById('birimId');
+    const elFiyat = document.getElementById('birimFiyat');
+    const elMiktar = document.getElementById('miktar');
+    const elToplam = document.getElementById('toplamTutar');
+    const btnHesap = document.getElementById('btnHesapla');
 
     const elOdmBirim = document.getElementById('odmBirimTutar');
     const elOdmTutar = document.getElementById('odmTutar');
-    const elOdmTop   = document.getElementById('odmToplam');
+    const elOdmTop = document.getElementById('odmToplam');
 
     // Anlık hesap
-    function recalc(){
-        const f  = parseTl(elFiyat.value);
-        const m  = parseInt(elMiktar.value || '0', 10);
+    function recalc() {
+        const f = parseTl(elFiyat.value);
+        const m = parseInt(elMiktar.value || '0', 10);
         const tt = (f * (isNaN(m) ? 0 : m));
         elToplam.value = tt ? tl(tt) : '';
     }
@@ -752,18 +796,18 @@ require_once 'alanlar/sidebar.php';
 
 
     // Hesapla (kilitle + ödeme kartını doldur)
-    btnHesap.addEventListener('click', async function(){
-        const OGR_ID = <?= (int)$ogrenci['ogrenci_id'] ?>;
+    btnHesap.addEventListener('click', async function () {
+        const OGR_ID = <?= (int) $ogrenci['ogrenci_id'] ?>;
         const birimId = elBirim.value;
 
-        const f       = parseTl(elFiyat.value);
-        const m       = parseInt(elMiktar.value || '0', 10);
-        const tt      = f * (isNaN(m) ? 0 : m);
+        const f = parseTl(elFiyat.value);
+        const m = parseInt(elMiktar.value || '0', 10);
+        const tt = f * (isNaN(m) ? 0 : m);
 
         // basit doğrulama
-        if(!birimId){ alert('Lütfen birim seçiniz.'); return; }
-        if(f <= 0){ alert('Lütfen geçerli bir birim fiyatı giriniz.'); return; }
-        if(!m || m <= 0){ alert('Lütfen miktar giriniz.'); return; }
+        if (!birimId) { alert('Lütfen birim seçiniz.'); return; }
+        if (f <= 0) { alert('Lütfen geçerli bir birim fiyatı giriniz.'); return; }
+        if (!m || m <= 0) { alert('Lütfen miktar giriniz.'); return; }
 
         // Üst alanları kilitle
         elBirim.setAttribute('disabled', 'disabled');
@@ -773,20 +817,20 @@ require_once 'alanlar/sidebar.php';
         // Ödeme kartını doldur
         elOdmBirim.value = tl(f);
         elOdmTutar.value = tl(tt);
-        elOdmTop.value   = tl(tt);
+        elOdmTop.value = tl(tt);
 
 
 
         const json = await apiCall({
-            action:'lock',
+            action: 'lock',
             ogrenci_id: OGR_ID,
-            birimId, birimFiyat:f, miktar:m, toplamTutar:tt,section_id:"kurs_sozlesme_section"
+            birimId, birimFiyat: f, miktar: m, toplamTutar: tt, section_id: "kurs_sozlesme_section"
         });
 
-        if(json.ok) {
+        if (json.ok) {
 
             const json2 = await apiCall({
-                action:'get',
+                action: 'get',
                 ogrenci_id: OGR_ID,
             });
             setLockedUI(json2.state);
@@ -797,8 +841,8 @@ require_once 'alanlar/sidebar.php';
 </script>
 
 <script>
-    function parseMoney(str){
-        if(!str) return 0;
+    function parseMoney(str) {
+        if (!str) return 0;
         return Number(
             str.toString()
                 .replace(/[^\d,.-]/g, '')   // sadece rakam , . - kalsın
@@ -814,7 +858,7 @@ require_once 'alanlar/sidebar.php';
         return num.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    document.getElementById('btnOdemeDevam').addEventListener('click', async function() {
+    document.getElementById('btnOdemeDevam').addEventListener('click', async function () {
         const toplam = parseMoney(document.getElementById('odmToplam').value);
         const pesinat = parseMoney(document.getElementById('pesinat').value);
 
@@ -838,16 +882,16 @@ require_once 'alanlar/sidebar.php';
         const odemeSecenegi = document.getElementById('odemeSecenegi')?.value
         const kasaId = document.getElementById('kasaId')?.value
 
-        const OGR_ID = <?= (int)$ogrenci['ogrenci_id'] ?>;
+        const OGR_ID = <?= (int) $ogrenci['ogrenci_id'] ?>;
         const json = await apiCall({
-            action:'lock',
+            action: 'lock',
             ogrenci_id: OGR_ID,
-            pesinat,odemeSecenegi,kasaId,section_id:"odeme_section"
+            pesinat, odemeSecenegi, kasaId, section_id: "odeme_section"
         });
-        if(json.ok){
-            const json2 = await apiCall({action:'get', ogrenci_id: OGR_ID});
+        if (json.ok) {
+            const json2 = await apiCall({ action: 'get', ogrenci_id: OGR_ID });
             setLockedUI(json2.state);
-        }else{
+        } else {
             setLockedUI(false, null);
         }
 
@@ -862,8 +906,8 @@ require_once 'alanlar/sidebar.php';
 
 <script>
     // TL string -> number
-    function parseMoney(str){
-        if(!str) return 0;
+    function parseMoney(str) {
+        if (!str) return 0;
         return Number(
             str.toString()
                 .replace(/[^\d,.-]/g, '') // TL sembolü vs temizle
@@ -873,31 +917,31 @@ require_once 'alanlar/sidebar.php';
     }
 
     // number -> "1.234,56"
-    function fmtTRY(n){
-        return n.toLocaleString('tr-TR', { style:'currency', currency:'TRY' });
+    function fmtTRY(n) {
+        return n.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
     }
 
     // "dd.mm.yyyy" (veya datepicker’in döndürdüğü formatı da destekle)
-    function parseDateFlexible(str){
-        if(!str) return null;
+    function parseDateFlexible(str) {
+        if (!str) return null;
 
         // dd.mm.yyyy
         const m = str.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
-        if(m){
+        if (m) {
             const d = Number(m[1]), M = Number(m[2]) - 1, y = Number(m[3]);
             return new Date(y, M, d);
         }
 
         // yyyy-mm-dd
         const m2 = str.match(/^(\d{4})\-(\d{1,2})\-(\d{1,2})$/);
-        if(m2){
+        if (m2) {
             const y = Number(m2[1]), M = Number(m2[2]) - 1, d = Number(m2[3]);
             return new Date(y, M, d);
         }
 
         // dd-mm-yyyy → YENİ EKLEDİK 🚀
         const m3 = str.match(/^(\d{1,2})\-(\d{1,2})\-(\d{4})$/);
-        if(m3){
+        if (m3) {
             const d = Number(m3[1]), M = Number(m3[2]) - 1, y = Number(m3[3]);
             return new Date(y, M, d);
         }
@@ -908,7 +952,7 @@ require_once 'alanlar/sidebar.php';
     }
 
     // Aya ekle (ayın sonu taşmaları için güvenli)
-    function addMonthsSafe(date, months){
+    function addMonthsSafe(date, months) {
         const d = new Date(date.getTime());
         const day = d.getDate();
         d.setMonth(d.getMonth() + months);
@@ -920,43 +964,43 @@ require_once 'alanlar/sidebar.php';
     }
 
     // Date -> "dd.mm.yyyy"
-    function toTRDate(d){
-        const dd = String(d.getDate()).padStart(2,'0');
-        const mm = String(d.getMonth()+1).padStart(2,'0');
+    function toTRDate(d) {
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
         const yy = d.getFullYear();
         return `${dd}.${mm}.${yy}`;
     }
 
     // Ödeme kartındaki özet değerlerini invoice-info alanına geçir
-    function fillInvoiceInfo(){
+    function fillInvoiceInfo() {
         const birim = document.getElementById('odmBirimTutar')?.value || '';
         const tutar = document.getElementById('odmTutar')?.value || '';
-        const toplam= document.getElementById('odmToplam')?.value || '';
+        const toplam = document.getElementById('odmToplam')?.value || '';
 
-        if(document.getElementById('invBirimFiyat')) document.getElementById('invBirimFiyat').textContent = birim || '₺0,00';
-        if(document.getElementById('invTutar'))      document.getElementById('invTutar').textContent      = tutar || '₺0,00';
-        if(document.getElementById('invToplam'))     document.getElementById('invToplam').textContent     = toplam|| '₺0,00';
+        if (document.getElementById('invBirimFiyat')) document.getElementById('invBirimFiyat').textContent = birim || '₺0,00';
+        if (document.getElementById('invTutar')) document.getElementById('invTutar').textContent = tutar || '₺0,00';
+        if (document.getElementById('invToplam')) document.getElementById('invToplam').textContent = toplam || '₺0,00';
     }
 
     // Taksit oluştur
-    document.getElementById('btnTaksitOlustur').addEventListener('click', function(){
-        const kalanStr  = document.getElementById('kalanTutar').value;     // "₺30.000,00"
-        const basStr    = document.getElementById('taksitBaslangic').value;// "01.11.2025" gibi
-        const sayiStr   = document.getElementById('taksitSayisi').value;
+    document.getElementById('btnTaksitOlustur').addEventListener('click', function () {
+        const kalanStr = document.getElementById('kalanTutar').value;     // "₺30.000,00"
+        const basStr = document.getElementById('taksitBaslangic').value;// "01.11.2025" gibi
+        const sayiStr = document.getElementById('taksitSayisi').value;
 
         const kalan = parseMoney(kalanStr);
-        const sayi  = parseInt(sayiStr, 10);
-        const bas   = parseDateFlexible(basStr);
+        const sayi = parseInt(sayiStr, 10);
+        const bas = parseDateFlexible(basStr);
 
-        if(!kalan || kalan <= 0){
+        if (!kalan || kalan <= 0) {
             alert('Kalan tutar geçerli değil.');
             return;
         }
-        if(!sayi || sayi <= 0){
+        if (!sayi || sayi <= 0) {
             alert('Taksit sayısı geçerli değil.');
             return;
         }
-        if(!bas){
+        if (!bas) {
             alert('Taksit başlangıç tarihi geçerli değil.');
             return;
         }
@@ -965,13 +1009,13 @@ require_once 'alanlar/sidebar.php';
         const ham = kalan / sayi;             // örn 30000 / 3 => 10000
         // Kuruşu 2 haneli yap
         const taksitYuvar = Math.floor(ham * 100) / 100;
-        let kalanKurus = Math.round(kalan*100) - (taksitYuvar*100)*sayi; // kuruş farkı
+        let kalanKurus = Math.round(kalan * 100) - (taksitYuvar * 100) * sayi; // kuruş farkı
 
         const rows = [];
-        for(let i=1;i<=sayi;i++){
+        for (let i = 1; i <= sayi; i++) {
             let tutar = taksitYuvar;
-            if(kalanKurus > 0){
-                tutar = Math.round((tutar*100 + 1))/100; // 0.01 ekle
+            if (kalanKurus > 0) {
+                tutar = Math.round((tutar * 100 + 1)) / 100; // 0.01 ekle
                 kalanKurus -= 1;
             }
 
@@ -987,7 +1031,7 @@ require_once 'alanlar/sidebar.php';
         // Tabloyu doldur
         const tbody = document.getElementById('taksitTbody');
         tbody.innerHTML = '';
-        rows.forEach(r=>{
+        rows.forEach(r => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
         <td >${fmtTRY(r.tutar)}</td>
@@ -1006,56 +1050,56 @@ require_once 'alanlar/sidebar.php';
 
 <script>
     // Yardımcılar
-    function parseMoney(str){
-        if(!str) return 0;
+    function parseMoney(str) {
+        if (!str) return 0;
         return Number(
-            String(str).replace(/[^\d,.-]/g,'').replace(/\./g,'').replace(',', '.')
+            String(str).replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.')
         ) || 0;
     }
-    function parseDateFlexibleToYMD(str){
-        if(!str) return '';
+    function parseDateFlexibleToYMD(str) {
+        if (!str) return '';
         // dd.mm.yyyy
         let m = str.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
-        if(m){ return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`; }
+        if (m) { return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`; }
         // dd-mm-yyyy
         m = str.match(/^(\d{1,2})\-(\d{1,2})\-(\d{4})$/);
-        if(m){ return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`; }
+        if (m) { return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`; }
         // yyyy-mm-dd zaten
         m = str.match(/^(\d{4})\-(\d{1,2})\-(\d{1,2})$/);
-        if(m){ return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`; }
+        if (m) { return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`; }
         // Fallback
-        const d = new Date(str); if(!isNaN(d)) {
-            const mm = String(d.getMonth()+1).padStart(2,'0');
-            const dd = String(d.getDate()).padStart(2,'0');
+        const d = new Date(str); if (!isNaN(d)) {
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
             return `${d.getFullYear()}-${mm}-${dd}`;
         }
         return '';
     }
 
-    document.getElementById('btnSozlesmeOlustur')?.addEventListener('click', async function(){
+    document.getElementById('btnSozlesmeOlustur')?.addEventListener('click', async function () {
         // Zorunlu referanslar
-        const OGR_ID = <?= (int)$ogrenci['ogrenci_id'] ?>;
+        const OGR_ID = <?= (int) $ogrenci['ogrenci_id'] ?>;
 
         // Kurs alanları
         const donem_id = document.getElementById('donem_id')?.value || '';
         const sinif_id = document.getElementById('sinif_id')?.value || '';
-        const grup_id  = document.getElementById('grup_id')?.value  || '';
-        const alan_id  = document.getElementById('alan_id')?.value  || '';
+        const grup_id = document.getElementById('grup_id')?.value || '';
+        const alan_id = document.getElementById('alan_id')?.value || '';
 
         // Sözleşme hesap alanları
-        const birim_id    = document.getElementById('birimId')?.value || '';
+        const birim_id = document.getElementById('birimId')?.value || '';
         const birim_fiyat = parseMoney(document.getElementById('birimFiyat')?.value || 0);
-        const miktar      = parseInt(document.getElementById('miktar')?.value || '0', 10);
-        const toplam_ucret= parseMoney(document.getElementById('odmToplam')?.value || 0);
+        const miktar = parseInt(document.getElementById('miktar')?.value || '0', 10);
+        const toplam_ucret = parseMoney(document.getElementById('odmToplam')?.value || 0);
 
         // Ödeme / peşinat
-        const pesinat     = parseMoney(document.getElementById('pesinat')?.value || 0);
-        const yontem_id   = document.getElementById('odemeSecenegi')?.value || '';
-        const kasa_id     = document.getElementById('kasaId')?.value || '';
+        const pesinat = parseMoney(document.getElementById('pesinat')?.value || 0);
+        const yontem_id = document.getElementById('odemeSecenegi')?.value || '';
+        const kasa_id = document.getElementById('kasaId')?.value || '';
 
         // Taksit listesi tablodan toplanır
         const rows = Array.from(document.querySelectorAll('#taksitTbody tr'));
-        const taksitler = rows.map(tr=>{
+        const taksitler = rows.map(tr => {
             const td = tr.querySelectorAll('td');
             const tutarTxt = td[0]?.textContent?.trim() || '';
             const tarihTxt = td[1]?.textContent?.trim() || '';
@@ -1066,17 +1110,17 @@ require_once 'alanlar/sidebar.php';
         }).filter(x => x.tutar > 0 && x.tarih);
 
         // Basit kontroller
-        if(!donem_id || !alan_id){ alert('Dönem ve Alan seçiniz.'); return; }
-        if(!birim_id || birim_fiyat<=0 || !miktar || toplam_ucret<=0){ alert('Sözleşme tutar bilgileri eksik.'); return; }
+        if (!donem_id || !alan_id) { alert('Dönem ve Alan seçiniz.'); return; }
+        if (!birim_id || birim_fiyat <= 0 || !miktar || toplam_ucret <= 0) { alert('Sözleşme tutar bilgileri eksik.'); return; }
 
         // Peşinat varsa yöntem+kasa zorunlu
-        if(pesinat>0 && (!yontem_id || !kasa_id)){
+        if (pesinat > 0 && (!yontem_id || !kasa_id)) {
             alert('Peşinat için ödeme yöntemi ve kasa seçiniz.');
             return;
         }
 
         // Peşinat + taksit toplamı = toplam kontrolü (küçük tolerans)
-        const taksitSum = taksitler.reduce((a,b)=>a + (Number(b.tutar)||0), 0);
+        const taksitSum = taksitler.reduce((a, b) => a + (Number(b.tutar) || 0), 0);
         const diff = Math.abs((pesinat + taksitSum) - toplam_ucret);
         if (diff > 0.01) {
             alert('Peşinat + taksit toplamı, Toplam Tutar ile eşit değil.');
@@ -1085,16 +1129,16 @@ require_once 'alanlar/sidebar.php';
 
         // Payload hazırla
         const payload = new URLSearchParams({
-            ogrenci_id:   String(OGR_ID),
+            ogrenci_id: String(OGR_ID),
             donem_id, sinif_id, grup_id, alan_id,
-            birim_id:     String(birim_id),
-            birim_fiyat:  String(birim_fiyat.toFixed(2)),
-            miktar:       String(miktar),
+            birim_id: String(birim_id),
+            birim_fiyat: String(birim_fiyat.toFixed(2)),
+            miktar: String(miktar),
             toplam_ucret: String(toplam_ucret.toFixed(2)),
-            pesinat:      String(pesinat.toFixed(2)),
-            yontem_id:    String(yontem_id||''),
-            kasa_id:      String(kasa_id||''),
-            taksitler:    JSON.stringify(taksitler)
+            pesinat: String(pesinat.toFixed(2)),
+            yontem_id: String(yontem_id || ''),
+            kasa_id: String(kasa_id || ''),
+            taksitler: JSON.stringify(taksitler)
         });
 
         // Butonu kilitle
@@ -1102,23 +1146,23 @@ require_once 'alanlar/sidebar.php';
         btn.disabled = true;
         btn.innerHTML = 'Kaydediliyor...';
 
-        try{
+        try {
             const res = await fetch('sozlesme-ajax/sozlesme-kaydet.php', {
-                method:'POST',
-                headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'},
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
                 body: payload
             });
             const json = await res.json();
-            if(json.ok){
+            if (json.ok) {
                 // Başarılı → belge sayfasına
-                window.open(json.redirect || ('sozlesme-belge.php?id=' + json.sozlesme_id),"_blank")
+                window.open(json.redirect || ('sozlesme-belge.php?id=' + json.sozlesme_id), "_blank")
                 window.location.href = "ogrenci-listesi.php";
-            }else{
+            } else {
                 alert(json.msg || 'Kayıt sırasında hata oluştu.');
                 btn.disabled = false;
                 btn.innerHTML = 'Sözleşme Oluştur';
             }
-        }catch(e){
+        } catch (e) {
             alert('İstek hatası: ' + e.message);
             btn.disabled = false;
             btn.innerHTML = 'Sözleşme Oluştur';
@@ -1126,8 +1170,8 @@ require_once 'alanlar/sidebar.php';
     });
 </script>
 
-	</div>
-	<!-- /Main Wrapper -->
+</div>
+<!-- /Main Wrapper -->
 
 <script data-cfasync="false" src="assets/js/jquery-3.7.1.min.js"></script>
 <script data-cfasync="false" src="assets/js/bootstrap.bundle.min.js"></script>
@@ -1143,4 +1187,5 @@ require_once 'alanlar/sidebar.php';
 <script data-cfasync="false" src="assets/js/script.js"></script>
 
 </body>
+
 </html>
