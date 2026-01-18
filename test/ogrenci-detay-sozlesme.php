@@ -639,7 +639,7 @@ require_once 'ogrenci-detay-ortak.php';
     });
 
     $("#sozlesmeSilOnayBtn").on("click", function () {
-        $.post("sozlesme-ajax/sozlesme-sil.php", { id: silinecekID }, function (res) {
+        $.post("sozlesme-ajax/sozlesme-sil.php", { sozlesme_id: silinecekID }, function (res) {
             if (res.ok) {
 
                 Swal.fire({
