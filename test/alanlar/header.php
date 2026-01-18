@@ -432,7 +432,7 @@ const SITE_NAME = "Sqooler Yönetim Sistemi";
         <!-- Persistent Session Timer Script -->
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                const SESSION_DURATION_MS = 30 * 60 * 1000; // 30 dakika
+                const SESSION_DURATION_MS = 60 * 1000;      // TEST İÇİN 1 Dakika (Normalde 30 * 60 * 1000)
                 const WARNING_DURATION_SEC = 10;            // Son 10 saniye uyarı
 
                 const timerDisplay = document.getElementById('sessionTimer');
