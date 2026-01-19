@@ -26,39 +26,56 @@
                     <h6 class="submenu-hdr"><span>Kişiler</span></h6>
                     <ul>
 
-                        <li><a href="ogrenci-listesi.php" class="<?= $cp == 'ogrenci-listesi.php' || $cp == 'ogrenci-detay.php' || $cp == 'ogrenci-ekle.php' || $cp == 'ogrenci-duzenle.php' || $cp == 'ogrenci-detay-sozlesme.php' ? 'menuactive' : '' ?>"><i class="ti ti-school"></i><span>Öğrenciler</span></a>
+                        <li><a href="ogrenci-listesi.php"
+                                class="<?= $cp == 'ogrenci-listesi.php' || $cp == 'ogrenci-detay.php' || $cp == 'ogrenci-ekle.php' || $cp == 'ogrenci-duzenle.php' || $cp == 'ogrenci-detay-sozlesme.php' ? 'menuactive' : '' ?>"><i
+                                    class="ti ti-school"></i><span>Öğrenciler</span></a>
                             <!--<li><a href="ogrenci-listesi.php" ><i class="ti ti-users"></i><span>Öğretmenler</span></a>
                         <li><a href="ogrenci-listesi.php" ><i class="ti ti-users-group"></i><span>Gruplar-Firmalar</span></a></li>-->
-                        <li><a href="personeller.php" class="<?= $cp == 'personeller.php' ? 'menuactive' : '' ?>"><i class="ti ti-user-bolt"></i><span>Personeller</span></a>
+                        <li><a href="personeller.php" class="<?= $cp == 'personeller.php' ? 'menuactive' : '' ?>"><i
+                                    class="ti ti-user-bolt"></i><span>Personeller</span></a>
 
                     </ul>
                 </li>
                 <li>
                     <h6 class="submenu-hdr"><span>İşlemler</span></h6>
                     <ul>
-                        <li><a href="gorusme.php" class="<?= $cp == 'gorusme.php' ? 'menuactive' : '' ?>"><i class="ti ti-message-circle"></i><span>Görüşme</span></a></li>
-                        <li><a href="kitap.php" class="<?= $cp == 'kitap.php' ? 'menuactive' : '' ?>"><i class="ti ti-book"></i><span>Kitap Satış</span></a></li>
-                        <li><a href="is-basvuru.php" class="<?= $cp == 'is-basvuru.php' ? 'menuactive' : '' ?>"><i class="ti ti-briefcase"></i><span>İş Başvuruları</span></a></li>
+                        <li><a href="gorusme.php" class="<?= $cp == 'gorusme.php' ? 'menuactive' : '' ?>"><i
+                                    class="ti ti-message-circle"></i><span>Görüşme</span></a></li>
+                        <li><a href="kitap.php" class="<?= $cp == 'kitap.php' ? 'menuactive' : '' ?>"><i
+                                    class="ti ti-book"></i><span>Kitap Satış</span></a></li>
+                        <li><a href="is-basvuru.php" class="<?= $cp == 'is-basvuru.php' ? 'menuactive' : '' ?>"><i
+                                    class="ti ti-briefcase"></i><span>İş Başvuruları</span></a></li>
                     </ul>
                 </li>
                 <li>
                     <h6 class="submenu-hdr"><span>Muhasebe</span></h6>
                     <ul>
-                        <li><a href="kasa1.php" class="<?= $cp == 'kasa1.php' ? 'menuactive' : '' ?>"><i class="ti ti-report-money"></i><span>Kasa</span></a></li>
-                        <li><a href="ay-basi.php" class="<?= $cp == 'ay-basi.php' ? 'menuactive' : '' ?>"><i class="ti ti-calendar-stats"></i><span>Ay Başı
+                        <li><a href="kasa1.php" class="<?= $cp == 'kasa1.php' ? 'menuactive' : '' ?>"><i
+                                    class="ti ti-report-money"></i><span>Kasa</span></a></li>
+                        <li><a href="odemesi-gecenler.php"
+                                class="<?= $cp == 'odemesi-gecenler.php' ? 'menuactive' : '' ?>"><i
+                                    class="ti ti-clock-exclamation"></i><span>Gecikmiş Ödemeler</span></a></li>
+                        <li><a href="ay-basi.php" class="<?= $cp == 'ay-basi.php' ? 'menuactive' : '' ?>"><i
+                                    class="ti ti-calendar-stats"></i><span>Ay Başı
                                     Yapılacaklar</span></a></li>
                     </ul>
                 </li>
                 <li>
                     <h6 class="submenu-hdr"><span>Kurumsal</span></h6>
                     <ul>
-                        <li><a href="sirketler.php" class="<?= $cp == 'sirketler.php' ? 'menuactive' : '' ?>"><i class="ti ti-building-handshake"></i><span>Şirket
+                        <li><a href="sirketler.php" class="<?= $cp == 'sirketler.php' ? 'menuactive' : '' ?>"><i
+                                    class="ti ti-building-handshake"></i><span>Şirket
                                     İşbirlikleri</span></a></li>
-                        <li><a href="bilgilendirme.php" class="<?= $cp == 'bilgilendirme.php' ? 'menuactive' : '' ?>"><i class="ti ti-info-circle"></i><span>Bilgilendirme
+                        <li><a href="bilgilendirme.php" class="<?= $cp == 'bilgilendirme.php' ? 'menuactive' : '' ?>"><i
+                                    class="ti ti-info-circle"></i><span>Bilgilendirme
                                     Formu</span></a></li>
-                        <li><a href="gruplar.php" class="<?= $cp == 'gruplar.php' ? 'menuactive' : '' ?>"><i class="ti ti-users"></i><span>Tüm Gruplar</span></a></li>
-                        <li><a href="meb-sinif.php" class="<?= $cp == 'meb-sinif.php' ? 'menuactive' : '' ?>"><i class="ti ti-school"></i><span>MEB Sınıfları</span></a></li>
-                        <li><a href="gecmis-islemler.php" class="<?= $cp == 'gecmis-islemler.php' ? 'menuactive' : '' ?>"><i class="ti ti-history"></i><span>İşlem Geçmişi</span></a>
+                        <li><a href="gruplar.php" class="<?= $cp == 'gruplar.php' ? 'menuactive' : '' ?>"><i
+                                    class="ti ti-users"></i><span>Tüm Gruplar</span></a></li>
+                        <li><a href="meb-sinif.php" class="<?= $cp == 'meb-sinif.php' ? 'menuactive' : '' ?>"><i
+                                    class="ti ti-school"></i><span>MEB Sınıfları</span></a></li>
+                        <li><a href="gecmis-islemler.php"
+                                class="<?= $cp == 'gecmis-islemler.php' ? 'menuactive' : '' ?>"><i
+                                    class="ti ti-history"></i><span>İşlem Geçmişi</span></a>
                         </li>
                     </ul>
                 </li>
