@@ -3,6 +3,9 @@ ob_start();
 require_once 'dosyalar/config.php';
 require_once 'dosyalar/Ydil.php';
 require_once 'dosyalar/oturum.php';
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 $db = new Ydil();
 
 $pageTitle = "Ödemesi Geciken Öğrenciler";
