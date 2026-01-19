@@ -26,7 +26,6 @@ SELECT
     o.ogrenci_adi,
     o.ogrenci_soyadi,
     o.ogrenci_tel,
-    o.veli_tel,
     COUNT(t.taksit_id) as geciken_taksit_sayisi,
     SUM(t.tutar - t.odendi_tutar) as toplam_geciken_tutar,
     MIN(t.vade_tarihi) as en_eski_vade
@@ -37,12 +36,16 @@ LEFT JOIN sube ON sube.sube_id = o.sube_id
 WHERE t.vade_tarihi < CURDATE()
   AND t.odendi_tutar < t.tutar
   AND o.aktif = 1
-GROUP BY sube.sube_id, sube.sube_adi, o.ogrenci_id, o.ogrenci_numara, o.ogrenci_adi, o.ogrenci_soyadi
+GROUP BY sube.sube_id, sube.sube_adi, o.ogrenci_id, o.ogrenci_numara, o.ogrenci_adi, o.ogrenci_soyadi, o.ogrenci_tel
 ORDER BY sube.sube_adi ASC, toplam_geciken_tutar DESC
 ";
 
 // Verileri çek
-$rows = $db->get($sql);
+try {
+    $rows = $db->get($sql);
+} catch (Exception $e) {
+    die("SQL Hatası: " . $e->getMessage());
+}
 
 // Verileri PHP tarafında şubeye göre grupla
 $groupedData = [];
@@ -56,9 +59,10 @@ if ($rows) {
     }
 }
 
-function money_tr($v)
-{
-    return number_format((float) $v, 2, ',', '.') . ' ₺';
+if (!function_exists('money_tr')) {
+    function money_tr($v){
+        return number_format((float)$v, 2, ',', '.') . ' ₺';
+    }
 }
 ?>
 
@@ -82,56 +86,46 @@ function money_tr($v)
         <div class="card">
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
-                    <?php
+                    <?php 
                     $isFirst = true;
-                    foreach ($groupedData as $subeAdi => $students):
+                    foreach ($groupedData as $subeAdi => $students): 
                         $slug = 'tab-' . md5($subeAdi);
                         $activeClass = $isFirst ? 'active' : '';
-                        ?>
+                    ?>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link <?= $activeClass ?>" id="<?= $slug ?>-tab" data-bs-toggle="tab"
-                                data-bs-target="#<?= $slug ?>" type="button" role="tab" aria-controls="<?= $slug ?>"
-                                aria-selected="<?= $isFirst ? 'true' : 'false' ?>">
-                                <?= htmlspecialchars($subeAdi) ?>
-                                <span class="badge bg-danger ms-2 rounded-pill">
-                                    <?= count($students) ?>
-                                </span>
+                            <button class="nav-link <?= $activeClass ?>" id="<?= $slug ?>-tab" data-bs-toggle="tab" data-bs-target="#<?= $slug ?>" type="button" role="tab" aria-controls="<?= $slug ?>" aria-selected="<?= $isFirst ? 'true' : 'false' ?>">
+                                <?= htmlspecialchars($subeAdi) ?> 
+                                <span class="badge bg-danger ms-2 rounded-pill"><?= count($students) ?></span>
                             </button>
                         </li>
-                        <?php
+                    <?php 
                         $isFirst = false;
-                    endforeach;
+                    endforeach; 
                     ?>
                     <?php if (empty($groupedData)): ?>
-                        <li class="nav-item"><a class="nav-link active">Kayıt Bulunamadı</a></li>
+                         <li class="nav-item"><a class="nav-link active">Kayıt Bulunamadı</a></li>
                     <?php endif; ?>
                 </ul>
             </div>
             <div class="card-body">
                 <div class="tab-content" id="myTabContent">
-                    <?php
+                    <?php 
                     $isFirst = true;
-                    foreach ($groupedData as $subeAdi => $students):
+                    foreach ($groupedData as $subeAdi => $students): 
                         $slug = 'tab-' . md5($subeAdi);
                         $activeClass = $isFirst ? 'show active' : '';
-
+                        
                         // Şube toplamı
                         $subeToplamTutar = 0;
-                        foreach ($students as $st)
-                            $subeToplamTutar += $st['toplam_geciken_tutar'];
-                        ?>
-                        <div class="tab-pane fade <?= $activeClass ?>" id="<?= $slug ?>" role="tabpanel"
-                            aria-labelledby="<?= $slug ?>-tab">
-
+                        foreach($students as $st) $subeToplamTutar += $st['toplam_geciken_tutar'];
+                    ?>
+                        <div class="tab-pane fade <?= $activeClass ?>" id="<?= $slug ?>" role="tabpanel" aria-labelledby="<?= $slug ?>-tab">
+                            
                             <div class="alert alert-soft-danger d-flex align-items-center mb-3">
                                 <i class="ti ti-info-circle fs-22 me-2"></i>
                                 <div>
-                                    <strong>
-                                        <?= htmlspecialchars($subeAdi) ?>
-                                    </strong> şubesi için toplam
-                                    <strong>
-                                        <?= money_tr($subeToplamTutar) ?>
-                                    </strong> gecikmiş ödeme bulunmaktadır.
+                                    <strong><?= htmlspecialchars($subeAdi) ?></strong> şubesi için toplam 
+                                    <strong><?= money_tr($subeToplamTutar) ?></strong> gecikmiş ödeme bulunmaktadır.
                                 </div>
                             </div>
 
@@ -141,7 +135,7 @@ function money_tr($v)
                                         <tr>
                                             <th>Öğrenci No</th>
                                             <th>Ad Soyad</th>
-                                            <th>Veli Tel</th>
+                                            <th class="text-center">Öğrenci Tel</th>
                                             <th class="text-center">Geciken Taksit</th>
                                             <th>En Eski Vade</th>
                                             <th class="text-end">Toplam Gecikme</th>
@@ -151,34 +145,21 @@ function money_tr($v)
                                     <tbody>
                                         <?php foreach ($students as $st): ?>
                                             <tr>
-                                                <td><a href="ogrenci-detay.php?id=<?= $st['ogrenci_numara'] ?>"
-                                                        class="fw-bold link-primary">
-                                                        <?= htmlspecialchars($st['ogrenci_numara']) ?>
-                                                    </a></td>
+                                                <td><a href="ogrenci-detay.php?id=<?= $st['ogrenci_numara'] ?>" class="fw-bold link-primary"><?= htmlspecialchars($st['ogrenci_numara']) ?></a></td>
                                                 <td>
                                                     <div class="d-flex align-items-center">
-                                                        <span
-                                                            class="avatar avatar-sm me-2 bg-primary-transparent rounded-circle">
-                                                            <?= mb_substr($st['ogrenci_adi'], 0, 1) . mb_substr($st['ogrenci_soyadi'], 0, 1) ?>
+                                                        <span class="avatar avatar-sm me-2 bg-primary-transparent rounded-circle">
+                                                            <?= mb_substr($st['ogrenci_adi'],0,1).mb_substr($st['ogrenci_soyadi'],0,1) ?>
                                                         </span>
                                                         <?= htmlspecialchars($st['ogrenci_adi'] . ' ' . $st['ogrenci_soyadi']) ?>
                                                     </div>
                                                 </td>
+                                                <td class="text-center"><?= htmlspecialchars($st['ogrenci_tel'] ?? '-') ?></td>
+                                                <td class="text-center"><span class="badge bg-warning-transparent fs-12"><?= $st['geciken_taksit_sayisi'] ?> Adet</span></td>
+                                                <td><?= date('d.m.Y', strtotime($st['en_eski_vade'])) ?></td>
+                                                <td class="text-end fw-bold text-danger"><?= money_tr($st['toplam_geciken_tutar']) ?></td>
                                                 <td>
-                                                    <?= htmlspecialchars($st['veli_tel'] ?? '-') ?>
-                                                </td>
-                                                <td class="text-center"><span class="badge bg-warning-transparent fs-12">
-                                                        <?= $st['geciken_taksit_sayisi'] ?> Adet
-                                                    </span></td>
-                                                <td>
-                                                    <?= date('d.m.Y', strtotime($st['en_eski_vade'])) ?>
-                                                </td>
-                                                <td class="text-end fw-bold text-danger">
-                                                    <?= money_tr($st['toplam_geciken_tutar']) ?>
-                                                </td>
-                                                <td>
-                                                    <a href="ogrenci-detay.php?id=<?= $st['ogrenci_numara'] ?>"
-                                                        class="btn btn-sm btn-light">
+                                                    <a href="ogrenci-detay.php?id=<?= $st['ogrenci_numara'] ?>" class="btn btn-sm btn-light">
                                                         <i class="ti ti-eye"></i> İncele
                                                     </a>
                                                 </td>
@@ -188,11 +169,11 @@ function money_tr($v)
                                 </table>
                             </div>
                         </div>
-                        <?php
+                    <?php 
                         $isFirst = false;
-                    endforeach;
+                    endforeach; 
                     ?>
-
+                   
                     <?php if (empty($groupedData)): ?>
                         <div class="text-center py-5">
                             <div class="avatar avatar-xl bg-success-transparent mb-3">
@@ -219,5 +200,4 @@ function money_tr($v)
 <script src="assets/js/script.js"></script>
 
 </body>
-
 </html>
