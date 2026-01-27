@@ -1,123 +1,130 @@
 <?php
+ob_start();
+require_once 'dosyalar/config.php';
+require_once 'dosyalar/Ydil.php';
+require_once 'dosyalar/oturum.php';
+$db = new Ydil();
 
-include "c/fonk.php";
-include "c/config.php";
-include "c/user.php";
-session_start();
-$subeler="SELECT * FROM `sube` ORDER BY `sube`.`sube_id` ASC";
-$subess=$Ydil->get($subeler);
+/* Giriş kontrolü: sadece login kullanıcı erişsin */
+if (!isset($_SESSION['personel_id'])) {
+    header("Location: giris.php", true, 302);
+    exit;
+}
 
-
-/* Cache’i kapat (geri tuşunda RAM’den gösterilmesin) */
+/* Cache’i kapat (geri tuşunda RAM’den gelmesin) */
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Cache-Control: post-check=0, pre-check=0', false);
 header('Pragma: no-cache');
 
-/* Şube seçimi geldiyse session’a yaz ve history’yi replace et */
+/* Şube seçimi geldiyse doğrula ve session’a yaz */
 if (isset($_GET['sec'])) {
-    $_SESSION['subedurum'] = (int)$_GET['sec'];
+    $sec = (int)$_GET['sec'];
 
-    // header() yerine JS ile REPLACE (geçmişe yazma)
-    echo '<!doctype html><html><head><meta charset="utf-8">';
-    echo '<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />';
-    echo '</head><body>';
-    echo '<script>location.replace("anasayfa.php");</script>';
-    echo '<noscript><meta http-equiv="refresh" content="0;url=anasayfa.php"></noscript>';
-    echo '</body></html>';
+    // Bu ID’ye sahip şube var mı?
+    $sube = $db->find('sube', 'sube_id', $sec, ['sube_id','sube_adi','sube_durum']);
+    if ($sube) {
+        $_SESSION['sube_id']  = (int)$sube['sube_id'];
+        $_SESSION['sube_adi'] = $sube['sube_adi'];   // ister kullan, ister kullanma
+
+        // history replace ile yönlendir
+        echo '<!doctype html><html><head><meta charset="utf-8">';
+        echo '<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />';
+        echo '</head><body>';
+        echo '<script>location.replace("index.php");</script>';
+        echo '<noscript><meta http-equiv="refresh" content="0;url=index.php"></noscript>';
+        echo '</body></html>';
+        exit;
+    } else {
+        // Geçersiz id → şube sayfasında kal
+        header("Location: sube.php", true, 302);
+        exit;
+    }
+}
+
+/* Eğer zaten şube seçiliyse, direkt anasayfa’ya atmak istersen: */
+if (isset($_SESSION['sube_id']) && $_SESSION['sube_id'] > 0) {
+    header("Location: index.php", true, 302);
     exit;
 }
 
-/* Şube zaten seçiliyse (geri ile gelirlerse) anasayfa’ya at */
-if (!empty($_SESSION['subedurum'])) {
-    header("Location: anasayfa.php", true, 302);
-    exit;
-}
-
-
-
-
-
-
+/* … buradan sonrası şube listeleme arayüzün … */
+$subeler = $db->finds('sube');
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-    <title>Sqooler Yönetim Sistemi</title>
-    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css" rel="stylesheet" />
-    <link href="css/styles.css" rel="stylesheet" />
-    <script data-search-pseudo-elements="" defer="" src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/js/all.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js" crossorigin="anonymous"></script>
-</head>
-<body class="bg-primary">
-<div id="layoutAuthentication">
-    <div id="layoutAuthentication_content">
-        <main>
-            <div class="container-xl px-4">
-                <div class="row justify-content-center">
-                    <!-- Create Organization-->
 
-                    <?php
-                    foreach($subess as $s){
-                    ?>
-                    <div class="col-xl-5 col-lg-6 col-md-8 col-sm-11 mt-4">
-                        <div class="card text-center h-100">
-                            <div class="card-body px-5 pt-5 d-flex flex-column">
-                                <div>
-                                    <div class="h3 text-primary"><?php echo htmlspecialchars($s['sube_adi']); ?></div>
-                                    <p class="text-muted mb-4">Bu şube için işlemleri başlatabilirsiniz.</p>
+<?php
+$pageTitle = "Şube Seçimi";
+$page_styles[] = ['href' => 'assets/plugins/tabler-icons/tabler-icons.css'];
+$page_styles[] = ['href' => 'assets/css/dataTables.bootstrap5.min.css'];
+$page_inline_styles = "
+body { pointer-events:none; }
+.allowed { pointer-events:auto; }
+";
+require_once 'alanlar/header.php';
+require_once 'alanlar/sidebar.php';
+?>
+
+
+		<div class="page-wrapper">
+			<div class="content bg-white">
+				<div class="d-md-flex d-block align-items-center justify-content-between border-bottom pb-3">
+					<div class="my-auto mb-2">
+						<h3 class="page-title mb-1">Şube Seçiniz</h3>
+                    </div>
+                </div>
+                <div class="row mt-5">
+                    <?php foreach ($subeler as $sube): ?>
+                        <?php
+                        $isActive = ($sube['sube_durum'] == 1);
+                        $badgeText = $isActive ? 'Aktif' : 'Pasif';
+                        $badgeClass = $isActive ? 'bg-transparent-success text-success' : 'bg-transparent-danger text-danger';
+                        $checked = $isActive ? 'checked' : '';
+                        ?>
+                        <div class="col-xxl-4 col-xl-6">
+                            <div class="card">
+                                <div class="card-header d-flex align-items-center justify-content-between border-0 mb-3 pb-0">
+                                    <div class="d-flex align-items-center">
+                                    <span class="avatar avatar-lg p-2 rounded bg-gray flex-shrink-0 me-2">
+                                        <img src="assets/img/icons/php-icon.svg" alt="Img">
+                                    </span>
+                                        <h6><?= htmlspecialchars($sube['sube_adi']) ?></h6>
+                                    </div>
+                                    <span class="badge <?= $badgeClass ?>"><?= $badgeText ?></span>
                                 </div>
-                                <div class="icons-org-create align-items-center mx-auto mt-auto">
-                                    <i class="icon-users" data-feather="users"></i>
-                                    <i class="icon-plus fas fa-plus"></i>
+                                <div class="card-body pt-0">
+                                    <p>
+                                        <?= $isActive
+                                            ? 'Bu şube sisteme bağlı ve aktif durumda.'
+                                            : 'Bu şube şu anda pasif veya bağlantı kesilmiş durumda.' ?>
+                                    </p>
                                 </div>
-                            </div>
-                            <div class="card-footer bg-transparent px-5 py-4">
-                                <div class="small text-center">
-                                    <a class="btn btn-block btn-primary" href="sube.php?sec=<?php echo $s['sube_id']; ?>">
-                                        <?php echo $s['sube_adi']; ?> için işlem yap
-                                    </a>
+                                <div class="card-footer d-flex justify-content-between align-items-center allowed">
+                                    <div>
+                                        <a href="sube.php?sec=<?= (int)$sube['sube_id'] ?>" class="btn btn-outline-light">
+                                            <i class="ti ti-tool me-2"></i>Şubeye Bağlan
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <?php } ?>
-                    
+                    <?php endforeach; ?>
                 </div>
-            </div>
-        </main>
-    </div>
-    <div id="layoutAuthentication_footer">
-        <footer class="footer-admin mt-auto footer-dark">
-            <div class="container-xl px-4">
-                <div class="row">
-                    <div class="col-md-6 small">Copyright © Your Website 2021</div>
-                    <div class="col-md-6 text-md-end small">
-                        <a href="multi-tenant-select.html#!">Privacy Policy</a>
-                        ·
-                        <a href="multi-tenant-select.html#!">Terms &amp; Conditions</a>
-                    </div>
-                </div>
-            </div>
-        </footer>
-    </div>
-</div>
-<script>
-    window.addEventListener('pageshow', function (e) {
-        if (e.persisted) {
-            // BFCache’ten döndüyse zorla yenile → sunucuya gider, tekrar anasayfa yönlendirmesi çalışır
-            location.reload();
-        }
-    });
-</script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-<script src="js/scripts.js"></script>
+			</div>
+		</div>
 
-<script src="https://assets.startbootstrap.com/js/sb-customizer.js"></script>
+
+	</div>
+
+	<script src="assets/js/jquery-3.7.1.min.js" type="birimtext/javascript"></script>
+	<script src="assets/js/bootstrap.bundle.min.js" type="birimtext/javascript"></script>
+	<script src="assets/js/moment.js" type="birimtext/javascript"></script>
+	<script src="assets/plugins/daterangepicker/daterangepicker.js" type="birimtext/javascript"></script>
+	<script src="assets/plugins/moment/moment.js" type="birimtext/javascript"></script>
+	<script src="assets/js/bootstrap-datetimepicker.min.js" type="birimtext/javascript"></script>
+	<script src="assets/js/feather.min.js" type="birimtext/javascript"></script>
+	<script src="assets/js/jquery.slimscroll.min.js" type="birimtext/javascript"></script>
+	<script src="assets/js/jquery.dataTables.min.js" type="birimtext/javascript"></script>
+	<script src="assets/js/dataTables.bootstrap5.min.js" type="birimtext/javascript"></script>
+	<script src="assets/js/script.js" type="birimtext/javascript"></script>
+
 </body>
 </html>

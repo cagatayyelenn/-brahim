@@ -1,189 +1,253 @@
 <?php
-include "c/fonk.php";
-include "c/config.php";
+error_reporting(E_ALL);
+
+// Aynı zamanda php.ini dosyasındaki ayarları da kod içinde geçersiz kılmak için:
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+ob_start();
+require_once 'dosyalar/config.php';
+require_once 'dosyalar/Ydil.php';
 session_start();
+$db = new Ydil();
+
 
 $mesaj = "";
 $mesaj1 = "";
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $email_or_phone = trim($_POST['email_or_phone'] ?? '');
-    $password = trim($_POST['password'] ?? '');
+    $password = $_POST['password'] ?? '';
 
-    // Kullanıcının e-posta mı, telefon mu girdiğini belirleme
-    if (preg_match('/^[\w\.-]+@[\w\.-]+\.\w{2,}$/', $email_or_phone)) {
-        $verine = "'" . $email_or_phone . "'"; // find helper'ınız bu formata alışık görünüyor
-        $sutun = "mail_adres";
-    } elseif (preg_match('/^[0-9]{10,15}$/', $email_or_phone)) {
-        $verine = $email_or_phone; // telefon sayısal
-        $sutun = "telefon";
-    } else {
+    // 1) Mail mi, telefon mu?
+    $isEmail = (bool) preg_match('/^[^\s@]+@[^\s@]+\.[^\s@]+$/', $email_or_phone);
+    $isPhone = (bool) preg_match('/^[0-9]{10,15}$/', $email_or_phone);
+
+    if (!$isEmail && !$isPhone) {
         $mesaj = '<small style="color: red;">Lütfen geçerli bir e-posta veya telefon numarası giriniz.</small>';
-    }
+    } else {
+        $sutun = $isEmail ? 'eposta' : 'telefon';
+        $quoted = $db->conn->quote($email_or_phone); // injection riskini azalt
 
-    if (empty($mesaj)) {
-        // Kullanıcıyı getir
-        $kullaniciss = $Ydil->find("`kullanici_giris`", $sutun, "$verine");
+        // 2) Kullanıcıyı çek (ad & soyad dahil!)
+        $sqlUser = " SELECT k.eposta, k.kisi_turu, k.sifre, k.telefon, p.personel_id, p.personel_adi, p.personel_soyadi, p.durum, p.sube_id, p.yetki FROM kullanici_giris1 k INNER JOIN personel1 p ON k.kisi_id = p.personel_id  WHERE {$sutun} = {$quoted}  LIMIT 1 ";
+        $user = $db->gets($sqlUser);
 
-        if (!$kullaniciss) {
-            $mesaj = '<small style="color: red;">Sistemde kayıt bulunamadı.</small>';
-        } elseif (($kullaniciss['sifre'] ?? '') === '0' && $password === '') {
-            // İlk giriş: şifre oluşturma
-            $_SESSION['user_id'] = $kullaniciss['kisi_id'];
-            header("Location: sifre_olustur.php");
+
+        if (!$user) {
+            // 1) Kullanıcı yok
+            $mesaj1 = '<small style="color: red;">Giriş bilgileri yanlış.</small>';
+        } elseif ($user['sifre'] === '0' || $user['sifre'] === '') {
+            // 2) Sistemde şifre boş/0 -> şifre oluşturma
+            $_SESSION['kisi_id'] = (int) $user['personel_id'];
+            header("Location: sifre-olusturma.php");
             exit;
-        } elseif (!password_verify($password, $kullaniciss['sifre'])) {
-            $mesaj1 = '<small style="color: red;">Şifreniz yanlış!</small>';
+        } elseif ($password === '' || !password_verify($password, $user['sifre'])) {
+            // 3) Şifre girilmedi ya da hatalı
+            $mesaj1 = '<small style="color: red;">Giriş bilgileri yanlış.</small>';
+        } elseif ((string) $user['durum'] !== '1') {
+            // 4) Personel pasif
+            $mesaj1 = '<small style="color: red;">Girmiş olduğunuz personel durumu pasiftir.</small>';
         } else {
+            // 5) Başarılı giriş (ŞİFRE DOĞRU)
+            // Şimdi güvenlik sorusu kontrolüne yönlendiriyoruz.
+            session_regenerate_id(true);
 
+            // Henüz tam oturum açmıyoruz, sadece kim olduğunu biliyoruz.
+            $_SESSION['temp_user_id'] = (int) $user['personel_id'];
 
-            if ($kullaniciss['kisi'] == "personel") {
+            // Eğer "Beni Hatırla" seçildiyse bunu da taşıyabiliriz ama şimdilik gerek yok,
+            // güvenlik sorusunu geçince tekrar bakabiliriz veya orada cookie set ederiz.
 
-
-                $sube_id = intval($kullaniciss['kisi_id']);
-                $subeler = "SELECT * FROM `personel` WHERE `personel`.`personel_id` = $sube_id";
-                $subess = $Ydil->getone($subeler);
-                $_SESSION['subedurum'] = $subess['yetki'];
-            }
-            $_SESSION['user_id'] = $kullaniciss['kisi_id'];
-            $_SESSION['kisi'] = $kullaniciss['kisi'];
-
-            // Kullanıcı tipine göre yönlendirme
-            if ($kullaniciss['kisi'] == 'admin') {
-                header("Location: sube.php");
-                exit;
-            } //elseif ($kullaniciss['kisi'] == 'personel' || $kullaniciss['kisi'] == 'ogrenci') {
-            // $mesaj = '<small style="color: red;">Geçersiz kullanıcı tipi!</small>';
-            // exit;
-            //}
-            else {
-                header("Location: anasayfa.php");
-            }
-
+            header("Location: guvenlik-kontrol.php");
+            exit;
         }
     }
 }
 ?>
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-    <title>sdfsfdSqooler </title>
-    <link href="css/styles.css" rel="stylesheet" />
-    <link rel="icon" type="image/x-icon" href="assets/img/favicon.png" />
-    <script data-search-pseudo-elements defer
-        src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js"
-        crossorigin="anonymous"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <meta name="description" content="Sqooler eğitim sistemi">
+    <meta name="author" content="Yabancı Dil Dünyası">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Sqooler Eğitim Sistemi</title>
+
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.png">
+    <script src="assets/js/theme-script.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/animate.css">
+    <link rel="stylesheet" href="assets/plugins/tabler-icons/tabler-icons.css">
+    <link rel="stylesheet" href="assets/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="assets/plugins/daterangepicker/daterangepicker.css">
+    <link rel="stylesheet" href="assets/plugins/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="assets/plugins/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/feather.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .pass-group .pass-input {
+            padding-right: 40px;
+        }
+
+        .pass-group .toggle-password {
+            z-index: 3;
+        }
+    </style>
 </head>
 
-<body class="bg-primary">
-    <div id="layoutAuthentication">
-        <div id="layoutAuthentication_content">
-            <main>
-                <div class="container-xl px-4">
-                    <div class="row justify-content-center">
-                        <div class="col-lg-5">
-                            <div class="card shadow-lg border-0 rounded-lg mt-5">
-                                <div class="card-header justify-content-center">
-                                    <h3 class="fw-light my-4">Giriş Alanı</h3>
-                                </div>
-                                <div class="card-body">
-                                    <form id="loginForm" action="" method="POST" novalidate>
-                                        <div class="mb-3">
-                                            <label class="small mb-1" for="inputEmailAddress">Mail Adresi veya
-                                                Telefon</label>
-                                            <input class="form-control" id="inputEmailAddress" type="text"
-                                                name="email_or_phone"
-                                                placeholder="Lütfen mail adresi veya telefon numarası giriniz"
-                                                required />
-                                            <div id="validationMessage" class="mt-1" style="color:red;"></div>
-                                            <?php echo $mesaj; ?>
+<body class="account-page">
+
+    <div class="main-wrapper">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-5 mx-auto">
+                    <div class="d-flex flex-column justify-content-between vh-100">
+                        <div class=" mx-auto p-4 text-center">
+                            <img src="assets/img/authentication/authentication-logo.svg" class="img-fluid" alt="Logo">
+                        </div>
+                        <form id="loginForm" action="giris.php" method="POST" novalidate>
+                            <input type="hidden" name="action" value="login">
+                            <div class="card">
+                                <div class="card-body p-4">
+                                    <div class="mb-4">
+                                        <h2 class="mb-2">Hoşgeldiniz</h2>
+                                        <p class="mb-0">Lütfen giriş yapmak için bilgilerinizi girin</p>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <div class="alert alert-primary d-flex align-items-center" role="alert">
+                                            <i class="feather-info flex-shrink-0 me-2"></i>
+                                            İlk defa sisteme girişte şifre alanını boş bırakınız!
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="small mb-1" for="password">Şifreniz</label>
-                                            <input class="form-control" type="password" id="password" name="password"
-                                                placeholder="Lütfen şifrenizi giriniz" />
-                                            <?php echo $mesaj1; ?>
+                                    </div>
+
+                                    <div class="login-or">
+                                        <span class="span-or">Or</span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Mail adresin veya telefon numarası</label>
+                                        <div class="input-icon mb-3 position-relative">
+                                            <span class="input-icon-addon">
+                                                <i class="ti ti-mail"></i>
+                                            </span>
+                                            <input type="text" class="form-control" id="inputEmailPhone"
+                                                name="email_or_phone" placeholder="ornek@site.com veya 5XXXXXXXXX"
+                                                required>
                                         </div>
-                                        <div class="mb-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" id="rememberPasswordCheck"
-                                                    type="checkbox" name="remember" />
-                                                <label class="form-check-label" for="rememberPasswordCheck">Bilgilerimi
-                                                    Hatırla</label>
+                                        <div id="validationMessage" class="mt-1 text-danger small"><?php echo $mesaj; ?>
+                                        </div>
+
+
+                                        <label class="form-label">Şifreniz</label>
+                                        <div class="pass-group position-relative">
+                                            <input type="password" class="pass-input form-control" id="password"
+                                                name="password" placeholder="Şifrenizi girin (ilk girişte boş bırakın)">
+                                            <span class="ti toggle-password ti-eye-off" data-target="#password"
+                                                style="cursor:pointer; position:absolute; right:3px; top:18px;"></span>
+                                        </div>
+                                        <?php echo $mesaj1; ?>
+                                    </div>
+
+                                    <div class="form-wrap form-wrap-checkbox mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="form-check form-check-md mb-0">
+                                                <input class="form-check-input mt-0" type="checkbox" id="remember"
+                                                    name="remember" value="1">
                                             </div>
+                                            <label for="remember" class="ms-2 mb-0">Beni Hatırla</label>
                                         </div>
-                                        <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
-                                            <button type="submit" class="btn btn-primary">Giriş Yap!</button>
-                                        </div>
-                                    </form>
-                                </div>
-
-                                <div class="card-footer text-center">
-                                    <div class="small"><a href="auth-register-basic.html">Bilgilerimi Unuttum</a></div>
-                                </div>
-
-                                <div class="alert alert-secondary alert-icon m-3" role="alert">
-                                    <button class="btn-close" type="button" data-bs-dismiss="alert"
-                                        aria-label="Close"></button>
-                                    <div class="alert-icon-aside">
-                                        <i class="fas fa-exclamation-triangle"></i>
                                     </div>
-                                    <div class="alert-icon-content">
-                                        <h6 class="alert-heading" style="margin-top: 10px;">İlk defa sisteme girişte
-                                            şifre alanını boş bırakınız!</h6>
+
+                                    <div class="mb-3">
+                                        <button type="submit" class="btn btn-primary w-100">Giriş Yap</button>
+                                    </div>
+
+                                    <div class="text-center">
+                                        <h6 class="fw-normal text-dark mb-0">
+                                            Şifrenizi unuttuysanız <span class="fw-normal text-success mb-0">Ngls
+                                                Yabancı Dil Dünyası</span> ile iletişime geçin
+                                        </h6>
                                     </div>
                                 </div>
-
-                            </div><!-- card -->
-                        </div><!-- col -->
-                    </div><!-- row -->
-                </div><!-- container -->
-            </main>
-        </div>
-        <div id="layoutAuthentication_footer">
-            <footer class="footer-admin mt-auto footer-dark">
-                <div class="container-xl px-4">
-                    <div class="row">
-                        <div class="col-md-6 small">Copyright &copy; Your Website 2025</div>
-                        <div class="col-md-6 text-md-end small">
-                            <a href="#!">Privacy Policy</a>
-                            &middot;
-                            <a href="#!">Terms &amp; Conditions</a>
+                            </div>
+                        </form>
+                        <div class="p-4 text-center">
+                            <p class="mb-0 ">Copyright &copy; 2025 - Sqooler Okul Yönetim Sistemi </p>
                         </div>
                     </div>
                 </div>
-            </footer>
+            </div>
         </div>
     </div>
 
+    <script data-cfasync="false" src="assets/js/jquery-3.7.1.min.js"></script>
+    <script data-cfasync="false" src="assets/js/bootstrap.bundle.min.js"></script>
+    <script data-cfasync="false" src="assets/js/moment.js"></script>
+    <script data-cfasync="false"
+        src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/tr.min.js"></script>
+    <script data-cfasync="false" src="assets/js/bootstrap-datetimepicker.min.js"></script>
+    <script data-cfasync="false" src="assets/plugins/select2/js/select2.min.js"></script>
+    <script data-cfasync="false" src="assets/plugins/bootstrap-tagsinput/bootstrap-tagsinput.js"></script>
+    <script data-cfasync="false" src="assets/js/feather.min.js"></script>
+    <script data-cfasync="false" src="assets/js/jquery.slimscroll.min.js"></script>
+    <script data-cfasync="false" src="assets/js/script.js"></script>
+
+
     <script>
-        // Basit istemci tarafı format kontrolü
-        document.getElementById('loginForm').addEventListener('submit', function (event) {
-            let input = document.getElementById('inputEmailAddress').value.trim();
-            let message = document.getElementById('validationMessage');
+        document.addEventListener('DOMContentLoaded', function () {
 
-            let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            let phonePattern = /^[0-9]{10,15}$/;
+            // Basit istemci tarafı kontrolü (mail veya telefon) — form varsa bağla
+            const form = document.getElementById('loginForm');
+            if (form) {
+                form.addEventListener('submit', function (event) {
+                    const input = document.getElementById('inputEmailPhone').value.trim();
+                    const message = document.getElementById('validationMessage');
 
-            if (!emailPattern.test(input) && !phonePattern.test(input)) {
-                message.textContent = "Lütfen geçerli bir e-posta veya telefon numarası giriniz.";
-                event.preventDefault();
-            } else {
-                message.textContent = "";
+                    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    const phonePattern = /^(?:\+?90\s?0?|0)?\d{10}$/;
+
+                    if (!emailPattern.test(input) && !phonePattern.test(input)) {
+                        if (message) message.textContent = "Lütfen geçerli bir e-posta veya telefon numarası giriniz.";
+                        event.preventDefault();
+                    } else {
+                        if (message) message.textContent = "";
+                    }
+                });
             }
         });
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-        crossorigin="anonymous"></script>
-    <script src="js/scripts.js"></script>
+
+    <script>
+        // Login sayfasına gelindiğinde eski session timer'ı temizle
+        localStorage.removeItem('session_expiry_time');
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('click', function (e) {
+                const btn = e.target.closest('.toggle-password');
+                if (!btn) return; // tıklanan element göz ikonu değil
+                const targetSel = btn.getAttribute('data-target');
+                const input = document.querySelector(targetSel);
+                if (!input) return; // input bulunamadıysa çık
+                const icon = btn.querySelector('i');
+                if (!icon) return; // ikon bulunamadıysa çık
+
+                // toggle işlemi
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
