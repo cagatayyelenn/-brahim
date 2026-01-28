@@ -71,183 +71,286 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-    <meta name="description" content="Sqooler eğitim sistemi">
-    <meta name="author" content="Yabancı Dil Dünyası">
+    <meta name="description" content="Preskool - Bootstrap Admin Template">
+    <meta name="keywords" content="admin, estimates, bootstrap, business, html5, responsive, Projects">
+    <meta name="author" content="Dreams technologies - Bootstrap Admin Template">
     <meta name="robots" content="noindex, nofollow">
     <title>Sqooler Eğitim Sistemi</title>
 
+    <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.png">
-    <script src="assets/js/theme-script.js" type="text/javascript"></script>
+
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/animate.css">
+
+    <!-- Feather CSS -->
+    <link rel="stylesheet" href="assets/plugins/icons/feather/feather.css">
+
+    <!-- Tabler Icon CSS -->
     <link rel="stylesheet" href="assets/plugins/tabler-icons/tabler-icons.css">
-    <link rel="stylesheet" href="assets/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="assets/plugins/daterangepicker/daterangepicker.css">
+
+    <!-- Fontawesome CSS -->
     <link rel="stylesheet" href="assets/plugins/fontawesome/css/fontawesome.min.css">
     <link rel="stylesheet" href="assets/plugins/fontawesome/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/feather.css">
-    <link rel="stylesheet" href="assets/css/style.css">
-    <style>
-        .pass-group .pass-input {
-            padding-right: 40px;
-        }
 
-        .pass-group .toggle-password {
-            z-index: 3;
-        }
-    </style>
+    <!-- Select2 CSS -->
+    <link rel="stylesheet" href="assets/plugins/select2/css/select2.min.css">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
 </head>
 
 <body class="account-page">
 
+    <!-- Main Wrapper -->
     <div class="main-wrapper">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-5 mx-auto">
-                    <div class="d-flex flex-column justify-content-between vh-100">
-                        <div class=" mx-auto p-4 text-center">
-                            <img src="assets/img/authentication/authentication-logo.svg" class="img-fluid" alt="Logo">
-                        </div>
-                        <form id="loginForm" action="giris.php" method="POST" novalidate>
-                            <input type="hidden" name="action" value="login">
-                            <div class="card">
-                                <div class="card-body p-4">
-                                    <div class="mb-4">
-                                        <h2 class="mb-2">Hoşgeldiniz</h2>
-                                        <p class="mb-0">Lütfen giriş yapmak için bilgilerinizi girin</p>
-                                    </div>
 
-                                    <div class="mt-4">
-                                        <div class="alert alert-primary d-flex align-items-center" role="alert">
-                                            <i class="feather-info flex-shrink-0 me-2"></i>
-                                            İlk defa sisteme girişte şifre alanını boş bırakınız!
-                                        </div>
-                                    </div>
-
-                                    <div class="login-or">
-                                        <span class="span-or">Or</span>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">Mail adresin veya telefon numarası</label>
-                                        <div class="input-icon mb-3 position-relative">
-                                            <span class="input-icon-addon">
-                                                <i class="ti ti-mail"></i>
-                                            </span>
-                                            <input type="text" class="form-control" id="inputEmailPhone"
-                                                name="email_or_phone" placeholder="ornek@site.com veya 5XXXXXXXXX"
-                                                required>
-                                        </div>
-                                        <div id="validationMessage" class="mt-1 text-danger small"><?php echo $mesaj; ?>
-                                        </div>
-
-
-                                        <label class="form-label">Şifreniz</label>
-                                        <div class="pass-group position-relative">
-                                            <input type="password" class="pass-input form-control" id="password"
-                                                name="password" placeholder="Şifrenizi girin (ilk girişte boş bırakın)">
-                                            <span class="ti toggle-password ti-eye-off" data-target="#password"
-                                                style="cursor:pointer; position:absolute; right:3px; top:18px;"></span>
-                                        </div>
-                                        <?php echo $mesaj1; ?>
-                                    </div>
-
-                                    <div class="form-wrap form-wrap-checkbox mb-3">
-                                        <div class="d-flex align-items-center">
-                                            <div class="form-check form-check-md mb-0">
-                                                <input class="form-check-input mt-0" type="checkbox" id="remember"
-                                                    name="remember" value="1">
-                                            </div>
-                                            <label for="remember" class="ms-2 mb-0">Beni Hatırla</label>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <button type="submit" class="btn btn-primary w-100">Giriş Yap</button>
-                                    </div>
-
-                                    <div class="text-center">
-                                        <h6 class="fw-normal text-dark mb-0">
-                                            Şifrenizi unuttuysanız <span class="fw-normal text-success mb-0">Ngls
-                                                Yabancı Dil Dünyası</span> ile iletişime geçin
-                                        </h6>
-                                    </div>
-                                </div>
+        <div class="container-fuild">
+            <div class="w-100 overflow-hidden position-relative flex-wrap d-block vh-100">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div
+                            class="login-background position-relative d-lg-flex align-items-center justify-content-center d-lg-block d-none flex-wrap vh-100 overflowy-auto">
+                            <div>
+                                <img src="assets/img/authentication/authentication-02.jpg" alt="Img">
                             </div>
-                        </form>
-                        <div class="p-4 text-center">
-                            <p class="mb-0 ">Copyright &copy; 2025 - Sqooler Okul Yönetim Sistemi </p>
+                            <div class="authen-overlay-item  w-100 p-4">
+                                <h4 class="text-white mb-3">What's New on Preskool !!!</h4>
+                                <div
+                                    class="d-flex align-items-center flex-row mb-3 justify-content-between p-3 br-5 gap-3 card">
+                                    <div>
+                                        <h6>Summer Vacation Holiday Homework</h6>
+                                        <p class="mb-0 text-truncate">The school will remain closed from April 20th to
+                                            June...</p>
+                                    </div>
+                                    <a href="javascript:void(0);"><i class="ti ti-chevrons-right"></i></a>
+                                </div>
+                                <div
+                                    class="d-flex align-items-center flex-row mb-3 justify-content-between p-3 br-5 gap-3 card">
+                                    <div>
+                                        <h6>New Academic Session Admission Start(2024-25)</h6>
+                                        <p class="mb-0 text-truncate">An academic term is a portion of an academic year,
+                                            the time ....
+                                        </p>
+                                    </div>
+                                    <a href="javascript:void(0);"><i class="ti ti-chevrons-right"></i></a>
+                                </div>
+                                <div
+                                    class="d-flex align-items-center flex-row mb-3 justify-content-between p-3 br-5 gap-3 card">
+                                    <div>
+                                        <h6>Date sheet Final Exam Nursery to Sr.Kg</h6>
+                                        <p class="mb-0 text-truncate">Dear Parents, As the final examination for the
+                                            session 2024-25
+                                            is ...</p>
+                                    </div>
+                                    <a href="javascript:void(0);"><i class="ti ti-chevrons-right"></i></a>
+                                </div>
+                                <div
+                                    class="d-flex align-items-center flex-row mb-3 justify-content-between p-3 br-5 gap-3 card">
+                                    <div>
+                                        <h6>Annual Day Function</h6>
+                                        <p class="mb-0 text-truncate">Annual functions provide a platform for students
+                                            to showcase
+                                            their...</p>
+                                    </div>
+                                    <a href="javascript:void(0);"><i class="ti ti-chevrons-right"></i></a>
+                                </div>
+                                <div
+                                    class="d-flex align-items-center flex-row mb-0 justify-content-between p-3 br-5 gap-3 card">
+                                    <div>
+                                        <h6>Summer Vacation Holiday Homework</h6>
+                                        <p class="mb-0 text-truncate">The school will remain closed from April 20th to
+                                            June 15th for
+                                            summer...</p>
+                                    </div>
+                                    <a href="javascript:void(0);"><i class="ti ti-chevrons-right"></i></a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-12 col-sm-12">
+                        <div class="row justify-content-center align-items-center vh-100 overflow-auto flex-wrap ">
+                            <div class="col-md-8 mx-auto p-4">
+                                <form id="loginForm" action="giris.php" method="POST" novalidate>
+                                    <!-- action="giris.php" olarak güncellendi -->
+                                    <div>
+                                        <div class=" mx-auto mb-5 text-center">
+                                            <img src="assets/img/authentication/authentication-logo.svg"
+                                                class="img-fluid" alt="Logo">
+                                        </div>
+                                        <div class="card">
+                                            <div class="card-body p-4">
+                                                <div class=" mb-4">
+                                                    <h2 class="mb-2">Hoşgeldiniz</h2>
+                                                    <p class="mb-0">Lütfen giriş yapmak için bilgilerinizi girin</p>
+                                                </div>
+                                                <div class="mt-4">
+                                                    <?php if ($mesaj1): ?>
+                                                        <div class="alert alert-danger d-flex align-items-center"
+                                                            role="alert">
+                                                            <i class="feather-alert-octagon flex-shrink-0 me-2"></i>
+                                                            <?= $mesaj1 ?>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <div
+                                                            class="d-flex align-items-center justify-content-center flex-wrap">
+                                                            <div class="text-center me-2 flex-fill">
+                                                                <a href="javascript:void(0);"
+                                                                    class="bg-primary br-10 p-2 btn btn-primary  d-flex align-items-center justify-content-center">
+                                                                    <img class="img-fluid m-1"
+                                                                        src="assets/img/icons/facebook-logo.svg"
+                                                                        alt="Facebook">
+                                                                </a>
+                                                            </div>
+                                                            <div class="text-center me-2 flex-fill">
+                                                                <a href="javascript:void(0);"
+                                                                    class=" br-10 p-2 btn btn-outline-light  d-flex align-items-center justify-content-center">
+                                                                    <img class="img-fluid  m-1"
+                                                                        src="assets/img/icons/google-logo.svg"
+                                                                        alt="Facebook">
+                                                                </a>
+                                                            </div>
+                                                            <div class="text-center flex-fill">
+                                                                <a href="javascript:void(0);"
+                                                                    class="bg-dark br-10 p-2 btn btn-dark d-flex align-items-center justify-content-center">
+                                                                    <img class="img-fluid  m-1"
+                                                                        src="assets/img/icons/apple-logo.svg" alt="Apple">
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="login-or">
+                                                    <span class="span-or">Giriş Yap</span>
+                                                </div>
+                                                <div class="mb-3 ">
+                                                    <label class="form-label">Mail adresi veya telefon</label>
+                                                    <div class="input-icon mb-3 position-relative">
+                                                        <span class="input-icon-addon">
+                                                            <i class="ti ti-mail"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" name="email_or_phone"
+                                                            id="inputEmailPhone"
+                                                            placeholder="ornek@site.com veya 5XXXXXXXXX" required>
+                                                    </div>
+                                                    <div id="validationMessage" class="mt-1 pb-2 text-danger small">
+                                                        <?php echo $mesaj; ?></div>
+
+                                                    <label class="form-label">Şifre</label>
+                                                    <div class="pass-group">
+                                                        <input type="password" class="pass-input form-control"
+                                                            name="password" id="password"
+                                                            placeholder="Şifrenizi giriniz">
+                                                        <span class="ti toggle-password ti-eye-off"
+                                                            data-target="#password"></span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-wrap form-wrap-checkbox mb-3">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="form-check form-check-md mb-0">
+                                                            <input class="form-check-input mt-0" type="checkbox"
+                                                                name="remember" id="remember" value="1">
+                                                        </div>
+                                                        <p class="ms-1 mb-0 ">Beni Hatırla</p>
+                                                    </div>
+                                                    <div class="text-end ">
+                                                        <a href="forgot-password.html" class="link-danger">Şifreni mi
+                                                            unuttun?</a>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <button type="submit" class="btn btn-primary w-100">Giriş
+                                                        Yap</button>
+                                                </div>
+                                                <div class="text-center">
+                                                    <h6 class="fw-normal text-dark mb-0">Hesabınız yok mu? <a
+                                                            href="register.html" class="hover-a "> Kayıt Ol</a>
+                                                    </h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-5 text-center">
+                                            <p class="mb-0 ">Copyright &copy; 2025 - Sqooler Okul Yönetim Sistemi</p>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
+
     </div>
+    <!-- /Main Wrapper -->
 
-    <script data-cfasync="false" src="assets/js/jquery-3.7.1.min.js"></script>
-    <script data-cfasync="false" src="assets/js/bootstrap.bundle.min.js"></script>
-    <script data-cfasync="false" src="assets/js/moment.js"></script>
-    <script data-cfasync="false"
-        src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/tr.min.js"></script>
-    <script data-cfasync="false" src="assets/js/bootstrap-datetimepicker.min.js"></script>
-    <script data-cfasync="false" src="assets/plugins/select2/js/select2.min.js"></script>
-    <script data-cfasync="false" src="assets/plugins/bootstrap-tagsinput/bootstrap-tagsinput.js"></script>
-    <script data-cfasync="false" src="assets/js/feather.min.js"></script>
-    <script data-cfasync="false" src="assets/js/jquery.slimscroll.min.js"></script>
-    <script data-cfasync="false" src="assets/js/script.js"></script>
+    <!-- jQuery -->
+    <script src="assets/js/jquery-3.7.1.min.js"></script>
 
+    <!-- Bootstrap Core JS -->
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Feather Icon JS -->
+    <script src="assets/js/feather.min.js"></script>
+
+    <!-- Slimscroll JS -->
+    <script src="assets/js/jquery.slimscroll.min.js"></script>
+
+    <!-- Select2 JS -->
+    <script src="assets/plugins/select2/js/select2.min.js"></script>
+
+    <!-- Custom JS -->
+    <script src="assets/js/script.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
-            // Basit istemci tarafı kontrolü (mail veya telefon) — form varsa bağla
+            // Basit istemci tarafı kontrolü (mail veya telefon)
             const form = document.getElementById('loginForm');
             if (form) {
                 form.addEventListener('submit', function (event) {
                     const input = document.getElementById('inputEmailPhone').value.trim();
                     const message = document.getElementById('validationMessage');
 
+                    // Basit regex
                     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    const phonePattern = /^(?:\+?90\s?0?|0)?\d{10}$/;
+                    const phonePattern = /^(?:\+?90\s?0?|0)?\d{10,15}$/;
 
                     if (!emailPattern.test(input) && !phonePattern.test(input)) {
                         if (message) message.textContent = "Lütfen geçerli bir e-posta veya telefon numarası giriniz.";
-                        event.preventDefault();
+                        // event.preventDefault(); // İsteğe bağlı: sunucu taraflı kontrol de var
                     } else {
                         if (message) message.textContent = "";
                     }
                 });
             }
-        });
-    </script>
 
-    <script>
-        // Login sayfasına gelindiğinde eski session timer'ı temizle
-        localStorage.removeItem('session_expiry_time');
-
-        document.addEventListener('DOMContentLoaded', function () {
+            // Şifre Göster/Gizle (Tabler Icon uyumlu)
             document.addEventListener('click', function (e) {
                 const btn = e.target.closest('.toggle-password');
-                if (!btn) return; // tıklanan element göz ikonu değil
+                if (!btn) return;
+
                 const targetSel = btn.getAttribute('data-target');
                 const input = document.querySelector(targetSel);
-                if (!input) return; // input bulunamadıysa çık
-                const icon = btn.querySelector('i');
-                if (!icon) return; // ikon bulunamadıysa çık
+                if (!input) return;
 
-                // toggle işlemi
                 if (input.type === 'password') {
                     input.type = 'text';
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
+                    btn.classList.remove('ti-eye-off');
+                    btn.classList.add('ti-eye');
                 } else {
                     input.type = 'password';
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
+                    btn.classList.remove('ti-eye');
+                    btn.classList.add('ti-eye-off');
                 }
             });
         });
     </script>
+
 </body>
 
 </html>
