@@ -113,7 +113,7 @@ $soru = $user['guvenlik_sorusu'];
                                         <label class="form-label fw-bold">
                                             <?php echo htmlspecialchars($soru); ?>
                                         </label>
-                                        <input type="text" class="form-control" name="cevap" placeholder="Cevabınız"
+                                        <input type="password" class="form-control" name="cevap" placeholder="Cevabınız"
                                             required autofocus>
                                         <div class="mt-1">
                                             <?php echo $mesaj; ?>
