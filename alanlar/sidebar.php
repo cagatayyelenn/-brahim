@@ -77,6 +77,10 @@
                                 class="<?= $cp == 'gecmis-islemler.php' ? 'menuactive' : '' ?>"><i
                                     class="ti ti-history"></i><span>İşlem Geçmişi</span></a>
                         </li>
+                        <li><a href="duyuru-listesi.php"
+                                class="<?= $cp == 'duyuru-listesi.php' ? 'menuactive' : '' ?>"><i
+                                    class="ti ti-bell"></i><span>Duyurular</span></a>
+                        </li>
                     </ul>
                 </li>
                 <li>

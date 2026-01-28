@@ -117,55 +117,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <div class="authen-overlay-item  w-100 p-4">
                                 <h4 class="text-white mb-3">What's New on Preskool !!!</h4>
-                                <div
-                                    class="d-flex align-items-center flex-row mb-3 justify-content-between p-3 br-5 gap-3 card">
-                                    <div>
-                                        <h6>Summer Vacation Holiday Homework</h6>
-                                        <p class="mb-0 text-truncate">The school will remain closed from April 20th to
-                                            June...</p>
+                                <?php
+                                $duyurular = $db->finds("duyurular", "durum", 1, ["id", "baslik", "icerik", "tarih"]);
+                                // Son 5 duyuru, tarihe göre tersten sırala (manuel dizi sıralama gerekebilir veya query ile)
+                                // Basitçe dizi ters çevirip ilk 5'i alalım veya SQL'de ORDER BY
+                                // Ydil class finds metodu ORDER BY desteklemiyor gibi görünüyor, manuel sıralayalım.
+                                usort($duyurular, function ($a, $b) {
+                                    return strtotime($b['tarih']) - strtotime($a['tarih']);
+                                });
+                                $duyurular = array_slice($duyurular, 0, 5);
+                                ?>
+
+                                <?php foreach ($duyurular as $duyuru): ?>
+                                    <div
+                                        class="d-flex align-items-center flex-row mb-3 justify-content-between p-3 br-5 gap-3 card">
+                                        <div>
+                                            <h6><?= htmlspecialchars($duyuru['baslik']) ?></h6>
+                                            <p class="mb-0 text-truncate"
+                                                title="<?= htmlspecialchars($duyuru['icerik']) ?>">
+                                                <?= htmlspecialchars(mb_substr($duyuru['icerik'], 0, 80)) ?>    <?= mb_strlen($duyuru['icerik']) > 80 ? '...' : '' ?>
+                                            </p>
+                                        </div>
+                                        <a href="javascript:void(0);"><i class="ti ti-chevrons-right"></i></a>
                                     </div>
-                                    <a href="javascript:void(0);"><i class="ti ti-chevrons-right"></i></a>
-                                </div>
-                                <div
-                                    class="d-flex align-items-center flex-row mb-3 justify-content-between p-3 br-5 gap-3 card">
-                                    <div>
-                                        <h6>New Academic Session Admission Start(2024-25)</h6>
-                                        <p class="mb-0 text-truncate">An academic term is a portion of an academic year,
-                                            the time ....
-                                        </p>
-                                    </div>
-                                    <a href="javascript:void(0);"><i class="ti ti-chevrons-right"></i></a>
-                                </div>
-                                <div
-                                    class="d-flex align-items-center flex-row mb-3 justify-content-between p-3 br-5 gap-3 card">
-                                    <div>
-                                        <h6>Date sheet Final Exam Nursery to Sr.Kg</h6>
-                                        <p class="mb-0 text-truncate">Dear Parents, As the final examination for the
-                                            session 2024-25
-                                            is ...</p>
-                                    </div>
-                                    <a href="javascript:void(0);"><i class="ti ti-chevrons-right"></i></a>
-                                </div>
-                                <div
-                                    class="d-flex align-items-center flex-row mb-3 justify-content-between p-3 br-5 gap-3 card">
-                                    <div>
-                                        <h6>Annual Day Function</h6>
-                                        <p class="mb-0 text-truncate">Annual functions provide a platform for students
-                                            to showcase
-                                            their...</p>
-                                    </div>
-                                    <a href="javascript:void(0);"><i class="ti ti-chevrons-right"></i></a>
-                                </div>
-                                <div
-                                    class="d-flex align-items-center flex-row mb-0 justify-content-between p-3 br-5 gap-3 card">
-                                    <div>
-                                        <h6>Summer Vacation Holiday Homework</h6>
-                                        <p class="mb-0 text-truncate">The school will remain closed from April 20th to
-                                            June 15th for
-                                            summer...</p>
-                                    </div>
-                                    <a href="javascript:void(0);"><i class="ti ti-chevrons-right"></i></a>
-                                </div>
+                                <?php endforeach; ?>
+
+                                <?php if (empty($duyurular)): ?>
+                                    <div class="alert alert-info">Henüz duyuru bulunmamaktadır.</div>
+                                <?php endif; ?>
 
                             </div>
                         </div>
@@ -177,8 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <!-- action="giris.php" olarak güncellendi -->
                                     <div>
                                         <div class=" mx-auto mb-5 text-center">
-                                            <img src="assets/img/authentication/authentication-logo.svg"
-                                                class="img-fluid" alt="Logo">
+                                            <img src="assets/img/logo.svg" class="img-fluid" alt="Logo">
                                         </div>
                                         <div class="card">
                                             <div class="card-body p-4">
@@ -192,33 +170,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                             role="alert">
                                                             <i class="feather-alert-octagon flex-shrink-0 me-2"></i>
                                                             <?= $mesaj1 ?>
-                                                        </div>
-                                                    <?php else: ?>
-                                                        <div
-                                                            class="d-flex align-items-center justify-content-center flex-wrap">
-                                                            <div class="text-center me-2 flex-fill">
-                                                                <a href="javascript:void(0);"
-                                                                    class="bg-primary br-10 p-2 btn btn-primary  d-flex align-items-center justify-content-center">
-                                                                    <img class="img-fluid m-1"
-                                                                        src="assets/img/icons/facebook-logo.svg"
-                                                                        alt="Facebook">
-                                                                </a>
-                                                            </div>
-                                                            <div class="text-center me-2 flex-fill">
-                                                                <a href="javascript:void(0);"
-                                                                    class=" br-10 p-2 btn btn-outline-light  d-flex align-items-center justify-content-center">
-                                                                    <img class="img-fluid  m-1"
-                                                                        src="assets/img/icons/google-logo.svg"
-                                                                        alt="Facebook">
-                                                                </a>
-                                                            </div>
-                                                            <div class="text-center flex-fill">
-                                                                <a href="javascript:void(0);"
-                                                                    class="bg-dark br-10 p-2 btn btn-dark d-flex align-items-center justify-content-center">
-                                                                    <img class="img-fluid  m-1"
-                                                                        src="assets/img/icons/apple-logo.svg" alt="Apple">
-                                                                </a>
-                                                            </div>
                                                         </div>
                                                     <?php endif; ?>
                                                 </div>
@@ -236,7 +187,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                             placeholder="ornek@site.com veya 5XXXXXXXXX" required>
                                                     </div>
                                                     <div id="validationMessage" class="mt-1 pb-2 text-danger small">
-                                                        <?php echo $mesaj; ?></div>
+                                                        <?php echo $mesaj; ?>
+                                                    </div>
 
                                                     <label class="form-label">Şifre</label>
                                                     <div class="pass-group">
