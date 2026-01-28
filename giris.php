@@ -116,14 +116,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <img src="assets/img/authentication/authentication-02.jpg" alt="Img">
                             </div>
                             <div class="authen-overlay-item  w-100 p-4">
-                                <h4 class="text-white mb-3">What's New on Preskool !!!</h4>
+                                <h4 class="text-white mb-3">Sqooler'da Yenilikler</h4>
                                 <?php
                                 // Tüm aktif duyuruları çek
                                 $duyurular = $db->finds("duyurular", "durum", 1, ["id", "baslik", "icerik", "tarih"]);
-                                
+
                                 if ($duyurular && is_array($duyurular)) {
                                     // Tarihe göre sırala (Yeni tarih en üstte)
-                                    usort($duyurular, function($a, $b) {
+                                    usort($duyurular, function ($a, $b) {
                                         return strtotime($b['tarih']) - strtotime($a['tarih']);
                                     });
                                     // İlk 5 tanesini al
@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <h6><?= htmlspecialchars($duyuru['baslik']) ?></h6>
                                             <p class="mb-0 text-truncate"
                                                 title="<?= htmlspecialchars($duyuru['icerik']) ?>">
-                                                <?= htmlspecialchars(mb_substr($duyuru['icerik'], 0, 80)) ?>    <?= mb_strlen($duyuru['icerik']) > 80 ? '...' : '' ?>
+                                                <?= $duyuru['icerik'] ?>
                                             </p>
                                         </div>
                                         <a href="javascript:void(0);"><i class="ti ti-chevrons-right"></i></a>
