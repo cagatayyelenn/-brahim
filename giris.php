@@ -118,14 +118,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="authen-overlay-item  w-100 p-4">
                                 <h4 class="text-white mb-3">What's New on Preskool !!!</h4>
                                 <?php
+                                // Tüm aktif duyuruları çek
                                 $duyurular = $db->finds("duyurular", "durum", 1, ["id", "baslik", "icerik", "tarih"]);
-                                // Son 5 duyuru, tarihe göre tersten sırala (manuel dizi sıralama gerekebilir veya query ile)
-                                // Basitçe dizi ters çevirip ilk 5'i alalım veya SQL'de ORDER BY
-                                // Ydil class finds metodu ORDER BY desteklemiyor gibi görünüyor, manuel sıralayalım.
-                                usort($duyurular, function ($a, $b) {
-                                    return strtotime($b['tarih']) - strtotime($a['tarih']);
-                                });
-                                $duyurular = array_slice($duyurular, 0, 5);
+                                
+                                if ($duyurular && is_array($duyurular)) {
+                                    // Tarihe göre sırala (Yeni tarih en üstte)
+                                    usort($duyurular, function($a, $b) {
+                                        return strtotime($b['tarih']) - strtotime($a['tarih']);
+                                    });
+                                    // İlk 5 tanesini al
+                                    $duyurular = array_slice($duyurular, 0, 5);
+                                } else {
+                                    $duyurular = [];
+                                }
                                 ?>
 
                                 <?php foreach ($duyurular as $duyuru): ?>
