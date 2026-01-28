@@ -1,4 +1,8 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+
 require_once 'alanlar/header.php';
 require_once 'alanlar/sidebar.php';
 
@@ -14,18 +18,18 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $baslik = trim($_POST['baslik']);
     $icerik = trim($_POST['icerik']);
-    
+
     // Güncelleme
-    if(isset($_POST['guncelle_id'])) {
+    if (isset($_POST['guncelle_id'])) {
         $id = intval($_POST['guncelle_id']);
         $durum = intval($_POST['durum']);
-        
+
         if ($baslik != "" && $icerik != "" && $id > 0) {
             $db->update('duyurular', ['baslik', 'icerik', 'durum'], [$baslik, $icerik, $durum], 'id', $id);
             echo "<script>window.location.href='duyuru-listesi.php';</script>";
             exit;
         }
-    } 
+    }
     // Ekleme
     elseif (isset($_POST['ekle'])) {
         if ($baslik != "" && $icerik != "") {
@@ -37,7 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 $duyurular = $db->get("SELECT * FROM duyurular ORDER BY id DESC");
-if (!$duyurular) $duyurular = [];
+if (!$duyurular)
+    $duyurular = [];
 ?>
 
 <div class="page-wrapper">
@@ -106,14 +111,12 @@ if (!$duyurular) $duyurular = [];
                                             <td><?= htmlspecialchars(mb_substr($duyuru['icerik'], 0, 50)) ?>...</td>
                                             <td><?= $duyuru['tarih'] ?></td>
                                             <td>
-                                                <button type="button" 
-                                                        class="btn btn-sm btn-info me-2 edit-btn" 
-                                                        data-id="<?= $duyuru['id'] ?>" 
-                                                        data-baslik="<?= htmlspecialchars($duyuru['baslik']) ?>" 
-                                                        data-icerik="<?= htmlspecialchars($duyuru['icerik']) ?>" 
-                                                        data-durum="<?= $duyuru['durum'] ?>" 
-                                                        data-bs-toggle="modal" 
-                                                        data-bs-target="#editModal">
+                                                <button type="button" class="btn btn-sm btn-info me-2 edit-btn"
+                                                    data-id="<?= $duyuru['id'] ?>"
+                                                    data-baslik="<?= htmlspecialchars($duyuru['baslik']) ?>"
+                                                    data-icerik="<?= htmlspecialchars($duyuru['icerik']) ?>"
+                                                    data-durum="<?= $duyuru['durum'] ?>" data-bs-toggle="modal"
+                                                    data-bs-target="#editModal">
                                                     <i class="ti ti-edit"></i> Düzenle
                                                 </button>
                                                 <?= $db->confirmDeleteLink('duyurular', $duyuru['id'], 'duyuru-listesi.php') ?>
@@ -121,7 +124,9 @@ if (!$duyurular) $duyurular = [];
                                         </tr>
                                     <?php endforeach; ?>
                                     <?php if (empty($duyurular)): ?>
-                                        <tr><td colspan="5" class="text-center">Henüz duyuru eklenmemiş.</td></tr>
+                                        <tr>
+                                            <td colspan="5" class="text-center">Henüz duyuru eklenmemiş.</td>
+                                        </tr>
                                     <?php endif; ?>
                                 </tbody>
                             </table>
@@ -172,20 +177,20 @@ if (!$duyurular) $duyurular = [];
 <?php require_once 'alanlar/footer.php'; ?>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const editBtns = document.querySelectorAll('.edit-btn');
-    editBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.getAttribute('data-id');
-            const baslik = this.getAttribute('data-baslik');
-            const icerik = this.getAttribute('data-icerik');
-            const durum = this.getAttribute('data-durum');
-            
-            document.getElementById('edit_id').value = id;
-            document.getElementById('edit_baslik').value = baslik;
-            document.getElementById('edit_icerik').value = icerik;
-            document.getElementById('edit_durum').value = durum;
+    document.addEventListener('DOMContentLoaded', function () {
+        const editBtns = document.querySelectorAll('.edit-btn');
+        editBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const baslik = this.getAttribute('data-baslik');
+                const icerik = this.getAttribute('data-icerik');
+                const durum = this.getAttribute('data-durum');
+
+                document.getElementById('edit_id').value = id;
+                document.getElementById('edit_baslik').value = baslik;
+                document.getElementById('edit_icerik').value = icerik;
+                document.getElementById('edit_durum').value = durum;
+            });
         });
     });
-});
 </script>
