@@ -143,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 <?= $duyuru['icerik'] ?>
                                             </p>
                                         </div>
-                                        <a href="javascript:void(0);"><i class="ti ti-chevrons-right"></i></a>
+
                                     </div>
                                 <?php endforeach; ?>
 
@@ -161,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <!-- action="giris.php" olarak güncellendi -->
                                     <div>
                                         <div class=" mx-auto mb-5 text-center">
-                                            <img src="assets/img/logo.svg" class="img-fluid" alt="Logo">
+                                            <img src="assets/img/logo.svg" class="img-fluid" alt="Logo" width="120px">
                                         </div>
                                         <div class="card">
                                             <div class="card-body p-4">
