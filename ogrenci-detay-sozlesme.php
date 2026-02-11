@@ -115,20 +115,38 @@ foreach ($rows as $r) {
     }
 
     if (!isset($contracts[$sid])) {
-        // Peşinatı başlangıç olarak ekle
-        $pesinat = (float)($r['pesinat_tutar'] ?? 0);
+        // Peşinatı al
+        $rawPesinat = (float)($r['pesinat_tutar'] ?? 0);
         
+        // Bu sözleşmeye ait toplam taksit tutarını hesapla (DB'den ayrı sorgu veya loop içinde toplama yapılabilir ama loop burada daha kolay)
+        // Ancak $rows içinde TÜM taksitler var. Bu $sid için filtreleyip toplayalım.
+        $toplamTaksit = 0;
+        foreach($rows as $subRow) {
+            if($subRow['sozlesme_id'] == $sid) {
+                $toplamTaksit += (float)$subRow['taksit_tutar'];
+            }
+        }
+        
+        // Tutarsızlık Kontrolü: (Taksitler + Peşinat) > Sözleşme Tutarı ise Peşinatı kıs/yoksay.
+        $sozlesmeTutar = (float)$r['net_ucret'];
+        $effectivePesinat = $rawPesinat;
+        
+        if (($toplamTaksit + $rawPesinat) > $sozlesmeTutar) {
+            // Taksitler zaten sözleşmeyi dolduruyorsa peşinatı 0 say veya aradaki fark kadar say
+             $effectivePesinat = max(0, $sozlesmeTutar - $toplamTaksit);
+        }
+
         $contracts[$sid] = [
             'header' => [
                 'sozlesme_id' => (int) $sid,
                 'sozlesme_no' => $r['sozlesme_no'],
-                'net_ucret' => (float) $r['net_ucret'],
+                'net_ucret' => $sozlesmeTutar,
                 'taksit_sayisi' => (int) $r['taksit_sayisi'],
                 'odeme_tipi' => $r['odeme_tipi'],
                 'sozlesme_tarihi' => $r['sozlesme_tarihi'],
                 'baslangic' => $r['baslangic_tarihi'],
                 'bitis' => $r['bitis_tarihi'],
-                'pesinat' => $pesinat
+                'pesinat' => $effectivePesinat // Düzeltilmiş peşinat
             ],
             'taksitler' => [],
             'ozet' => [
@@ -136,7 +154,7 @@ foreach ($rows as $r) {
                 'odenen_adet' => 0,
                 'kalan_adet' => 0,
                 'gecikmis_adet' => 0,
-                'odenen_tutar' => $pesinat, // Peşinatı "Ödenen"e dahil et
+                'odenen_tutar' => $effectivePesinat, // Peşinatı "Ödenen"e dahil et
                 'gecikmis_tutar' => 0.0,
             ]
         ];
