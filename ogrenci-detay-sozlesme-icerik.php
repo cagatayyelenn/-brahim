@@ -30,7 +30,7 @@ $sozlesmeler = $db->gets("
     SELECT * FROM sozlesme1 
     WHERE ogrenci_id = :oid 
     ORDER BY sozlesme_tarihi DESC, sozlesme_id DESC
-", [':oid' => $ogrenci]);
+", [':oid' => $ogrenci_id]);
 
 $contracts = [];
 
