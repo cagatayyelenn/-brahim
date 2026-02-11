@@ -44,8 +44,6 @@ SELECT
 
 $sozlesme = $db->gets($sql1, [':ogr_no' => $ogr_no]);
 
-
-print_r($sozlesme);
 ?>
 
 <?php
@@ -165,7 +163,7 @@ require_once 'ogrenci-detay-ortak.php';
 							class="ti ti-file-certificate me-2"></i>Eğitim & Belgeler</a>
 				</li>
 				<li class="nav-item">
-					<a href="ogrenci-detay-sozlesme.php?id=<?= $ogr_no ?>" class="nav-link"><i
+					<a href="#sozlesme-tab" data-bs-toggle="tab" class="nav-link" id="loadSozlesmeTab"><i
 							class="ti ti-bookmark-edit me-2"></i>Sözleşme ve Taksitler</a>
 				</li>
 			</ul>
@@ -175,67 +173,42 @@ require_once 'ogrenci-detay-ortak.php';
 
 				<!-- TAB 1: Genel Bakış -->
 				<div class="tab-pane fade show active" id="genel-bakis">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="alert alert-light border">
+								<i class="ti ti-info-circle me-2 text-primary"></i>
+								<strong>Bilgi:</strong> Öğrenci kimlik ve iletişim bilgileri sol panelde yer almaktadır.
+							</div>
+						</div>
+					</div>
+
+					<!-- Hızlı İşlemler Kartı -->
 					<div class="card">
-						<div class="card-header d-flex justify-content-between align-items-center">
-							<h5>Öğrenci Hakkında</h5>
-							<a href="ogrenci-duzenle.php?id=<?= $ogr_no ?>" class="btn btn-sm btn-outline-primary"><i
-									class="ti ti-edit"></i> Düzenle</a>
+						<div class="card-header">
+							<h5>Hızlı İşlemler</h5>
 						</div>
 						<div class="card-body">
-							<div class="row row-cols-1 row-cols-md-2 g-4">
-								<div class="col">
-									<div class="d-flex align-items-center">
-										<span class="avatar avatar-sm bg-light rounded flex-shrink-0 me-2"><i
-												class="ti ti-id"></i></span>
-										<div>
-											<p class="text-muted mb-0 fs-12">T.C. Kimlik No</p>
-											<h6 class="mb-0"><?= htmlspecialchars($ogrenci['ogrenci_tc']) ?></h6>
-										</div>
-									</div>
-								</div>
-								<div class="col">
-									<div class="d-flex align-items-center">
-										<span class="avatar avatar-sm bg-light rounded flex-shrink-0 me-2"><i
-												class="ti ti-cake"></i></span>
-										<div>
-											<p class="text-muted mb-0 fs-12">Doğum Tarihi</p>
-											<h6 class="mb-0"><?= formatDateTR($ogrenci['ogrenci_dogumtar']) ?></h6>
-										</div>
-									</div>
-								</div>
-								<div class="col">
-									<div class="d-flex align-items-center">
-										<span class="avatar avatar-sm bg-light rounded flex-shrink-0 me-2"><i
-												class="ti ti-phone"></i></span>
-										<div>
-											<p class="text-muted mb-0 fs-12">Telefon</p>
-											<h6 class="mb-0"><?= htmlspecialchars($ogrenci['ogrenci_tel']) ?></h6>
-										</div>
-									</div>
-								</div>
-								<div class="col">
-									<div class="d-flex align-items-center">
-										<span class="avatar avatar-sm bg-light rounded flex-shrink-0 me-2"><i
-												class="ti ti-mail"></i></span>
-										<div>
-											<p class="text-muted mb-0 fs-12">E-posta</p>
-											<h6 class="mb-0"><?= htmlspecialchars($ogrenci['ogrenci_mail']) ?></h6>
-										</div>
-									</div>
-								</div>
-								<div class="col-12">
-									<div class="d-flex align-items-start">
-										<span class="avatar avatar-sm bg-light rounded flex-shrink-0 me-2"><i
-												class="ti ti-map-pin"></i></span>
-										<div>
-											<p class="text-muted mb-0 fs-12">Adres</p>
-											<h6 class="mb-0"><?= nl2br(htmlspecialchars($ogrenci['ogrenci_adres'])) ?>
-											</h6>
-											<small class="text-muted"><?= htmlspecialchars($ogrenci['ilce_adi']) ?> /
-												<?= htmlspecialchars($ogrenci['il_adi']) ?></small>
-										</div>
-									</div>
-								</div>
+							<div class="d-flex gap-2 flex-wrap">
+								<a href="ogrenci-duzenle.php?id=<?= $ogr_no ?>" class="btn btn-outline-primary">
+									<i class="ti ti-edit me-2"></i>Bilgileri Düzenle
+								</a>
+								<a href="sozlesme-olustur.php?id=<?= $ogr_no ?>" class="btn btn-outline-success">
+									<i class="ti ti-file-plus me-2"></i>Yeni Sözleşme Ekle
+								</a>
+								<!-- Eğer aktif sözleşme varsa belge linkleri -->
+								<?php
+								$aktifSozlesme = $db->get("SELECT sozlesme_id FROM sozlesme1 WHERE ogrenci_id = :oid AND durum = 1 LIMIT 1", [':oid' => $studentId]);
+								$sozlesmeId = $aktifSozlesme[0]['sozlesme_id'] ?? 0;
+								if ($sozlesmeId > 0): ?>
+									<a href="sozlesme-belge.php?id=<?= $sozlesmeId ?>" target="_blank"
+										class="btn btn-outline-dark">
+										<i class="ti ti-printer me-2"></i>Sözleşme Yazdır
+									</a>
+									<a href="sozlesme-senet.php?id=<?= $sozlesmeId ?>" target="_blank"
+										class="btn btn-outline-warning">
+										<i class="ti ti-receipt me-2"></i>Senet Yazdır
+									</a>
+								<?php endif; ?>
 							</div>
 						</div>
 					</div>
@@ -259,7 +232,8 @@ require_once 'ogrenci-detay-ortak.php';
 											<div class="mb-3">
 												<label class="text-muted fs-12">Adı Soyadı</label>
 												<h6 class="mb-0">
-													<?= htmlspecialchars($veli['veli_adi'] . ' ' . $veli['veli_soyadi']) ?></h6>
+													<?= htmlspecialchars($veli['veli_adi'] . ' ' . $veli['veli_soyadi']) ?>
+												</h6>
 											</div>
 											<div class="mb-3">
 												<label class="text-muted fs-12">Yakınlık</label>
@@ -293,10 +267,48 @@ require_once 'ogrenci-detay-ortak.php';
 						<div class="col-md-6">
 							<div class="card">
 								<div class="card-header">
-									<h5>Belgeler</h5>
+									<h5>Resmi Belgeler</h5>
 								</div>
 								<div class="card-body">
-									<!-- Örnek Belgeler (Veritabanında henüz tablo olmadığını varsayarak statik/boş bırakıyorum) -->
+									<?php if ($sozlesmeId > 0): ?>
+										<div class="list-group list-group-flush">
+											<a href="sozlesme-belge.php?id=<?= $sozlesmeId ?>" target="_blank"
+												class="list-group-item list-group-item-action d-flex align-items-center">
+												<i class="ti ti-file-text fs-20 me-3 text-primary"></i>
+												<div>
+													<h6 class="mb-0">Kayıt Sözleşmesi</h6>
+												</div>
+											</a>
+											<a href="sozlesme-senet.php?id=<?= $sozlesmeId ?>" target="_blank"
+												class="list-group-item list-group-item-action d-flex align-items-center">
+												<i class="ti ti-receipt fs-20 me-3 text-warning"></i>
+												<div>
+													<h6 class="mb-0">Senet / Taksit Belgeleri</h6>
+												</div>
+											</a>
+											<a href="sozlesme-protokol-yazdir.php?id=<?= $sozlesmeId ?>&type=restructure"
+												target="_blank"
+												class="list-group-item list-group-item-action d-flex align-items-center">
+												<i class="ti ti-refresh fs-20 me-3 text-info"></i>
+												<div>
+													<h6 class="mb-0">Ek Protokol (Varsa)</h6>
+												</div>
+											</a>
+										</div>
+									<?php else: ?>
+										<div class="text-center py-4 text-muted">
+											<p>Aktif sözleşme yok.</p>
+										</div>
+									<?php endif; ?>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="card">
+								<div class="card-header">
+									<h5>Diğer Belgeler</h5>
+								</div>
+								<div class="card-body">
 									<div class="text-center py-4 text-muted">
 										<i class="ti ti-files fs-32 mb-2"></i>
 										<p>Yüklenmiş belge bulunmuyor.</p>
@@ -305,25 +317,18 @@ require_once 'ogrenci-detay-ortak.php';
 								</div>
 							</div>
 						</div>
-						<div class="col-md-6">
-							<div class="card">
-								<div class="card-header">
-									<h5>Önceki Okul Bilgileri</h5>
-								</div>
-								<div class="card-body">
-									<!-- Placeholder -->
-									<div class="mb-3">
-										<label class="text-muted fs-12">Okul Adı</label>
-										<h6 class="mb-0">-</h6>
-									</div>
-									<div class="mb-3">
-										<label class="text-muted fs-12">Mezuniyet Yılı</label>
-										<h6 class="mb-0">-</h6>
-									</div>
-								</div>
-							</div>
-						</div>
 					</div>
+				</div>
+
+				<!-- TAB 4: Sözleşme ve Taksitler (AJAX) -->
+				<div class="tab-pane fade" id="sozlesme-tab">
+					<div class="text-center py-5" id="sozlesme-loader">
+						<div class="spinner-border text-primary" role="status">
+							<span class="visually-hidden">Yükleniyor...</span>
+						</div>
+						<p class="mt-2 text-muted">Sözleşme verileri yükleniyor...</p>
+					</div>
+					<div id="sozlesme-content"></div>
 				</div>
 
 			</div> <!-- /tab-content -->
@@ -343,6 +348,41 @@ require_once 'ogrenci-detay-ortak.php';
 <script data-cfasync="false" src="assets/js/feather.min.js"></script>
 <script data-cfasync="false" src="assets/js/jquery.slimscroll.min.js"></script>
 <script data-cfasync="false" src="assets/js/script.js"></script>
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		// Sözleşme tabına tıklandığında yükle
+		var triggerTabList = [].slice.call(document.querySelectorAll('#loadSozlesmeTab'))
+		triggerTabList.forEach(function (triggerEl) {
+			var tabTrigger = new bootstrap.Tab(triggerEl)
+
+			triggerEl.addEventListener('shown.bs.tab', function (event) {
+				if ($('#sozlesme-content').is(':empty')) {
+					loadSozlesmeContent();
+				}
+			})
+		})
+
+		function loadSozlesmeContent() {
+			$('#sozlesme-loader').show();
+			$('#sozlesme-content').hide();
+
+			$.ajax({
+				url: 'ogrenci-detay-sozlesme-icerik.php',
+				type: 'GET',
+				data: { id: '<?= $ogr_no ?>' },
+				success: function (response) {
+					$('#sozlesme-content').html(response).fadeIn();
+					$('#sozlesme-loader').hide();
+				},
+				error: function () {
+					$('#sozlesme-content').html('<div class="alert alert-danger">Veriler yüklenirken hata oluştu.</div>').show();
+					$('#sozlesme-loader').hide();
+				}
+			});
+		}
+	});
+</script>
 
 </body>
 
