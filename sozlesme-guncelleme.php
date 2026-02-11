@@ -225,12 +225,27 @@ require_once 'alanlar/sidebar.php';
                             <h5 class="header-title mb-3">Hesaplama Araçları</h5>
                             <form id="formRestructureCalc">
                                 <div class="mb-3">
+                                    <label class="form-label text-success">Bugüne Kadar Ödenen (Sabit)</label>
+                                    <input type="text" class="form-control" readonly value="<?= number_format($toplamOdenen, 2, ',', '.') ?> TL">
+                                </div>
+
+                                <div class="mb-3 p-2 bg-light border rounded">
+                                    <label class="form-label text-primary fw-bold">1. Yöntem: Yeni Kalan Borcu Giriniz</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control money-input" id="inpYeniKalan" placeholder="Örn: 5.000,00">
+                                        <button class="btn btn-outline-primary" type="button" onclick="toplamHesapla()">Hesapla</button>
+                                    </div>
+                                    <small class="text-muted d-block mt-1">Sistemin "Toplam Tutar"ı bulması için buraya kalan borcu yazıp hesaplaya basınız.</small>
+                                </div>
+
+                                <div class="mb-3">
                                     <label class="form-label">Yeni Toplam Sözleşme Tutarı</label>
-                                    <input type="text" class="form-control money-input" id="resYeniToplam"
+                                    <input type="text" class="form-control money-input fw-bold" id="resYeniToplam"
                                         value="<?= number_format($sozlesme['toplam_ucret'], 2, ',', '.') ?>">
-                                    <small class="text-muted">Min: <?= number_format($toplamOdenen, 2, ',', '.') ?>
+                                    <small class="text-muted text-danger" id="minTutarUyari">Min: <?= number_format($toplamOdenen, 2, ',', '.') ?>
                                         TL</small>
                                 </div>
+                                <hr>
                                 <div class="mb-3">
                                     <label class="form-label">Taksit Başlangıcı</label>
                                     <input type="date" class="form-control" id="resBaslangic"
@@ -374,6 +389,13 @@ require_once 'alanlar/sidebar.php';
             }
         }, 'json');
     });
+
+    function toplamHesapla() {
+        const kalan = parseMoney($('#inpYeniKalan').val());
+        const yeniToplam = globalOdenen + kalan;
+        $('#resYeniToplam').val(formatMoney(yeniToplam));
+        hesaplaYapilandirma(); // Otomatik planı da dök
+    }
 
     // ----------------------------------------------------
     // TAB 2: Yapılandırma Hesaplama
