@@ -44,11 +44,26 @@ SELECT
 
 $sozlesme = $db->gets($sql1, [':ogr_no' => $ogr_no]);
 
+// -- ÖDEME MODALI İÇİN GEREKLİ VERİLER --
+$odemeYontemleri = $db->finds('odeme_yontem1', 'durum', 1, ['yontem_id', 'yontem_adi', 'sira']);
+usort($odemeYontemleri, fn($a, $b) => ($a['sira'] <=> $b['sira']));
+
+$aktifSubeId = (int) ($_SESSION['sube_id'] ?? 0);
+if ($aktifSubeId) {
+	$kasalar = $db->get("SELECT kasa_id, kasa_adi, kasa_tipi FROM kasa1 WHERE durum=1 AND (sube_id=:sid OR sube_id IS NULL) ORDER BY sira ASC, kasa_adi ASC", [':sid' => $aktifSubeId]);
+} else {
+	$kasalar = $db->finds('kasa1', 'durum', 1, ['kasa_id', 'kasa_adi', 'kasa_tipi']);
+	usort($kasalar, fn($a, $b) => ($a['sira'] <=> $b['sira']) ?: strcmp($a['kasa_adi'], $b['kasa_adi']));
+}
+// -- ---------------------------------- --
+
 ?>
 
 <?php
 $pageTitle = $ogrenci['ogrenci_adi'] . " " . $ogrenci['ogrenci_soyadi'];
 $page_styles[] = ['href' => 'assets/css/dataTables.bootstrap5.min.css'];
+$page_styles[] = ['href' => 'assets/css/bootstrap-datetimepicker.min.css'];
+$page_styles[] = ['href' => 'assets/plugins/select2/css/select2.min.css'];
 require_once 'alanlar/header.php';
 require_once 'alanlar/sidebar.php';
 require_once 'ogrenci-detay-ortak.php';
