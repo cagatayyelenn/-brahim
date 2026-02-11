@@ -469,7 +469,10 @@ require_once 'alanlar/sidebar.php';
 
     // Yapılandırma Kaydet
     function kaydetYapilandirma() {
-        if (yeniPlanData.length === 0 && (parseMoney($('#resYeniToplam').val()) - globalOdenen) > 1) {
+        const kalanBakiye = parseMoney($('#resYeniToplam').val()) - globalOdenen;
+        
+        // Eğer kalan bakiye varsa ama taksit planı yoksa hata ver
+        if (kalanBakiye > 1 && yeniPlanData.length === 0) {
             Swal.fire('Hata', 'Lütfen önce hesaplama yapınız.', 'warning');
             return;
         }
