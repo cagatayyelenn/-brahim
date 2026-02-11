@@ -117,19 +117,19 @@ function handleRestructure($db, $sozlesme, $id)
         // 3. Sözleşme Toplamını Güncelle
         $db->update('sozlesme1', ['toplam_ucret' => $yeniToplamTutar], 'sozlesme_id', $id);
 
-        // 4. Ödenmemiş Taksitleri Sil
-        // DİKKAT: Sadece tahsilat yapılmamış (odendi_tutar = 0) taksitleri siliyoruz.
-        // Kısmi ödeme varsa ne olacak? -> Karmaşık senaryo.
-        // Basit kural: Kısmi ödeme yapılan taksit "Ödenmiş" sayılır ve dokunulmaz. 
-        // Kalan bakiye yeni taksitlere dağıtılır.
-
+        // 4. Eski Taksitleri Temizle
+        // A) Hiç Ödenmemişleri sil
         $silSql = "DELETE FROM taksit1 WHERE sozlesme_id = :id AND odendi_tutar = 0";
         $db->query($silSql, [':id' => $id]);
 
+        // B) Kısmi Ödenmişleri "Kapandı" Olarak Güncelle
+        // Eğer bir taksit kısmi ödendiyse, kalan borç zaten yeni yapılandırmanın içinde olacak.
+        // Bu yüzden eski taksidin tutarını, ödenen tutara eşitleyerek borcunu sıfırlıyoruz.
+        $kismiSql = "UPDATE taksit1 SET tutar = odendi_tutar WHERE sozlesme_id = :id AND odendi_tutar > 0 AND odendi_tutar < tutar";
+        $db->query($kismiSql, [':id' => $id]);
+
         // 5. Yeni Taksitleri Ekle
         // Gelen taksitler sadece "Kalan Borç" için olmalı.
-        // Frontend'de bu hesaplamayı doğru yapmalıyız.
-
         if (!empty($taksitler)) {
             foreach ($taksitler as $t) {
                 $db->insert('taksit1', [
