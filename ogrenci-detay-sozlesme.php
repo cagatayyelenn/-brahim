@@ -91,10 +91,13 @@ SELECT
   t.vade_tarihi,
   t.tutar          AS taksit_tutar,
   t.odendi_tutar   AS taksit_odenen,
-  t.durum          AS taksit_durum
+  t.durum          AS taksit_durum,
+
+  odm.tutar        AS pesinat_tutar
 FROM ogrenci1 o
 LEFT JOIN sozlesme1 s ON s.ogrenci_id = o.ogrenci_id
 LEFT JOIN taksit1   t ON t.sozlesme_id = s.sozlesme_id
+LEFT JOIN odeme1  odm ON odm.sozlesme_id = s.sozlesme_id
 WHERE o.ogrenci_numara = :no AND o.sube_id = :sube
 ORDER BY s.sozlesme_tarihi DESC, s.sozlesme_id DESC, t.vade_tarihi ASC
 ";
@@ -112,6 +115,9 @@ foreach ($rows as $r) {
     }
 
     if (!isset($contracts[$sid])) {
+        // Peşinatı başlangıç olarak ekle
+        $pesinat = (float)($r['pesinat_tutar'] ?? 0);
+        
         $contracts[$sid] = [
             'header' => [
                 'sozlesme_id' => (int) $sid,
@@ -122,6 +128,7 @@ foreach ($rows as $r) {
                 'sozlesme_tarihi' => $r['sozlesme_tarihi'],
                 'baslangic' => $r['baslangic_tarihi'],
                 'bitis' => $r['bitis_tarihi'],
+                'pesinat' => $pesinat
             ],
             'taksitler' => [],
             'ozet' => [
@@ -129,7 +136,7 @@ foreach ($rows as $r) {
                 'odenen_adet' => 0,
                 'kalan_adet' => 0,
                 'gecikmis_adet' => 0,
-                'odenen_tutar' => 0.0,
+                'odenen_tutar' => $pesinat, // Peşinatı "Ödenen"e dahil et
                 'gecikmis_tutar' => 0.0,
             ]
         ];
