@@ -245,12 +245,10 @@ require_once 'alanlar/sidebar.php';
                                     <small class="text-muted d-block mt-1">Sistemin "Toplam Tutar"ı bulması için buraya kalan borcu yazıp hesaplaya basınız.</small>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label">Yeni Toplam Sözleşme Tutarı</label>
+                                <div class="mb-3" style="display:none;">
+                                    <label class="form-label">Hesaplanan Yeni Toplam</label>
                                     <input type="text" class="form-control money-input fw-bold" id="resYeniToplam"
-                                        value="<?= number_format($sozlesme['toplam_ucret'], 2, ',', '.') ?>">
-                                    <small class="text-muted text-danger" id="minTutarUyari">Min: <?= number_format($toplamOdenen, 2, ',', '.') ?>
-                                        TL</small>
+                                        value="<?= number_format($sozlesme['toplam_ucret'], 2, ',', '.') ?>" readonly>
                                 </div>
                                 <hr>
                                 <div class="mb-3">
