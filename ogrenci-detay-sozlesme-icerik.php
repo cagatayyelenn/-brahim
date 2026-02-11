@@ -24,68 +24,76 @@ if (!$ogr) {
 $ogrenci_id = $ogr['ogrenci_id'];
 $today = date('Y-m-d');
 
-// --- SÖZLEŞME SORGUSU (ogrenci-detay-sozlesme.php dosyasından alındı) ---
-$sql1 = "
-SELECT 
-  o.ogrenci_id,
-  s.sozlesme_id, s.sozlesme_no, s.net_ucret, s.taksit_sayisi, s.odeme_tipi, s.sozlesme_tarihi, s.baslangic_tarihi, s.bitis_tarihi,
-  t.taksit_id, t.sira_no, t.vade_tarihi, t.tutar AS taksit_tutar, t.odendi_tutar AS taksit_odenen, t.durum AS taksit_durum,
-  odm.tutar AS pesinat_tutar
-FROM ogrenci1 o
-LEFT JOIN sozlesme1 s ON s.ogrenci_id = o.ogrenci_id
-LEFT JOIN taksit1   t ON t.sozlesme_id = s.sozlesme_id
-LEFT JOIN odeme1  odm ON odm.sozlesme_id = s.sozlesme_id
-WHERE o.ogrenci_id = :oid
-ORDER BY s.sozlesme_tarihi DESC, s.sozlesme_id DESC, t.vade_tarihi ASC
-";
+// --- SÖZLEŞME VE TAKSİT VERİLERİNİ ÇEK ---
+// 1. Öğrencinin tüm sözleşmelerini bul
+$sozlesmeler = $db->gets("
+    SELECT * FROM sozlesme1 
+    WHERE ogrenci_id = :oid 
+    ORDER BY sozlesme_tarihi DESC, sozlesme_id DESC
+", [':oid' => $ogrenci]);
 
-$rows = $db->get($sql1, [':oid' => $ogrenci_id]);
 $contracts = [];
 
-foreach ($rows as $r) {
-    $sid = $r['sozlesme_id'];
-    if (!$sid)
-        continue;
+if ($sozlesmeler) {
+    foreach ($sozlesmeler as $soz) {
+        $sid = $soz['sozlesme_id'];
 
-    if (!isset($contracts[$sid])) {
-        $rawPesinat = (float) ($r['pesinat_tutar'] ?? 0);
-        $toplamTaksit = 0;
-        foreach ($rows as $subRow) {
-            if ($subRow['sozlesme_id'] == $sid) {
-                $toplamTaksit += (float) $subRow['taksit_tutar'];
+        // 2. Her sözleşme için taksitleri çek
+        $taksitler = $db->gets("
+            SELECT * FROM taksit1 
+            WHERE sozlesme_id = :sid 
+            ORDER BY vade_tarihi ASC
+        ", [':sid' => $sid]);
+
+        // 3. Peşinat bilgisi (odeme1 tablosunda, taksit_id'si 0 veya boş olanlar peşinat sayılabilir, 
+        //    ya da genel ödeme toplamından taksit toplamını çıkarabiliriz. 
+        //    Mevcut yapıda 'odeme1' tablosundan peşinatı şöyle almayı deneyelim:
+        //    Genelde peşinat ilk ödemedir veya tipi farklıdır. Şimdilik sadece tutarı alalım.)
+        //    NOT: Kullanıcı yapısına göre 'odeme1' tablosunu sadece peşinat için kullanıyorsa:
+        $odeme_toplam = $db->get("SELECT SUM(tutar) as top FROM odeme1 WHERE sozlesme_id = :sid", [':sid' => $sid]);
+        $toplam_odenen_genel = (float) ($odeme_toplam[0]['top'] ?? 0);
+
+        // Taksitlerin toplamı
+        $toplam_taksit_tutari = 0;
+        $toplam_taksit_odenen = 0;
+        $taksit_listesi = [];
+
+        if ($taksitler) {
+            foreach ($taksitler as $t) {
+                $toplam_taksit_tutari += (float) $t['tutar'];
+                $toplam_taksit_odenen += (float) $t['odendi_tutar'];
+
+                $taksit_listesi[] = [
+                    'taksit_id' => $t['taksit_id'],
+                    'vade_tarihi' => $t['vade_tarihi'],
+                    'tutar' => (float) $t['tutar'],
+                    'odenen' => (float) $t['odendi_tutar'],
+                    'durum' => $t['durum'], // 0/1
+                    'late' => ((float) $t['odendi_tutar'] < (float) $t['tutar'] && $t['vade_tarihi'] < $today)
+                ];
             }
         }
-        $sozlesmeTutar = (float) $r['net_ucret'];
-        $effectivePesinat = $rawPesinat;
-        if (($toplamTaksit + $rawPesinat) > $sozlesmeTutar) {
-            $effectivePesinat = max(0, $sozlesmeTutar - $toplamTaksit);
-        }
 
+        // Peşinat Hesabı: Sözleşme Net Ücret - Toplam Taksit Tutarı (Eğer fark varsa peşinattır)
+        $sozlesme_tutar = (float) $soz['net_ucret'];
+        $pesinat = max(0, $sozlesme_tutar - $toplam_taksit_tutari);
+
+        // Görüntüleme dizisini oluştur
         $contracts[$sid] = [
             'header' => [
-                'sozlesme_id' => (int) $sid,
-                'sozlesme_no' => $r['sozlesme_no'],
-                'net_ucret' => $sozlesmeTutar,
-                'taksit_sayisi' => (int) $r['taksit_sayisi'],
-                'odeme_tipi' => $r['odeme_tipi'],
-                'sozlesme_tarihi' => $r['sozlesme_tarihi'],
-                'pesinat' => $effectivePesinat
+                'sozlesme_id' => $sid,
+                'sozlesme_no' => $soz['sozlesme_no'],
+                'net_ucret' => $sozlesme_tutar,
+                'taksit_sayisi' => (int) $soz['taksit_sayisi'],
+                'odeme_tipi' => $soz['odeme_tipi'],
+                'sozlesme_tarihi' => $soz['sozlesme_tarihi'],
+                'pesinat' => $pesinat
             ],
-            'taksitler' => [],
-            'ozet' => ['odenen_tutar' => $effectivePesinat]
+            'taksitler' => $taksit_listesi,
+            'ozet' => [
+                'odenen_tutar' => $toplam_taksit_odenen + $pesinat // kabaca toplam ödenen
+            ]
         ];
-    }
-
-    if ($r['taksit_id']) {
-        $contracts[$sid]['taksitler'][] = [
-            'taksit_id' => (int) $r['taksit_id'],
-            'vade_tarihi' => $r['vade_tarihi'],
-            'tutar' => (float) $r['taksit_tutar'],
-            'odenen' => (float) $r['taksit_odenen'],
-            'durum' => $r['taksit_durum'],
-            'late' => ((float) $r['taksit_odenen'] < (float) $r['taksit_tutar'] && $r['vade_tarihi'] < $today)
-        ];
-        $contracts[$sid]['ozet']['odenen_tutar'] += (float) $r['taksit_odenen'];
     }
 }
 ?>
