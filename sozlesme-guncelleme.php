@@ -228,11 +228,18 @@ require_once 'alanlar/sidebar.php';
                                     <label class="form-label text-success">Bugüne Kadar Ödenen (Sabit)</label>
                                     <input type="text" class="form-control" readonly value="<?= number_format($toplamOdenen, 2, ',', '.') ?> TL">
                                 </div>
+                                
+                                <?php $mevcutKalan = max(0, $sozlesme['toplam_ucret'] - $toplamOdenen); ?>
+                                <div class="mb-3">
+                                    <label class="form-label text-danger">Şu Anki Kalan Borç</label>
+                                    <input type="text" class="form-control" readonly value="<?= number_format($mevcutKalan, 2, ',', '.') ?> TL">
+                                </div>
 
                                 <div class="mb-3 p-2 bg-light border rounded">
                                     <label class="form-label text-primary fw-bold">1. Yöntem: Yeni Kalan Borcu Giriniz</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control money-input" id="inpYeniKalan" placeholder="Örn: 5.000,00">
+                                        <input type="text" class="form-control money-input" id="inpYeniKalan" 
+                                               value="<?= number_format($mevcutKalan, 2, ',', '.') ?>" placeholder="Örn: 5.000,00">
                                         <button class="btn btn-outline-primary" type="button" onclick="toplamHesapla()">Hesapla</button>
                                     </div>
                                     <small class="text-muted d-block mt-1">Sistemin "Toplam Tutar"ı bulması için buraya kalan borcu yazıp hesaplaya basınız.</small>
