@@ -26,7 +26,7 @@ $today = date('Y-m-d');
 
 // --- SÖZLEŞME VE TAKSİT VERİLERİNİ ÇEK ---
 // 1. Öğrencinin tüm sözleşmelerini bul
-$sozlesmeler = $db->gets("
+$sozlesmeler = $db->get("
     SELECT * FROM sozlesme1 
     WHERE ogrenci_id = :oid 
     ORDER BY sozlesme_tarihi DESC, sozlesme_id DESC
@@ -39,7 +39,7 @@ if ($sozlesmeler) {
         $sid = $soz['sozlesme_id'];
 
         // 2. Her sözleşme için taksitleri çek
-        $taksitler = $db->gets("
+        $taksitler = $db->get("
             SELECT * FROM taksit1 
             WHERE sozlesme_id = :sid 
             ORDER BY vade_tarihi ASC
