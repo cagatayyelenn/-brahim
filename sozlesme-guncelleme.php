@@ -20,6 +20,10 @@ $taksitler = $db->get("SELECT * FROM taksit1 WHERE sozlesme_id = :id ORDER BY si
 
 // Tahsilat Kontrolü
 $toplamOdenen = 0;
+// Peşinatı ekle
+if ($odemeyontem && isset($odemeyontem['tutar'])) {
+    $toplamOdenen += (float)$odemeyontem['tutar'];
+}
 foreach ($taksitler as $t) {
     $toplamOdenen += $t['odendi_tutar'];
 }

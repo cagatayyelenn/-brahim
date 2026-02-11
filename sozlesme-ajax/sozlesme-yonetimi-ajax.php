@@ -93,10 +93,18 @@ function handleRestructure($db, $sozlesme, $id)
         jsonResponse(false, 'Geçersiz toplam tutar.');
     }
 
-    // 1. Ödenmiş Tutarı Hesapla
+    // 1. Ödenmiş Tutarı Hesapla (Peşinat + Taksit Ödemeleri)
+    // Taksit ödemeleri
     $odenenTutarSql = "SELECT SUM(odendi_tutar) as toplam_odenen FROM taksit1 WHERE sozlesme_id = :id";
     $odenen = $db->get($odenenTutarSql, [':id' => $id]);
-    $toplamOdenen = (float) ($odenen[0]['toplam_odenen'] ?? 0);
+    $taksitOdenen = (float) ($odenen[0]['toplam_odenen'] ?? 0);
+
+    // Peşinat (odeme1 tablosu)
+    $pesinatSql = "SELECT tutar FROM odeme1 WHERE sozlesme_id = :id";
+    $pesinat = $db->get($pesinatSql, [':id' => $id]);
+    $pesinatTutar = (float) ($pesinat[0]['tutar'] ?? 0);
+
+    $toplamOdenen = $taksitOdenen + $pesinatTutar;
 
     // 2. Güvenlik Kontrolü: Yeni tutar ödenenden az olamaz (İade yoksa)
     // İade logic'i "Fesih" kısmında. Burada sadece yapılandırma var.
