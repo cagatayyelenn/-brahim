@@ -15,17 +15,21 @@ if (!$sozlesme)
 
 // Bağlı veriler
 $ogrenci = $db->find('ogrenci1', 'ogrenci_id', $sozlesme['ogrenci_id']);
-$odemeyontem = $db->find('odeme1', 'sozlesme_id', $sozlesme_id);
 $taksitler = $db->get("SELECT * FROM taksit1 WHERE sozlesme_id = :id ORDER BY sira_no ASC", [':id' => $sozlesme_id]);
 
-// Tahsilat Kontrolü
-$toplamOdenen = 0;
-// Peşinatı ekle
-if ($odemeyontem && isset($odemeyontem['tutar'])) {
-    $toplamOdenen += (float)$odemeyontem['tutar'];
-}
+// Peşinat: odeme1'deki ilk peşinat kaydı (sözleşme günü, sadece bir kez yazılır)
+$pesinatRow = $db->gets(
+    "SELECT tutar FROM odeme1 WHERE sozlesme_id = :id AND aciklama = 'Sözleşme peşinatı' LIMIT 1",
+    [':id' => $sozlesme_id]
+);
+$pesinatTutar = (float)($pesinatRow['tutar'] ?? 0);
+
+// Tahsilat Kontrolü: peşinat + taksit ödemeleri (taksit1.odendi_tutar)
+// NOT: Taksit tahsilatları hem odeme1'e hem taksit1.odendi_tutar'a yazılır.
+// odeme1 toplamı alınırsa çift sayım olur; tek referans taksit1.odendi_tutar'dır.
+$toplamOdenen = $pesinatTutar;
 foreach ($taksitler as $t) {
-    $toplamOdenen += $t['odendi_tutar'];
+    $toplamOdenen += (float)$t['odendi_tutar'];
 }
 $odemeVar = ($toplamOdenen > 0);
 

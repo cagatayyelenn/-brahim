@@ -93,16 +93,17 @@ function handleRestructure($db, $sozlesme, $id)
         jsonResponse(false, 'Geçersiz toplam tutar.');
     }
 
-    // 1. Ödenmiş Tutarı Hesapla (Peşinat + Taksit Ödemeleri)
-    // Taksit ödemeleri
+    // 1. Ödenmiş Tutarı Hesapla
+    // Taksit ödemeleri: taksit1.odendi_tutar toplamı (taksit tahsilatları buraya yazılır)
     $odenenTutarSql = "SELECT SUM(odendi_tutar) as toplam_odenen FROM taksit1 WHERE sozlesme_id = :id";
     $odenen = $db->get($odenenTutarSql, [':id' => $id]);
     $taksitOdenen = (float) ($odenen[0]['toplam_odenen'] ?? 0);
 
-    // Peşinat (odeme1 tablosu)
-    $pesinatSql = "SELECT tutar FROM odeme1 WHERE sozlesme_id = :id";
-    $pesinat = $db->get($pesinatSql, [':id' => $id]);
-    $pesinatTutar = (float) ($pesinat[0]['tutar'] ?? 0);
+    // Peşinat: sadece sözleşme günü yazılan peşinat kaydı
+    // NOT: Taksit tahsilatları hem odeme1'e hem taksit1'e yazıldığından odeme1 toplamı çift sayıma yol açar.
+    $pesinatSql = "SELECT tutar FROM odeme1 WHERE sozlesme_id = :id AND aciklama = 'Sözleşme peşinatı' LIMIT 1";
+    $pesinat = $db->gets($pesinatSql, [':id' => $id]);
+    $pesinatTutar = (float) ($pesinat['tutar'] ?? 0);
 
     $toplamOdenen = $taksitOdenen + $pesinatTutar;
 
