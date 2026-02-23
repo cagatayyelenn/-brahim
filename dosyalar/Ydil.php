@@ -34,13 +34,23 @@ class Ydil
     /**
      * 🔒 Ekleme (Insert): Veritabanına yeni bir kayıt ekler.
      */
-    public function insert($table, $columns, $values)
+    /**
+     * insert($table, $assocData)          — assosiatif dizi: ['kolon' => 'deger']
+     * insert($table, $columns, $values)   — eski imza: ayrı kolon ve değer dizileri
+     */
+    public function insert($table, $columns, $values = null)
     {
+        // Assosiatif dizi desteği
+        if ($values === null && is_array($columns) && array_keys($columns) !== range(0, count($columns) - 1)) {
+            $assoc = $columns;
+            $columns = array_keys($assoc);
+            $values = array_values($assoc);
+        }
+
         $column_names = array_map(fn($col) => "`{$col}`", $columns);
         $bindings = array_map(fn($col) => ":{$col}", $columns);
 
         $sql = "INSERT INTO `{$table}` (" . implode(', ', $column_names) . ') VALUES (' . implode(', ', $bindings) . ')';
-
         $stmt = $this->conn->prepare($sql);
 
         foreach ($columns as $key => $column) {
@@ -113,8 +123,26 @@ class Ydil
     /**
      * 🔒 Güncelleme (Update): Belirtilen bir kaydı günceller.
      */
-    public function update($table, $columns, $values, $columnId, $idValue)
+    /**
+     * update($table, $assocData, $columnId, $idValue)    — assosiatif dizi: ['kolon' => 'deger']
+     * update($table, $columns, $values, $columnId, $idValue) — eski imza: ayrı diziler
+     */
+    public function update($table, $columns, $values, $columnId = null, $idValue = null)
     {
+        // Assosiatif dizi desteği: update($table, ['alan'=>'val'], 'id_kol', $id)
+        if ($columnId === null && $idValue === null) {
+            // Hatalı çağrı
+            return ['status' => 0, 'message' => 'Eksik parametre.'];
+        }
+        if (is_string($values) && $idValue === null) {
+            // update($table, assoc, $columnId, $idValue) — 4 parametre
+            $idValue = $columnId;
+            $columnId = $values;
+            $data = $columns; // assoc
+            $columns = array_keys($data);
+            $values = array_values($data);
+        }
+
         $set = [];
         foreach ($columns as $column) {
             $set[] = "`$column` = :$column";
@@ -122,11 +150,10 @@ class Ydil
         $set = implode(", ", $set);
 
         $sql = "UPDATE `{$table}` SET {$set} WHERE `{$columnId}` = :idValue";
-
         $stmt = $this->conn->prepare($sql);
 
-        foreach ($columns as $key => $data) {
-            $stmt->bindValue(":" . $data, $values[$key]);
+        foreach ($columns as $key => $col) {
+            $stmt->bindValue(":" . $col, $values[$key] ?? null);
         }
         $stmt->bindValue(":idValue", $idValue);
 
@@ -159,6 +186,42 @@ class Ydil
             error_log("Delete Error: " . $e->getMessage());
             return ['status' => 0, 'message' => 'Kayıt silinirken bir hata oluştu.'];
         }
+    }
+
+    // --- TRANSACTION & RAW QUERY ---
+
+    /**
+     * İşlem başlatır (Transaction begin)
+     */
+    public function beginTransaction(): bool
+    {
+        return $this->conn->beginTransaction();
+    }
+
+    /**
+     * İşlemi onaylar (Commit)
+     */
+    public function commit(): bool
+    {
+        return $this->conn->commit();
+    }
+
+    /**
+     * İşlemi geri alır (Rollback)
+     */
+    public function rollBack(): bool
+    {
+        return $this->conn->rollBack();
+    }
+
+    /**
+     * Ham SQL sorgusu çalıştırır (INSERT/UPDATE/DELETE için)
+     * $db->query("DELETE FROM tablo WHERE id = :id", [':id' => 1])
+     */
+    public function query($sql, $params = []): bool
+    {
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute($params);
     }
 
     /**
