@@ -45,13 +45,14 @@ if ($sozlesmeler) {
             ORDER BY vade_tarihi ASC
         ", [':sid' => $sid]);
 
-        // 3. Peşinat bilgisi (odeme1 tablosunda, taksit_id'si 0 veya boş olanlar peşinat sayılabilir, 
-        //    ya da genel ödeme toplamından taksit toplamını çıkarabiliriz. 
-        //    Mevcut yapıda 'odeme1' tablosundan peşinatı şöyle almayı deneyelim:
-        //    Genelde peşinat ilk ödemedir veya tipi farklıdır. Şimdilik sadece tutarı alalım.)
-        //    NOT: Kullanıcı yapısına göre 'odeme1' tablosunu sadece peşinat için kullanıyorsa:
-        $odeme_toplam = $db->get("SELECT SUM(tutar) as top FROM odeme1 WHERE sozlesme_id = :sid", [':sid' => $sid]);
-        $toplam_odenen_genel = (float) ($odeme_toplam[0]['top'] ?? 0);
+        // 3. Peşinat: odeme1'deki 'Sözleşme peşinatı' kaydından al
+        // NOT: Taksit tahsilatları hem odeme1'e hem taksit1.odendi_tutar'a yazılır.
+        // odeme1 toplamı alınırsa çift sayım olur; peşinat ayrıca filtrelenerek alınmalıdır.
+        $pesinatRow = $db->gets(
+            "SELECT tutar FROM odeme1 WHERE sozlesme_id = :sid AND aciklama = 'Sözleşme peşinatı' LIMIT 1",
+            [':sid' => $sid]
+        );
+        $pesinat = (float) ($pesinatRow['tutar'] ?? 0);
 
         // Taksitlerin toplamı
         $toplam_taksit_tutari = 0;
@@ -68,22 +69,21 @@ if ($sozlesmeler) {
                     'vade_tarihi' => $t['vade_tarihi'],
                     'tutar' => (float) $t['tutar'],
                     'odenen' => (float) $t['odendi_tutar'],
-                    'durum' => $t['durum'], // 0/1
+                    'durum' => $t['durum'],
                     'late' => ((float) $t['odendi_tutar'] < (float) $t['tutar'] && $t['vade_tarihi'] < $today)
                 ];
             }
         }
 
-        // Peşinat Hesabı: Sözleşme Net Ücret - Toplam Taksit Tutarı (Eğer fark varsa peşinattır)
-        $sozlesme_tutar = (float) $soz['net_ucret'];
-        $pesinat = max(0, $sozlesme_tutar - $toplam_taksit_tutari);
+        // Toplam ödenen = peşinat + taksit ödemeleri
+        $toplam_odenen = $pesinat + $toplam_taksit_odenen;
 
         // Görüntüleme dizisini oluştur
         $contracts[$sid] = [
             'header' => [
                 'sozlesme_id' => $sid,
                 'sozlesme_no' => $soz['sozlesme_no'],
-                'net_ucret' => $sozlesme_tutar,
+                'net_ucret' => (float) $soz['net_ucret'],
                 'taksit_sayisi' => (int) $soz['taksit_sayisi'],
                 'odeme_tipi' => $soz['odeme_tipi'],
                 'sozlesme_tarihi' => $soz['sozlesme_tarihi'],
@@ -91,7 +91,7 @@ if ($sozlesmeler) {
             ],
             'taksitler' => $taksit_listesi,
             'ozet' => [
-                'odenen_tutar' => $toplam_taksit_odenen + $pesinat // kabaca toplam ödenen
+                'odenen_tutar' => $toplam_odenen
             ]
         ];
     }

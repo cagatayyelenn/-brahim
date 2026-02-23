@@ -80,7 +80,7 @@ require_once 'ogrenci-detay-ortak.php';
                                 SELECT 
                                     SUM(s.toplam_ucret) as toplam_borc,
                                     (SELECT SUM(t.odendi_tutar) FROM taksit1 t JOIN sozlesme1 s2 ON t.sozlesme_id = s2.sozlesme_id WHERE s2.ogrenci_id = :oid) as toplam_odenen, 
-                                    (SELECT SUM(o1.tutar) FROM odeme1 o1 JOIN sozlesme1 s3 ON o1.sozlesme_id = s3.sozlesme_id WHERE s3.ogrenci_id = :oid) as toplam_pesinat,
+                                    (SELECT SUM(o1.tutar) FROM odeme1 o1 JOIN sozlesme1 s3 ON o1.sozlesme_id = s3.sozlesme_id WHERE s3.ogrenci_id = :oid AND o1.aciklama = 'Sözleşme peşinatı') as toplam_pesinat,
                                     (SELECT MIN(t.vade_tarihi) FROM taksit1 t JOIN sozlesme1 s4 ON t.sozlesme_id = s4.sozlesme_id WHERE s4.ogrenci_id = :oid AND t.odendi_tutar < t.tutar AND t.vade_tarihi >= CURDATE()) as sonraki_taksit
                                 FROM sozlesme1 s
                                 WHERE s.ogrenci_id = :oid AND s.durum = 1
@@ -88,6 +88,7 @@ require_once 'ogrenci-detay-ortak.php';
 	$finans = $db->get($finansSql, [':oid' => $studentId])[0] ?? [];
 
 	$toplamBorc = (float) ($finans['toplam_borc'] ?? 0);
+	// Çift sayım önlemi: taksit ödemeleri taksit1.odendi_tutar'da, peşinat sadece odeme1'de (filtreli)
 	$toplamOdenen = (float) ($finans['toplam_odenen'] ?? 0) + (float) ($finans['toplam_pesinat'] ?? 0);
 	$kalanBorc = max(0, $toplamBorc - $toplamOdenen);
 	$sonrakiTaksit = $finans['sonraki_taksit'] ? date('d.m.Y', strtotime($finans['sonraki_taksit'])) : '-';
