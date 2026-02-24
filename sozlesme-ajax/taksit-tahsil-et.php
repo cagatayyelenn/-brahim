@@ -172,13 +172,14 @@ try {
     }
 
     /* ====== 4. ÖDEME NUMARASI HAZIRLA ====== */
-    $generateOdemeNo = function (PDO $pdo) {
+    $generateOdemeNo = function () {
         $y = date('Ymd');
-        $stmt = $pdo->query("SELECT COUNT(*) AS c FROM odeme1 WHERE DATE(created_at)=CURDATE()");
-        $c = (int) $stmt->fetchColumn();
-        return 'OD-' . $y . '-' . str_pad((string) ($c + 1), 4, '0', STR_PAD_LEFT);
+        // Benzersiz üretmek için uniqid veya random kullanılabilir. (Örn: OD-20260224-A1B2)
+        // Ya da timestamp tabanlı: date('His') yapabiliriz.
+        $r = strtoupper(substr(uniqid(), -4));
+        return 'OD-' . $y . '-' . $r;
     };
-    $odeme_no = $generateOdemeNo($pdo);
+    $odeme_no = $generateOdemeNo();
 
     /* ====== 5. TRANSACTION BAŞLA ====== */
     $pdo->beginTransaction();
