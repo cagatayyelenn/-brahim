@@ -183,22 +183,28 @@ try {
     /* ====== 5. TRANSACTION BAŞLA ====== */
     $pdo->beginTransaction();
 
-    /* 5.1 odeme1 INSERT */
-    $insOdeme = $db->insert('odeme1', [
-        'odeme_no' => $odeme_no,
-        'sozlesme_id' => $sozlesme_id,
-        'kasa_id' => $kasa_id,
-        'yontem_id' => $yontem_id,
-        'tutar' => $odenecek_tutar,
-        'odeme_tarihi' => $simdikitarih,
-        'aciklama' => $aciklama,
-        'personel_id' => $personel_id,
-        'created_at' => $simdikitarih
-    ]);
-    $odeme_id = (is_array($insOdeme) && isset($insOdeme['id'])) ? (int) $insOdeme['id'] : 0;
+    /* 5.1 odeme1 INSERT - Hata tespiti için RAW PDO kullandım */
+    $sql = "INSERT INTO `odeme1` (`odeme_no`, `sozlesme_id`, `kasa_id`, `yontem_id`, `tutar`, `odeme_tarihi`, `aciklama`, `personel_id`, `created_at`) VALUES (:odeme_no, :sozlesme_id, :kasa_id, :yontem_id, :tutar, :odeme_tarihi, :aciklama, :personel_id, :created_at)";
+    $stmt = $pdo->prepare($sql);
+    try {
+        $stmt->execute([
+            ':odeme_no' => $odeme_no,
+            ':sozlesme_id' => $sozlesme_id,
+            ':kasa_id' => $kasa_id,
+            ':yontem_id' => $yontem_id,
+            ':tutar' => $odenecek_tutar,
+            ':odeme_tarihi' => $simdikitarih,
+            ':aciklama' => $aciklama,
+            ':personel_id' => $personel_id,
+            ':created_at' => $simdikitarih
+        ]);
+        $odeme_id = (int) $pdo->lastInsertId();
+    } catch (PDOException $e) {
+        throw new Exception('Veritabanı PDO Hatası: ' . $e->getMessage());
+    }
+
     if (!$odeme_id) {
-        $errDetail = isset($insOdeme['message']) ? $insOdeme['message'] : 'Bilinmeyen hata';
-        throw new Exception('Ödeme kaydı oluşturulamadı (odeme1). Detay: ' . $errDetail);
+        throw new Exception('Ödeme kaydı oluşturulamadı (odeme1). ID dönmedi.');
     }
 
     /* 5.2 dagitim’daki HER taksit için: odeme1_taksit INSERT + taksit1 UPDATE */
