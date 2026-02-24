@@ -184,14 +184,20 @@ try {
     $pdo->beginTransaction();
 
     /* 5.1 odeme1 INSERT */
-    $insOdeme = $db->insert(
-        'odeme1',
-        ['odeme_no', 'sozlesme_id', 'kasa_id', 'yontem_id', 'tutar', 'odeme_tarihi', 'aciklama', 'personel_id', 'created_at'],
-        [$odeme_no, $sozlesme_id, $kasa_id, $yontem_id, $odenecek_tutar, $simdikitarih, $aciklama, $personel_id, $simdikitarih]
-    );
+    $insOdeme = $db->insert('odeme1', [
+        'odeme_no' => $odeme_no,
+        'sozlesme_id' => $sozlesme_id,
+        'kasa_id' => $kasa_id,
+        'yontem_id' => $yontem_id,
+        'tutar' => $odenecek_tutar,
+        'odeme_tarihi' => $simdikitarih,
+        'aciklama' => $aciklama,
+        'personel_id' => $personel_id,
+        'created_at' => $simdikitarih
+    ]);
     $odeme_id = (is_array($insOdeme) && isset($insOdeme['id'])) ? (int) $insOdeme['id'] : 0;
     if (!$odeme_id) {
-        throw new Exception('Ödeme kaydı oluşturulamadı.');
+        throw new Exception('Ödeme kaydı oluşturulamadı. (odeme1 insert başarısız)');
     }
 
     /* 5.2 dagitim’daki HER taksit için: odeme1_taksit INSERT + taksit1 UPDATE */
@@ -200,11 +206,12 @@ try {
         $this_tutar = (float) $d['tutar'];
 
         // odeme1_taksit
-        $db->insert(
-            'odeme1_taksit',
-            ['odeme_id', 'taksit_id', 'sozlesme_id', 'tutar'],
-            [$odeme_id, $this_taksit_id, $sozlesme_id, $this_tutar]
-        );
+        $db->insert('odeme1_taksit', [
+            'odeme_id' => $odeme_id,
+            'taksit_id' => $this_taksit_id,
+            'sozlesme_id' => $sozlesme_id,
+            'tutar' => $this_tutar
+        ]);
 
         // ilgili taksidin mevcut odendi_tutar'ını çek (transaction içindeyiz, tekrar çekmek güvenli)
         $curr = $db->gets("
@@ -219,22 +226,28 @@ try {
         $new_odenen = $curr_odenen + $this_tutar;
         $new_durum = ($new_odenen + 0.01 >= $curr_tutar) ? 1 : 0;
 
-        // taksit1 UPDATE → senin update fonksiyonuna göre
-        $db->update(
-            'taksit1',
-            ['odendi_tutar', 'durum'],
-            [$new_odenen, $new_durum],
-            'taksit_id',
-            $this_taksit_id
-        );
+        // taksit1 UPDATE
+        $db->update('taksit1', [
+            'odendi_tutar' => $new_odenen,
+            'durum' => $new_durum
+        ], 'taksit_id', $this_taksit_id);
     }
 
     /* 5.3 kasa_hareketleri1 INSERT → tek satır, toplam tutar */
-    $db->insert(
-        'kasa_hareketleri1',
-        ['kasa_id', 'odeme_id', 'sozlesme_id', 'ogrenci_id', 'yon', 'hareket_tipi', 'hareket_tur_id', 'tutar', 'aciklama', 'hareket_tarihi', 'created_at', 'created_by'],
-        [$kasa_id, $odeme_id, $sozlesme_id, $ogrenci_id, 'GIRIS', 'TAHSILAT', $yontem_id, $odenecek_tutar, $aciklama, $simdikitarih, $simdikitarih, $personel_id]
-    );
+    $db->insert('kasa_hareketleri1', [
+        'kasa_id' => $kasa_id,
+        'odeme_id' => $odeme_id,
+        'sozlesme_id' => $sozlesme_id,
+        'ogrenci_id' => $ogrenci_id,
+        'yon' => 'GIRIS',
+        'hareket_tipi' => 'TAHSILAT',
+        'hareket_tur_id' => $yontem_id,
+        'tutar' => $odenecek_tutar,
+        'aciklama' => $aciklama,
+        'hareket_tarihi' => $simdikitarih,
+        'created_at' => $simdikitarih,
+        'created_by' => $personel_id
+    ]);
 
     /* 5.4 Loglama */
     $db->log('odeme1', $odeme_id, 'EKLEME', 'Taksit tahsilatı yapıldı: ' . number_format($odenecek_tutar, 2, ',', '.') . ' ₺');
