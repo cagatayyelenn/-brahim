@@ -179,6 +179,11 @@ if ($sozlesmeler) {
                                             <td class="text-danger fw-bold"><?= number_format($kalan, 2, ',', '.') ?> ₺</td>
                                             <td><span class="badge bg-<?= $durumClass ?>"><?= $durumText ?></span></td>
                                             <td class="text-end">
+                                                <?php if ($t['odenen'] > 0): ?>
+                                                    <a class="btn btn-light btn-sm me-1"
+                                                        href="odeme-belge.php?taksit=<?= (int) $t['taksit_id'] ?>"
+                                                        target="_blank" title="Makbuz"><i class="ti ti-receipt"></i></a>
+                                                <?php endif; ?>
                                                 <?php if ($kalan > 0): ?>
                                                     <button class="btn btn-primary btn-sm btn-ode"
                                                         data-taksit-id="<?= $t['taksit_id'] ?>" data-ogrenci-id="<?= $ogrenci_id ?>"
