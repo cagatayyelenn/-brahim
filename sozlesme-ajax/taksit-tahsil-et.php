@@ -197,7 +197,8 @@ try {
     ]);
     $odeme_id = (is_array($insOdeme) && isset($insOdeme['id'])) ? (int) $insOdeme['id'] : 0;
     if (!$odeme_id) {
-        throw new Exception('Ödeme kaydı oluşturulamadı. (odeme1 insert başarısız)');
+        $errDetail = isset($insOdeme['message']) ? $insOdeme['message'] : 'Bilinmeyen hata';
+        throw new Exception('Ödeme kaydı oluşturulamadı (odeme1). Detay: ' . $errDetail);
     }
 
     /* 5.2 dagitim’daki HER taksit için: odeme1_taksit INSERT + taksit1 UPDATE */
